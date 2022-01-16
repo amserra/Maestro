@@ -1,0 +1,293 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html data-theme="garden" lang="en">
+    <head>
+        <title>
+            {% block title %}
+            {% endblock title %}
+        </title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <script src="//unpkg.com/alpinejs" defer></script>
+        {% tailwind_css %}
+    </head>
+
+    <body class="flex flex-col h-screen">
+
+        <div class="w-full">
+            <nav role="navigation" class="bg-white shadow xl:block hidden">
+                <div class="mx-auto container px-6 py-2 xl:py-0">
+                    <div class="flex items-center justify-between">
+                        <button class="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded-md flex w-full sm:w-auto items-center sm:items-stretch justify-end sm:justify-start">
+                            <div  class="flex items-center">
+                                <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg3.svg" alt="logo" />
+                                <h2 class="hidden sm:block text-base text-gray-700 font-bold leading-normal px-3">Maestro</h2>
+                            </div>
+                        </button>
+                        <div class="flex">
+                            <div class="hidden xl:flex md:mr-6 xl:mr-16">
+                                {% if user.is_authenticated %}
+                                    <a href="javascript: void(0)" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                        <span class="mr-2">
+                                            <img class="icon icon-tabler icon-tabler-grid" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg4.svg" alt="dashboard" />
+                                        </span>
+                                        Dashboard
+                                    </a>
+                                    <a href="javascript: void(0)" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                        <span class="mr-2">
+                                            <img class="icon icon-tabler icon-tabler-puzzle" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg5.svg" alt="plugins" />
+                                        </span>
+                                        Plugins
+                                    </a>
+                                    <a href="javascript: void(0)" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                        <span class="mr-2">
+                                            <img class="icon icon-tabler icon-tabler-compass" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg6.svg" alt="performance" />
+                                        </span>
+                                        Performance
+                                    </a>
+                                    <a href="javascript: void(0)" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                        <span class="mr-2">
+                                            <img class="icon icon-tabler icon-tabler-code" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg7.svg" alt="deliverables" />
+                                        </span>
+                                        Deliverables
+                                    </a>
+                                {% else %}
+                                    <a href="javascript: void(0)" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                        <span class="mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-help" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="17" x2="12" y2="17.01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
+                                        </span>
+                                        About
+                                    </a>
+                                    <a href="javascript: void(0)" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                        <span class="mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-route" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="6" cy="19" r="2" /><circle cx="18" cy="5" r="2" /><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5" /></svg>
+                                        </span>
+                                        Roadmap
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="hidden xl:flex items-center">
+                                <div class="ml-6 relative">
+                                    {% if user.is_authenticated %}
+                                        <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent focus:border-indigo-700 py-3  focus:text-indigo-700 text-gray-600 hover:text-indigo-700 flex items-center relative" onclick="dropdownHandler(this)">
+                                            <ul class="p-2 w-40 border-r bg-white absolute rounded right-0 shadow top-0 mt-16 hidden">
+                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                                    <a href="" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" /><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                                        <span class="ml-2">My Profile</span>
+                                                    </a>
+                                                </li>
+                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-2 py-2 hover:text-indigo-700 flex items-center focus:text-indigo-700 focus:outline-none">
+                                                    <a href="{% url 'logout' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
+                                                        <span class="ml-2">Logout</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            <div class="cursor-pointer flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-white transition duration-150 ease-in-out">
+                                                <img class="rounded-full h-10 w-10 object-cover" src="https://tuk-cdn.s3.amazonaws.com/assets/components/horizontal_navigation/hn_2.png" alt="logo" />
+                                            </div>
+                                            <div class="ml-2">
+                                                <img class="icon icon-tabler icon-tabler-chevron-down cursor-pointer" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg8.svg" alt="chevron down" />
+                                            </div>
+                                        </button>
+                                    {% else %}
+                                        <a href="{% url 'login' %}" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 font-bold hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                            <span class="mr-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-login" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M20 12h-13l3 -3m0 6l-3 -3" /></svg>
+                                            </span>
+                                            Access
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!--Mobile -->
+            <nav>
+                <div class="py-4 px-6 w-full flex xl:hidden justify-between items-center bg-white fixed top-0 z-40">
+                    <div aria-label="logo" role="img" tabindex="0" class="focus:outline-none w-24">
+                        <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg9.svg" alt="logo" />
+                    </div>
+                    <div class="flex items-center">
+                        <button id="menu" aria-label="open menu" class="focus:outline-none focus:ring-2 focus:ring-gray-600 rounded-md text-gray-800" onclick="sidebarHandler(true)">
+                            <img class="icon icon-tabler icon-tabler-menu-2" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg10.svg" alt="menu" />
+                        </button>
+                    </div>
+                </div>
+
+                <div class="absolute w-full h-full transform -translate-x-full z-40 xl:hidden" id="mobile-nav">
+                    <div class="bg-gray-800 opacity-50 w-full h-full" onclick="sidebarHandler(false)"></div>
+                    <div class="w-64 z-40 fixed overflow-y-auto top-0 bg-white shadow h-full flex-col justify-between xl:hidden pb-4 transition duration-150 ease-in-out">
+                        <div class="px-6 h-full">
+                            <div class="flex flex-col justify-between h-full w-full">
+                                <div>
+                                    <div class="mt-6 flex w-full items-center justify-between">
+                                        <div class="flex items-center justify-between w-full">
+                                            <div class="flex items-center">
+                                                <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg9.svg" alt="logo" />
+                                                <p tabindex="0" class="focus:outline-none text-base md:text-2xl text-gray-800 ml-3">Maestro</p>
+                                            </div>
+                                            <button id="cross" aria-label="close menu" class="focus:outline-none focus:ring-2 rounded-md text-gray-800" onclick="sidebarHandler(false)">
+                                                <img class="icon icon-tabler icon-tabler-x" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg11.svg" alt="cross" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <ul class="f-m-m">
+                                        <li>
+                                            <a class="cursor-pointer">
+                                                <div class="text-gray-800 pt-10">
+                                                    <div class="flex items-center">
+                                                        <div class="w-6 h-6 md:w-8 md:h-8 text-indigo-700">
+                                                            <img class="icon icon-tabler icon-tabler-grid" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg12.svg" alt="dashboard" />
+                                                        </div>
+                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-indigo-700 xl:text-base text-base ml-3">Dashboard</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="cursor-pointer">
+                                                <div class="text-gray-800 pt-8">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center">
+                                                            <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
+                                                                <img class="icon icon-tabler icon-tabler-puzzle" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg13.svg" alt="plugins" />
+                                                            </div>
+                                                            <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 xl:text-base md:text-2xl text-base ml-3">Plugins</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="cursor-pointer">
+                                                <div class="text-gray-800 pt-8">
+                                                    <div class="flex items-center">
+                                                        <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
+                                                            <img class="icon icon-tabler icon-tabler-compass" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg14.svg" alt="performance" />
+                                                        </div> 
+                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 xl:text-base md:text-2xl text-base ml-3">Performance</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li class="text-gray-800 pt-8 cursor-pointer">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
+                                                        <img class="icon icon-tabler icon-tabler-code" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg15.svg" alt="deliverables" />
+                                                    </div>
+                                                    <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 xl:text-base md:text-2xl text-base ml-3">Deliverables</p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="w-full pt-4">
+                                    <div class="border-t border-gray-300">
+                                        <div class="w-full flex items-center justify-between pt-1">
+                                            <div class="flex items-center">
+                                                <img alt="profile-pic" src="https://tuk-cdn.s3.amazonaws.com/assets/components/boxed_layout/bl_1.png" tabindex="0" class="focus:outline-none  w-8 h-8 rounded-md" />
+                                                <p tabindex="0" class="focus:outline-none text-gray-800 text-base leading-4 ml-2">Jane Doe</p>
+                                            </div>
+                                            <ul class="flex">
+                                                <li class="cursor-pointer text-gray-800 pt-5 pb-3">
+                                                    <div tabindex="0" class="focus:outline-none focus:text-indigo-600 w-6 h-6 md:w-8 md:h-8">
+                                                        <img class="icon icon-tabler icon-tabler-messages" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg17.svg" alt="chat" />
+                                                    </div>
+                                                </li>
+                                                <li class="cursor-pointer text-gray-800 pt-5 pb-3 pl-3">
+                                                    <div tabindex="0" class="focus:outline-none focus:text-indigo-600 w-6 h-6 md:w-8 md:h-8">
+                                                        <img class="icon icon-tabler icon-tabler-bell" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg18.svg" alt="bell" />
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Code block ends -->
+        </div>
+
+        {% for message in messages %}
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 10000)" x-transition class="flex items-center justify-center absolute bottom-6 right-2">
+                <div role="alert" id="alert" class="w-full lg:w-11/12 mx-auto bg-white shadow rounded flex flex-col py-4 md:py-0 items-center md:flex-row justify-between">
+                    <div class="flex flex-col items-center md:flex-row">
+                        <div class="mr-3 p-4 bg-green-400 rounded md:rounded-tr-none md:rounded-br-none text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check focus:outline-none" width="22" height="22" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" stroke="white" /><path d="M9 12l2 2l4 -4" stroke="white" /></svg>
+                        </div>
+                        <p class="text-sm lg:text-base text-black lg:pt-1 xl:pt-0 sm:mb-0 mb-2 text-center sm:text-left">
+                            {{ message }}
+                        </p>
+                    </div>
+                    <div class="flex xl:items-center lg:items-center sm:justify-end justify-center px-4">
+                        <button x-on:click="show = false" class="focus:outline-none focus:text-gray-400 hover:text-gray-400 text-sm cursor-pointer text-gray-600">Dismiss</button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    
+        <script>
+            function dropdownHandler(element) {
+                let single = element.getElementsByTagName("ul")[0];
+                single.classList.toggle("hidden");
+            }
+            function MenuHandler(el, val) {
+                let MainList = el.parentElement.parentElement.getElementsByTagName("ul")[0];
+                let closeIcon = el.parentElement.parentElement.getElementsByClassName("close-m-menu")[0];
+                let showIcon = el.parentElement.parentElement.getElementsByClassName("show-m-menu")[0];
+                if (val) {
+                    MainList.classList.remove("hidden");
+                    el.classList.add("hidden");
+                    closeIcon.classList.remove("hidden");
+                } else {
+                    showIcon.classList.remove("hidden");
+                    MainList.classList.add("hidden");
+                    el.classList.add("hidden");
+                }
+            }
+            // ------------------------------------------------------
+            let sideBar = document.getElementById("mobile-nav");
+            let menu = document.getElementById("menu");
+            let cross = document.getElementById("cross");
+            const sidebarHandler = (check) => {
+                if (check) {
+                    sideBar.style.transform = "translateX(0px)";
+                    menu.classList.add("hidden");
+                    cross.classList.remove("hidden");
+                } else {
+                    sideBar.style.transform = "translateX(-100%)";
+                    menu.classList.remove("hidden");
+                    cross.classList.add("hidden");
+                }
+            };
+            let list = document.getElementById("list");
+            let chevrondown = document.getElementById("chevrondown");
+            let chevronup = document.getElementById("chevronup");
+            const listHandler = (check) => {
+                if (check) {
+                    list.classList.remove("hidden");
+                    chevrondown.classList.remove("hidden");
+                    chevronup.classList.add("hidden");
+                } else {
+                    list.classList.add("hidden");
+                    chevrondown.classList.add("hidden");
+                    chevronup.classList.remove("hidden");
+                }
+            };
+        </script>
+
+        {% block content %}
+        {% endblock content %}
+    </body>
+</html>
