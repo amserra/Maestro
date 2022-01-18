@@ -6,6 +6,8 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL='/media/'
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,8 +31,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'tailwind',
     'theme',
+    'widget_tweaks',
+    'imagekit',
     'common',
     'account',
 ]
@@ -50,7 +55,7 @@ ROOT_URLCONF = 'maestro.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -142,3 +147,8 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Allows to specify different default widgets
+# https://timonweb.com/django/overriding-field-widgets-in-django-doesnt-work-template-not-found-the-solution/
+# https://docs.djangoproject.com/en/4.0/ref/forms/renderers/#django.forms.renderers.TemplatesSetting
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
