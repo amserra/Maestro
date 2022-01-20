@@ -1,0 +1,8 @@
+{% load widget_tweaks %}
+
+{% for field in form %}
+    <div class="xl:w-1/4 lg:w-1/2 md:w-1/2 flex flex-col mb-6">
+        {{ field.label_tag }}
+        {{ field }}
+    </div>
+{% endfor %}
