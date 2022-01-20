@@ -1,4 +1,6 @@
 {% load static tailwind_tags %}
+{% load static %}
+
 <!DOCTYPE html>
 <html data-theme="garden" lang="en">
     <head>
@@ -19,12 +21,13 @@
             <nav role="navigation" class="bg-white shadow xl:block hidden">
                 <div class="mx-auto container px-6 py-2 xl:py-0">
                     <div class="flex items-center justify-between">
-                        <button class="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 rounded-md flex w-full sm:w-auto items-center sm:items-stretch justify-end sm:justify-start">
+                        <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-full sm:w-auto items-center sm:items-stretch justify-end sm:justify-start">
                             <div  class="flex items-center">
+{#                                <img src="{% static 'common/logo.jpeg' %}" width="400" height="400" alt="logo" />#}
                                 <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg3.svg" alt="logo" />
                                 <h2 class="hidden sm:block text-base text-gray-700 font-bold leading-normal px-3">Maestro</h2>
                             </div>
-                        </button>
+                        </a>
                         <div class="flex">
                             <div class="hidden xl:flex md:mr-6 xl:mr-16">
                                 {% if user.is_authenticated %}
@@ -70,15 +73,23 @@
                             <div class="hidden xl:flex items-center">
                                 <div class="ml-6 relative">
                                     {% if user.is_authenticated %}
-                                        <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent focus:border-indigo-700 py-3  focus:text-indigo-700 text-gray-600 hover:text-indigo-700 flex items-center relative" onclick="dropdownHandler(this)">
+                                        <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent focus:border-indigo-700 py-3 focus:text-indigo-700 text-gray-600 hover:text-indigo-700 flex items-center relative" onclick="dropdownHandler(this)">
                                             <ul class="p-2 w-40 border-r bg-white absolute rounded right-0 shadow top-0 mt-16 hidden">
                                                 <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
-                                                    <a href="" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                    <a href="{% url 'profile' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" /><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
                                                         <span class="ml-2">My Profile</span>
                                                     </a>
                                                 </li>
-                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-2 py-2 hover:text-indigo-700 flex items-center focus:text-indigo-700 focus:outline-none">
+                                                {% if user.is_staff %}
+                                                    <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-2 py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                                        <a href="{% url 'admin:index' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crown" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4z" /></svg>
+                                                            <span class="ml-2">Admin Panel</span>
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-2 py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
                                                     <a href="{% url 'logout' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
                                                         <span class="ml-2">Logout</span>
@@ -86,7 +97,7 @@
                                                 </li>
                                             </ul>
                                             <div class="cursor-pointer flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-white transition duration-150 ease-in-out">
-                                                <img class="rounded-full h-10 w-10 object-cover" src="https://tuk-cdn.s3.amazonaws.com/assets/components/horizontal_navigation/hn_2.png" alt="logo" />
+                                                <img class="rounded-full h-10 w-10 object-cover" src="{{ request.user.avatar.url }}" alt="logo" />
                                             </div>
                                             <div class="ml-2">
                                                 <img class="icon icon-tabler icon-tabler-chevron-down cursor-pointer" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg8.svg" alt="chevron down" />

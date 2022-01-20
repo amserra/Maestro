@@ -7,7 +7,7 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL='/media/'
+MEDIA_URL = '/media/'
 
 
 # Quick-start development settings - unsuitable for production
@@ -152,3 +152,5 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # https://timonweb.com/django/overriding-field-widgets-in-django-doesnt-work-template-not-found-the-solution/
 # https://docs.djangoproject.com/en/4.0/ref/forms/renderers/#django.forms.renderers.TemplatesSetting
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
+LOGGED_IN_HOME = '/'

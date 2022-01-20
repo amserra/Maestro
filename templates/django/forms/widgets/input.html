@@ -1,1 +1,6 @@
-<input type="{{ widget.type }}" class="bg-red-400" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+{% if "readonly" in widget.attrs.values %}
+{#    Disabled case. Changes the background property, cursor type and outline (ring) to disappear on focus #}
+    <input class="border border-gray-300 pl-3 py-3 shadow-sm bg-gray-100 rounded text-sm focus:border-gray-300 focus:ring-0 placeholder-gray-500 text-gray-600 cursor-default" type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+{% else %}
+    <input class="border border-gray-300 pl-3 py-3 shadow-sm bg-transparent rounded text-sm focus:ring-0 focus:border-indigo-700 placeholder-gray-500 text-gray-600" type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+{% endif %}
