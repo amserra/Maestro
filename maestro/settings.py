@@ -154,3 +154,4 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 LOGGED_IN_HOME = '/'
+LOGIN_URL = 'login'

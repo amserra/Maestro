@@ -1,4 +1,5 @@
 from django.contrib.auth import update_session_auth_hash, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
@@ -110,7 +111,7 @@ class ActivateUserView(SuccessMessageMixin, View):
             return render(request, 'account/activation_fail.html')
 
 
-class ProfileView(SuccessMessageMixin, UpdateView):
+class ProfileView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     template_name = 'account/profile.html'
     success_url = reverse_lazy('profile')
     model = User
