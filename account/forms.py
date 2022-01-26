@@ -3,14 +3,34 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 
 from .models import User
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm
 from imagekit.forms import ProcessedImageField
 from imagekit.processors import ResizeToFill
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 from django.core.exceptions import ValidationError
 
 
+class CustomPasswordResetForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label='New password',
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
+    )
+    new_password2 = forms.CharField(
+        label='New password confirmation',
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
+    )
+
+
 class CustomAuthenticationForm(AuthenticationForm):
+    username = forms.EmailField(widget=forms.EmailInput(attrs={'autofocus': True}))
+    password = forms.CharField(
+        label='Password',
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'}),
+    )
+
     error_messages = {
         'invalid_login': 'Invalid email/password combination',
         'inactive': 'This account is not active yet. Please check your email',
@@ -42,6 +62,17 @@ class CustomAuthenticationForm(AuthenticationForm):
 
 
 class UserRegisterForm(UserCreationForm):
+    password1 = forms.CharField(
+        label='Password',
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'})
+    )
+    password2 = forms.CharField(
+        label='Password confirmation',
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'})
+    )
+
     error_messages = {
         'missing_first_name': 'Please provide the first name',
         'missing_last_name': 'Please provide the last name',
