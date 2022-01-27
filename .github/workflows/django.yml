@@ -49,7 +49,9 @@ jobs:
                   DATABASE_PASSWORD: postgres
                   DATABASE_HOST: localhost
                   DATABASE_PORT: 5432
-              run: python manage.py migrate
+              run: |
+                  python manage.py makemigrations account
+                  python manage.py migrate
             - name: Run Tests
               env:
                   DATABASE_NAME: maestro_db
