@@ -10,6 +10,7 @@ from django.contrib.auth.hashers import check_password, make_password, is_passwo
 from django.core.exceptions import ValidationError
 
 
+# The only different from SetPasswordForm is the removal of the help text
 class CustomPasswordResetForm(SetPasswordForm):
     new_password1 = forms.CharField(
         label='New password',
@@ -76,6 +77,7 @@ class UserRegisterForm(UserCreationForm):
     error_messages = {
         'missing_first_name': 'Please provide the first name',
         'missing_last_name': 'Please provide the last name',
+        'password_mismatch': 'The two password fields didn’t match',
     }
 
     def clean(self):
@@ -105,8 +107,8 @@ class ProfileUpdateForm(forms.ModelForm):
         'new_password_not_usable': 'The new password you provided can\'t be used. Please provide another',
     }
 
-    avatar = ProcessedImageField(spec_id='account:user:avatar', processors=[ResizeToFill(100, 100)], format='JPEG')
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'readonly': 'readonly'}))
+    avatar = ProcessedImageField(spec_id='account:user:avatar', processors=[ResizeToFill(100, 100)], format='JPEG', required=False)
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'readonly': 'readonly'}), disabled=True, required=False)
     old_password = forms.CharField(widget=forms.PasswordInput, required=False)
     new_password = forms.CharField(widget=forms.PasswordInput, required=False)
     new_password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
@@ -139,11 +141,13 @@ class ProfileUpdateForm(forms.ModelForm):
                 self.add_error('old_password', self.error_messages['old_password_ne_password'])
             elif not is_password_usable(make_password(new_password)):
                 self.add_error('new_password', self.error_messages['new_password_not_usable'])
+                self.add_error('new_password_confirmation', self.error_messages['new_password_not_usable'])
             else:
                 try:
                     validate_password(new_password, self.user)
                 except ValidationError:
                     self.add_error('new_password', self.error_messages['new_password_not_usable'])
+                    self.add_error('new_password_confirmation', self.error_messages['new_password_not_usable'])
 
     class Meta:
         model = User
