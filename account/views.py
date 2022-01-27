@@ -34,6 +34,7 @@ def get_identicon(email, image_format='jpg', size=100):
     url = f'https://www.gravatar.com/avatar/{email_hash}.{image_format}?d=identicon&s={size}'
     response = requests.get(url)
     image_bytes = BytesIO(response.content)
+    a = 0
     return email_hash, image_bytes
 
 
