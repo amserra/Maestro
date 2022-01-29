@@ -76,7 +76,6 @@ class LoginViewTests(TestCase):
         self.assertContains(response, "Login to your account", html=True)
 
     def test_page_name(self):
-        response = self.client.get(reverse('login'))
         self.assertEqual('/login/', reverse('login'))
 
     def test_page_template(self):
