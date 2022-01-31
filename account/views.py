@@ -39,7 +39,7 @@ def get_identicon(email, image_format='jpg', size=100):
 
 def get_default_image(email):
     email_hash = md5(email.lower().encode('utf-8')).hexdigest()
-    url = finders.find('common/default_avatar.png')
+    url = finders.find('organization/default_avatar.png')
     with open(url, "rb") as fp:
         image_bytes = BytesIO(fp.read())
         return email_hash, image_bytes

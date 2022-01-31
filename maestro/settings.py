@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'imagekit',
     'common',
     'account',
+    'organization',
 ]
 
 MIDDLEWARE = [

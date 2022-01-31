@@ -15,7 +15,7 @@
         {% tailwind_css %}
     </head>
 
-    <body class="flex flex-col h-screen">
+    <body class="flex flex-col h-screen bg-gray-100">
 
         <div class="w-full">
             <nav role="navigation" class="bg-white shadow xl:block hidden">
@@ -23,7 +23,7 @@
                     <div class="flex items-center justify-between">
                         <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-full sm:w-auto items-center sm:items-stretch justify-end sm:justify-start">
                             <div  class="flex items-center">
-{#                                <img src="{% static 'common/logo.jpeg' %}" width="400" height="400" alt="logo" />#}
+{#                                <img src="{% static 'organization/logo.jpeg' %}" width="400" height="400" alt="logo" />#}
                                 <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg3.svg" alt="logo" />
                                 <h2 class="hidden sm:block text-base text-gray-700 font-bold leading-normal px-3">Maestro</h2>
                             </div>
@@ -65,18 +65,24 @@
                                                 <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
                                                     <a href="{% url 'profile' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" /><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
-                                                        <span class="ml-2">My Profile</span>
+                                                        <span class="ml-2">My profile</span>
+                                                    </a>
+                                                </li>
+                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                                    <a href="{% url 'organizations-list' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M21 21v-2a4 4 0 0 0 -3 -3.85" /></svg>
+                                                        <span class="ml-2">My organizations</span>
                                                     </a>
                                                 </li>
                                                 {% if user.is_staff %}
-                                                    <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-2 py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                                    <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
                                                         <a href="{% url 'admin:index' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crown" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4z" /></svg>
                                                             <span class="ml-2">Admin Panel</span>
                                                         </a>
                                                     </li>
                                                 {% endif %}
-                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-2 py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                                <li class="border-t-2 border-gray-200 cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
                                                     <a href="{% url 'logout' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
                                                         <span class="ml-2">Logout</span>

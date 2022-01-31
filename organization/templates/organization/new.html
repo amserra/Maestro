@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Create an Organization
+{% endblock %}
+
+{% block content %}
+    <div class="page-container h-3/4 lg:max-w-min">
+        <div class="xl:w-full py-5 mb-6">
+            <div class="flex flex-row">
+                <div class="flex w-11/12 mx-auto xl:w-full xl:mx-0 items-center mb-10">
+                    <p class="text-2xl text-gray-800 font-bold">Create an organization</p>
+                </div>
+            </div>
+            <form method="post" class="w-64">
+                {% csrf_token %}
+                {{ form.as_ul }}
+                <input type="submit" value="Create organization" role="button" class="btn-primary mt-6"/>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
