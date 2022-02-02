@@ -1,1 +1,13 @@
-{% include "django/forms/widgets/input.html" %}
+{% load my_filters %}
+
+<input  class="
+            w-4 h-4 bg-gray-50 rounded border border-gray-300 focus:ring-blue-300
+            {% if "readonly" in widget.attrs.values %}
+            focus:ring-0 cursor-default text-gray-400
+            {% else %}
+            focus:ring-3 cursor-pointer
+            {% endif %}"
+        type="{{ widget.type }}"
+        name="{{ widget.name }}"
+        {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
+        {% include "django/forms/widgets/attrs.html" %} {% if "readonly" in widget.attrs.values %}disabled{% endif %}>

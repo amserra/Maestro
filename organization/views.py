@@ -3,11 +3,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, UpdateView
 from datetime import datetime as dt
 from django.contrib import messages
 from common.mixins.SafePaginationMixin import SafePaginationMixin
-from .forms import OrganizationCreateForm
+from .authorization import UserIsOwner
+from .forms import OrganizationCreateForm, OrganizationSettingsForm
 from .models import Organization, Membership
 
 
@@ -40,6 +41,16 @@ class OrganizationCreateView(SuccessMessageMixin, LoginRequiredMixin, CreateView
         # Create membership object for the user creating the organization, and assign him as accepted and owner
         Membership.objects.create(user=self.request.user, organization=organization, has_accepted=True, join_date=dt.now(), is_owner=True)
         return super().form_valid(form)
+
+
+class OrganizationSettingsView(LoginRequiredMixin, UserIsOwner, SuccessMessageMixin, UpdateView):
+    template_name = 'organization/settings.html'
+    success_url = reverse_lazy('organizations-list')
+    model = Organization
+    form_class = OrganizationSettingsForm
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
+    success_message = 'Your have updated the organization\'s settings'
 
 
 # - If user is the only owner of the organization:

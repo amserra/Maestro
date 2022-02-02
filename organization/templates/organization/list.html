@@ -29,7 +29,7 @@
                                         </td>
                                         <td class="py-4 px-6 text-sm font-medium text-right whitespace-nowrap">
                                             {% if organization in organizations_user_owner %}
-                                                <a href="#" class="text-blue-600 hover:text-blue-900:underline">Settings</a>
+                                                <a href="{% url 'organizations-settings' organization.code %}" class="text-blue-600 hover:text-blue-900:underline">Settings</a>
                                             {% endif %}
                                         </td>
                                         <td class="py-4 px-6 text-sm font-medium text-right whitespace-nowrap">

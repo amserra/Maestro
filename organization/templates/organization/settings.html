@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Create an organization
+    Update settings organization
 {% endblock %}
 
 {% block content %}
@@ -9,13 +9,14 @@
         <div class="xl:w-full py-5 mb-6">
             <div class="flex flex-row">
                 <div class="flex w-11/12 mx-auto xl:w-full xl:mx-0 items-center mb-10">
-                    <p class="text-2xl text-gray-800 font-bold">Create an organization</p>
+                    <p class="text-2xl text-gray-800 font-bold">Update settings</p>
                 </div>
             </div>
             <form method="post" class="w-64">
                 {% csrf_token %}
                 {{ form.as_ul }}
-                <input type="submit" value="Create organization" role="button" class="btn-primary mt-6"/>
+                <input type="submit" value="Update settings" role="button" class="btn-primary mt-6"/>
+                <a type="button" href="{% url 'organizations-list' %}" class="btn-cancel mt-1">Cancel</a>
             </form>
         </div>
     </div>

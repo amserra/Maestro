@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.OrganizationListView.as_view(), name='organizations-list'),
     path('new/', views.OrganizationCreateView.as_view(), name='organizations-new'),
     path('leave/', views.organization_leave, name='organizations-leave'),
+    path('settings/<str:code>', views.OrganizationSettingsView.as_view(), name='organizations-settings'),
 ]

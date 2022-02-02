@@ -1,21 +1,46 @@
 {% for field, errors in fields %}
-    <div class="flex flex-col mb-6 {{ field.css_classes }}">
-        {% if field.label %}
-            <div class="pb-2">
-                {{ field.label_tag|cut:":" }}
-                {% if field.field.required %} * {% endif %}
+    {% if field.widget_type == 'checkbox' %}
+            <div class="flex flex-col mb-6 {{ field.css_classes }}">
+                <div class="flex flex-row">
+                    <div class="mr-2">
+                        {{ field }}
+                    </div>
+                    {% if field.label %}
+                        <div>
+                            {{ field.label_tag|cut:":" }}
+                            {% if field.field.required %} * {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if field.help_text %}
+                <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+                {% endif %}
+                {% if field.errors %}
+                    <p class="text-sm mt-2 font-medium leading-none text-red-600">
+                        {{ field.errors.as_text|cut:"* " }}
+                    </p>
+                {% endif %}
             </div>
-        {% endif %}
-        {{ field }}
-        {% if field.help_text %}
-          <span class="helptext">{{ field.help_text }}</span>
-        {% endif %}
-        {% if field.errors %}
-            <p class="text-sm mt-2 font-medium leading-none text-red-600">
-                {{ field.errors.as_text|cut:"* " }}
-            </p>
-        {% endif %}
-    </div>
+    {% else %}
+        <div class="flex flex-col mb-6 {{ field.css_classes }}">
+            {% if field.label %}
+                <div class="pb-2">
+                    {{ field.label_tag|cut:":" }}
+                    {% if field.field.required %} * {% endif %}
+                </div>
+            {% endif %}
+            {{ field }}
+            {% if field.help_text %}
+              <span class="helptext">{{ field.help_text }}</span>
+            {% endif %}
+            {% if field.errors %}
+                <p class="text-sm mt-2 font-medium leading-none text-red-600">
+                    {{ field.errors.as_text|cut:"* " }}
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
+
     {% if forloop.last %}
       {% for field in hidden_fields %}{{ field }}{% endfor %}
     {% endif %}
