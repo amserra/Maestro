@@ -138,6 +138,9 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+# TODO: change when we have domain
+ALLOWED_HOSTS = ['*']
+
 AUTH_USER_MODEL = 'account.User'
 
 # Email settings
