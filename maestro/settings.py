@@ -17,7 +17,7 @@ MEDIA_URL = '/media/'
 SECRET_KEY = 'django-insecure-x)8%3+39sp_2danx9718whj6mr#7j1+5q(2p%ij3=4hg^p997d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
 ALLOWED_HOSTS = []
 
@@ -156,3 +156,6 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 LOGGED_IN_HOME = '/'
 LOGIN_URL = 'login'
+
+if not DEBUG:
+    NPM_BIN_PATH = 'c:\\Program Files\\nodejs\\npm'
