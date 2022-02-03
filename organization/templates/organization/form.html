@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+    <div class="page-container">
+        <p class="title">{{ title }}</p>
+        <form method="post" class="w-full mt-8">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <input type="submit" value="Update settings" role="button" class="btn-primary mt-4"/>
+            <a type="button" href="{% url 'organizations-list' %}" class="btn-cancel mt-1">Cancel</a>
+        </form>
+    </div>
+{% endblock content %}

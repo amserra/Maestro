@@ -18,8 +18,8 @@
     <body class="flex flex-col h-screen bg-gray-100">
 
         <div class="w-full">
-            <nav role="navigation" class="bg-white shadow xl:block hidden">
-                <div class="mx-auto container px-6 py-2 xl:py-0">
+            <nav role="navigation" class="bg-white shadow lg:block hidden">
+                <div class="mx-auto container px-6 py-2 lg:py-0">
                     <div class="flex items-center justify-between">
                         <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-full sm:w-auto items-center sm:items-stretch justify-end sm:justify-start">
                             <div  class="flex items-center">
@@ -29,7 +29,7 @@
                             </div>
                         </a>
                         <div class="flex">
-                            <div class="hidden xl:flex md:mr-6 xl:mr-16">
+                            <div class="hidden lg:flex md:mr-6 lg:mr-16">
                                 {% if user.is_authenticated %}
                                     <a href="javascript: void(0)" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}">
                                         <span class="mr-2">
@@ -57,7 +57,7 @@
                                     Roadmap
                                 </a>
                             </div>
-                            <div class="hidden xl:flex items-center">
+                            <div class="hidden lg:flex items-center">
                                 <div class="ml-6 relative">
                                     {% if user.is_authenticated %}
                                         <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent focus:border-indigo-700 py-3 focus:text-indigo-700 text-gray-600 hover:text-indigo-700 flex items-center relative" x-data="{profileOpen: false}" @click="profileOpen=!profileOpen" @click.outside="profileOpen=false">
@@ -113,7 +113,7 @@
 
             <!--Mobile -->
             <nav class="shadow" x-data="{ open: false }">
-                <div class="py-4 px-6 w-full flex xl:hidden justify-between items-center bg-white fixed top-0 z-40">
+                <div class="py-4 px-6 w-full flex lg:hidden justify-between items-center bg-white fixed top-0 z-40">
                     <div aria-label="logo" role="img" tabindex="0" class="focus:outline-none w-24">
                         <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg9.svg" alt="logo" />
                     </div>
@@ -123,9 +123,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="absolute w-full h-full z-40 xl:hidden" style="display: none" id="mobile-nav" x-show="open">
+                <div class="absolute w-full h-full z-40 lg:hidden" style="display: none" id="mobile-nav" x-show="open">
                     <div class="bg-gray-800 opacity-50 w-full h-full" x-on:click="open = false"></div>
-                    <div class="w-64 z-40 fixed overflow-y-auto top-0 bg-white shadow h-full flex-col justify-between xl:hidden pb-4 transition duration-150 ease-in-out">
+                    <div class="w-64 z-40 fixed overflow-y-auto top-0 bg-white shadow h-full flex-col justify-between lg:hidden pb-4 transition duration-150 ease-in-out">
                         <div class="px-6 h-full">
                             <div class="flex flex-col justify-between h-full w-full">
                                 <div>
@@ -149,7 +149,7 @@
                                                             <div class="w-6 h-6 md:w-8 md:h-8 text-indigo-700">
                                                                 <img class="icon icon-tabler icon-tabler-grid" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg12.svg" alt="dashboard" />
                                                             </div>
-                                                            <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 xl:text-base md:text-2xl text-base ml-3">Dashboard</p>
+                                                            <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3">Dashboard</p>
                                                         </div>
                                                     </div>
                                                 </a>
@@ -162,7 +162,7 @@
                                                                 <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
                                                                     <img class="icon icon-tabler icon-tabler-puzzle" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg13.svg" alt="plugins" />
                                                                 </div>
-                                                                <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 xl:text-base md:text-2xl text-base ml-3">Plugins</p>
+                                                                <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3">Plugins</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -176,7 +176,7 @@
                                                         <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-help {% if request.path == '/about/' %}active-mobile{% endif %}" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="17" x2="12" y2="17.01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
                                                         </div>
-                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 xl:text-base md:text-2xl text-base ml-3 {% if request.path == '/about/' %}active-mobile{% endif %}">About</p>
+                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3 {% if request.path == '/about/' %}active-mobile{% endif %}">About</p>
                                                     </div>
                                                 </div>
                                             </a>
@@ -188,7 +188,7 @@
                                                         <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-route {% if request.path == '/roadmap/' %}active-mobile{% endif %}" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="6" cy="19" r="2" /><circle cx="18" cy="5" r="2" /><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5" /></svg>
                                                         </div>
-                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 xl:text-base md:text-2xl text-base ml-3 {% if request.path == '/roadmap/' %}active-mobile{% endif %}">Roadmap</p>
+                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3 {% if request.path == '/roadmap/' %}active-mobile{% endif %}">Roadmap</p>
                                                     </div>
                                                 </div>
                                             </a>

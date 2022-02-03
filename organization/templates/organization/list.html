@@ -1,50 +1,45 @@
 {% extends 'base.html' %}
-{% load my_filters %}
 
 {% block title %}
     My Organization
 {% endblock %}
 
 {% block content %}
-    <div class="page-container h-3/4 lg:max-w-min">
-        <div class="xl:w-full py-5 mb-6">
-            <div class="flex flex-row">
-                <div class="flex w-11/12 mx-auto xl:w-full xl:mx-0 items-center mb-10">
+    <div class="page-container">
+        <div class="xl:w-full py-5">
+            <div class="flex flex-row justify-between">
+                <div>
                     <p class="text-2xl text-gray-800 font-bold">Organizations</p>
                 </div>
                 <div>
                     <a href="{% url 'organizations-new' %}" type="button" class="btn-primary">Create organization</a>
                 </div>
             </div>
-            <div class="flex flex-col">
-                <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div class="inline-block py-2 min-w-fit sm:px-6 lg:px-8">
-                        <div class="overflow-hidden shadow-sm sm:rounded-lg">
-                            <table class="min-w-fit">
-                                <tbody>
-                                {% for organization in organizations %}
-                                    <tr class="border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
-                                        <td class="py-4 pl-6 pr-40 text-sm font-medium text-gray-900 whitespace-nowrap">
-                                            {{ organization.name }}
-                                        </td>
-                                        <td class="py-4 px-6 text-sm font-medium text-right whitespace-nowrap">
-                                            {% if organization in organizations_user_owner %}
-                                                <a href="{% url 'organizations-settings' organization.code %}" class="text-blue-600 hover:text-blue-900:underline">Settings</a>
-                                            {% endif %}
-                                        </td>
-                                        <td class="py-4 px-6 text-sm font-medium text-right whitespace-nowrap">
-                                            <a href="#" class="text-blue-600 hover:text-blue-900:underline" onclick="handleLeaveClick(this)">Leave</a>
-                                        </td>
-                                    </tr>
-                                    <div code="{{ organization.code }}" name="modal-leave" class="hidden fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-hidden flex justify-center items-center w-full h-full">
-                                        {% include 'organization/delete-confirmation.html' with organization_name=organization.name %}
-                                    </div>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="flex flex-col mt-10">
+                    <div class="overflow-hidden shadow-sm sm:rounded-lg">
+                        <table class="w-full table-fixed">
+                            <tbody>
+                            {% for organization in organizations %}
+                                <tr class="border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
+                                    <td class="py-4 px-6 xl:w-2/3 text-sm font-medium text-gray-900">
+                                        {{ organization.name }}
+                                    </td>
+                                    <td class="py-4 px-6 text-sm font-medium text-right">
+                                        {% if organization in organizations_user_owner %}
+                                            <a href="{% url 'organizations-settings' organization.code %}" class="text-blue-600 hover:underline">Settings</a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-4 px-6 text-sm font-medium text-right">
+                                        <a href="#" class="text-blue-600 hover:underline" onclick="handleLeaveClick(this)">Leave</a>
+                                    </td>
+                                </tr>
+                                <div code="{{ organization.code }}" name="modal-leave" class="hidden fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-hidden flex justify-center items-center w-full h-full">
+                                    {% include 'organization/delete-confirmation.html' with organization_name=organization.name %}
+                                </div>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
             </div>
         </div>
         {% if page_obj.paginator.num_pages > 1 %}

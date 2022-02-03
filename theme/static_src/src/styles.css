@@ -16,7 +16,11 @@
 }
 
 .page-container {
-    @apply container bg-white m-auto px-20 py-8 rounded-lg shadow-md;
+    @apply bg-white my-auto mx-auto w-1/2 px-20 py-10 rounded-lg shadow-md h-3/4;
+}
+
+.title {
+    @apply text-2xl text-gray-800 font-bold;
 }
 
 /* Buttons */
