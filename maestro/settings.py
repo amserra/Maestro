@@ -161,4 +161,4 @@ LOGGED_IN_HOME = '/'
 LOGIN_URL = 'login'
 
 if not DEBUG:
-    NPM_BIN_PATH = 'c:\\Program Files\\nodejs\\npm'
+    NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'
