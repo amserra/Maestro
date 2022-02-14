@@ -15,21 +15,45 @@
         {% tailwind_css %}
     </head>
 
+    <style>
+        /* hidden on default */
+        #modal-viewport { display: none; }
+
+        /* smaller devices than 1024px (below lg breakpoint) will have a popup */
+        @media only screen and (max-width:1024px) {
+            #modal-viewport { display: flex; }
+        }
+    </style>
+
+    <div id="modal-viewport" class="fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-hidden flex justify-center items-center w-full h-full">
+        <div>
+            <div class="relative px-4 w-full max-w-md h-full md:h-auto">
+                <div class="relative bg-white rounded-lg shadow">
+                    <div class="p-6 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-4 w-14 h-14 text-gray-400" viewBox="0 0 24 24" stroke-width="1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M10 10l4 4m0 -4l-4 4" /></svg>
+                        <h3 class="mb-5 text-lg font-normal text-gray-500">Viewport not supported</h3>
+                        <h3 class="mb-5 text-sm font-normal text-gray-500">The size of the device you are using is not supported. Please access Maestro in a larger screen.</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <body class="flex flex-col h-screen bg-gray-100">
 
         <div class="w-full">
-            <nav role="navigation" class="bg-white shadow lg:block hidden">
-                <div class="mx-auto container px-6 py-2 lg:py-0">
+            <nav role="navigation" class="bg-white shadow">
+                <div class="mx-auto container px-6 py-0">
                     <div class="flex items-center justify-between">
-                        <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-full sm:w-auto items-center sm:items-stretch justify-end sm:justify-start">
+                        <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-auto items-stretch justify-start">
                             <div  class="flex items-center">
 {#                                <img src="{% static 'organization/logo.jpeg' %}" width="400" height="400" alt="logo" />#}
-                                <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg3.svg" alt="logo" />
-                                <h2 class="hidden sm:block text-base text-gray-700 font-bold leading-normal px-3">Maestro</h2>
+                                <img src="{% static 'common/logo.svg' %}" alt="logo" />
+{#                                <h2 class="hidden sm:block text-base text-gray-700 font-bold leading-normal px-3">Maestro</h2>#}
                             </div>
                         </a>
                         <div class="flex">
-                            <div class="hidden lg:flex md:mr-6 lg:mr-16">
+                            <div class="flex mr-16">
                                 {% if user.is_authenticated %}
                                     <a href="javascript: void(0)" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}">
                                         <span class="mr-2">
@@ -57,7 +81,7 @@
                                     Roadmap
                                 </a>
                             </div>
-                            <div class="hidden lg:flex items-center">
+                            <div class="flex items-center">
                                 <div class="ml-6 relative">
                                     {% if user.is_authenticated %}
                                         <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent focus:border-indigo-700 py-3 focus:text-indigo-700 text-gray-600 hover:text-indigo-700 flex items-center relative" x-data="{profileOpen: false}" @click="profileOpen=!profileOpen" @click.outside="profileOpen=false">
@@ -104,124 +128,6 @@
                                             Sign in
                                         </a>
                                     {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            <!--Mobile -->
-            <nav class="shadow" x-data="{ open: false }">
-                <div class="py-4 px-6 w-full flex lg:hidden justify-between items-center bg-white fixed top-0 z-40">
-                    <div aria-label="logo" role="img" tabindex="0" class="focus:outline-none w-24">
-                        <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg9.svg" alt="logo" />
-                    </div>
-                    <div class="flex items-center">
-                        <button id="menu" aria-label="open menu" class="focus:outline-none focus:ring-2 focus:ring-gray-600 rounded-md text-gray-800" x-on:click="open = !open; console.log('open:', open)">
-                            <img class="icon icon-tabler icon-tabler-menu-2" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg10.svg" alt="menu" />
-                        </button>
-                    </div>
-                </div>
-                <div class="absolute w-full h-full z-40 lg:hidden" style="display: none" id="mobile-nav" x-show="open">
-                    <div class="bg-gray-800 opacity-50 w-full h-full" x-on:click="open = false"></div>
-                    <div class="w-64 z-40 fixed overflow-y-auto top-0 bg-white shadow h-full flex-col justify-between lg:hidden pb-4 transition duration-150 ease-in-out">
-                        <div class="px-6 h-full">
-                            <div class="flex flex-col justify-between h-full w-full">
-                                <div>
-                                    <div class="mt-6 flex w-full items-center justify-between">
-                                        <div class="flex items-center justify-between w-full">
-                                            <div class="flex items-center">
-                                                <img src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg9.svg" alt="logo" />
-                                                <p tabindex="0" class="focus:outline-none text-base md:text-2xl text-gray-800 ml-3">Maestro</p>
-                                            </div>
-                                            <button id="cross" aria-label="close menu" class="focus:outline-none focus:ring-2 rounded-md text-gray-800" x-on:click="open = false">
-                                                <img class="icon icon-tabler icon-tabler-x" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg11.svg" alt="cross" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <ul class="f-m-m">
-                                        {% if user.is_authenticated %}
-                                            <li>
-                                                <a href="javascript: void(0)" class="cursor-pointer">
-                                                    <div class="text-gray-800 pt-10">
-                                                        <div class="flex items-center">
-                                                            <div class="w-6 h-6 md:w-8 md:h-8 text-indigo-700">
-                                                                <img class="icon icon-tabler icon-tabler-grid" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg12.svg" alt="dashboard" />
-                                                            </div>
-                                                            <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3">Dashboard</p>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="javascript: void(0)" class="cursor-pointer">
-                                                    <div class="text-gray-800 pt-8">
-                                                        <div class="flex items-center justify-between">
-                                                            <div class="flex items-center">
-                                                                <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
-                                                                    <img class="icon icon-tabler icon-tabler-puzzle" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg13.svg" alt="plugins" />
-                                                                </div>
-                                                                <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3">Plugins</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        {% endif %}
-                                        <li>
-                                            <a href="{% url 'about' %}" class="cursor-pointer">
-                                                <div class="text-gray-800 pt-8">
-                                                    <div class="flex items-center">
-                                                        <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-help {% if request.path == '/about/' %}active-mobile{% endif %}" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="17" x2="12" y2="17.01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
-                                                        </div>
-                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3 {% if request.path == '/about/' %}active-mobile{% endif %}">About</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{% url 'roadmap' %}" class="cursor-pointer">
-                                                <div class="text-gray-800 pt-8">
-                                                    <div class="flex items-center">
-                                                        <div class="w-6 h-6 md:w-8 md:h-8 text-gray-800">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-route {% if request.path == '/roadmap/' %}active-mobile{% endif %}" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="6" cy="19" r="2" /><circle cx="18" cy="5" r="2" /><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5" /></svg>
-                                                        </div>
-                                                        <p tabindex="0" class="focus:outline-none focus:text-indigo-600 text-gray-800 md:text-2xl text-base ml-3 {% if request.path == '/roadmap/' %}active-mobile{% endif %}">Roadmap</p>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="w-full pt-4">
-                                    <div class="border-t border-gray-300">
-                                        <div class="w-full flex items-center justify-between pt-1">
-                                            {% if user.is_authenticated %}
-                                            <div class="flex items-center">
-                                                <img alt="profile-pic" src="{{ request.user.avatar.url }}" tabindex="0" class="focus:outline-none  w-8 h-8 rounded-md" />
-                                                <p tabindex="0" class="focus:outline-none text-gray-800 text-base font-semibold leading-4 ml-2">{{ request.user.get_full_name }}</p>
-                                            </div>
-                                            <ul class="flex">
-                                                <li class="cursor-pointer text-gray-800 pt-5 pb-3 pl-3">
-                                                    <div tabindex="0" class="focus:outline-none focus:text-indigo-600 w-6 h-6 md:w-8 md:h-8">
-                                                        <img class="icon icon-tabler icon-tabler-bell" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg18.svg" alt="bell" />
-                                                    </div>
-                                                </li>
-                                                <li class="cursor-pointer text-gray-800 pt-5 pb-3 pl-3">
-                                                    <a href="{% url 'logout' %}">
-                                                        <div tabindex="0" class="focus:outline-none focus:text-indigo-600 w-6 h-6 md:w-8 md:h-8">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
-                                                    </div>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        {% else %}
-                                                <a href="{% url 'login' %}" class="mt-4 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 text-sm font-semibold leading-none text-white text-center focus:outline-none bg-indigo-700 border rounded hover:bg-indigo-600 py-4 w-full">Sign in</a>
-                                        {% endif %}
-                                    </div>
                                 </div>
                             </div>
                         </div>
