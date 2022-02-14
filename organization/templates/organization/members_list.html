@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load my_filters %}
+
+{% block title %}
+    Members list
+{% endblock %}
+
+{% block content %}
+    <div class="page-container w-1/2 h-3/4">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between">
+                <div>
+                    <p class="title">{{ organization.name }}</p>
+                </div>
+                <div class="flex grow-0">
+                    <a href="{% url 'organizations-list' %}" type="button" class="btn-primary">
+                        Invite
+                    </a>
+                    <a href="{% url 'organizations-list' %}" type="button" class="btn-cancel">Back</a>
+                </div>
+            </div>
+            <div class="mt-6">
+                <ul class="flex flex-wrap border-b border-gray-200">
+                    <li class="mr-2">
+                        <a href="{% url 'organizations-detail' organization %}" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Detail</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="#" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-t-lg active">People</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="flex flex-col mt-10">
+                    <div class="overflow-hidden shadow-sm sm:rounded-lg">
+                        <table class="w-full table-fixed">
+                            <tbody>
+                            {% for member in members %}
+                                <tr class="text-sm font-medium border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ member.code }}">
+                                    <td class="py-3 px-6 xl:w-2/3">
+{#                                        Put a green if OK, red if blocked and yellow if invite pending#}
+                                        <div class="flex items-center space-x-2">
+                                            {% if member.is_blocked == True %}
+                                                {#Red dot#}
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="22" class="icon icon-tabler icon-tabler-point" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ff4500" fill="#ff4500" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /></svg>
+                                            {% elif member.has_accepted == False %}
+                                                {#Yellow dot#}
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="22" class="icon icon-tabler icon-tabler-point" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffbf00" fill="#ffbf00" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /></svg>
+                                            {% else %}
+                                                {#Green dot#}
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="22" class="icon icon-tabler icon-tabler-point" viewBox="0 0 24 24" stroke-width="1.5" stroke="#7bc62d" fill="#7bc62d" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /></svg>
+                                            {% endif %}
+                                            <div class="flex flex-col">
+                                                <a href="{% url 'organizations-detail' organization.code %}" class="text-gray-700 text-right hover:underline">{{ member.user.get_full_name }}{% if member.user == request.user %} (me){% endif %}</a>
+                                                <p class="text-gray-400 text-xs font-light">{% if member.is_owner %}Owner{% else %}Member{% endif %}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 text-right">
+                                        {% if is_owner and not member.is_owner %}
+                                            <a
+                                                href="#"
+                                                onclick="
+                                                        openModal(
+                                                            'modal-owner',
+                                                            acceptModalOwner,
+                                                            {question: 'Are you sure you want to make this user owner?', description: 'Once an user is made owner he/she has full control over the contexts and other users (except other owners).'},
+                                                            {user: '{{ member.user.email|urlencode }}', organization: '{{ organization.code }}'}
+                                                        )"
+                                                class="text-blue-600 hover:underline">
+                                                Make owner
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-3 pr-6 text-right">
+{#                                        If the current user is owner, and the member is not an owner (can't block another owner)#}
+                                        {% if is_owner and not member.is_owner %}
+                                            <a href="{% url 'organizations-settings' organization.code %}" class="text-blue-600 hover:underline">Block</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    {% include 'common/confirmation-modal.html' with id='modal-owner' %}
+
+    <script>
+        function acceptModalOwner(modal) {
+            const user = modal.getAttribute("user");
+            const organization = modal.getAttribute("organization");
+            // 'organizations-member-make-owner'
+            const url = `/organizations/${organization}/members/${user}/make-owner`;
+
+            fetch(url).then(_ => location.reload());
+        }
+    </script>
+{% endblock content %}

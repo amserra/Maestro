@@ -5,11 +5,11 @@
 {% endblock %}
 
 {% block content %}
-    <div class="page-container">
-        <div class="xl:w-full py-5">
+    <div class="page-container w-1/2 h-3/4">
+        <div class="xl:w-full">
             <div class="flex flex-row justify-between">
                 <div>
-                    <p class="text-2xl text-gray-800 font-bold">Organizations</p>
+                    <p class="title">Organizations</p>
                 </div>
                 <div>
                     <a href="{% url 'organizations-new' %}" type="button" class="btn-primary">Create organization</a>
@@ -20,22 +20,26 @@
                         <table class="w-full table-fixed">
                             <tbody>
                             {% for organization in organizations %}
-                                <tr class="border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
-                                    <td class="py-4 px-6 xl:w-2/3 text-sm font-medium text-gray-900">
-                                        {{ organization.name }}
+                                <tr class="text-sm font-medium border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
+                                    <td class="py-4 px-6 xl:w-2/3">
+                                        <a href="{% url 'organizations-detail' organization.code %}" class=" text-gray-700 hover:underline">{{ organization.name }}</a>
                                     </td>
-                                    <td class="py-4 px-6 text-sm font-medium text-right">
+                                    <td class="py-4 px-6 text-right">
                                         {% if organization in organizations_user_owner %}
-                                            <a href="{% url 'organizations-settings' organization.code %}" class="text-blue-600 hover:underline">Settings</a>
+                                            <a href="{% url 'organizations-settings' organization.code %}" class=text-blue-600 hover:underline">Settings</a>
                                         {% endif %}
                                     </td>
-                                    <td class="py-4 px-6 text-sm font-medium text-right">
-                                        <a href="#" class="text-blue-600 hover:underline" onclick="handleLeaveClick(this)">Leave</a>
+                                    <td class="py-4 px-6 text-right">
+                                        <a href="#" class="text-blue-600 hover:underline" onclick="
+                                        openModal(
+                                            'modal-delete',
+                                            acceptModalDelete,
+                                            {question: 'Are you sure you want to leave organization \'{{ organization.code }}\'?', description: 'If you are the owner of the organization, this will delete the organization and all its contexts.'},
+                                            {code: '{{ organization.code }}'})">
+                                            Leave
+                                        </a>
                                     </td>
                                 </tr>
-                                <div code="{{ organization.code }}" name="modal-leave" class="hidden fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-hidden flex justify-center items-center w-full h-full">
-                                    {% include 'organization/delete-confirmation.html' with organization_name=organization.name %}
-                                </div>
                             {% endfor %}
                             </tbody>
                         </table>
@@ -48,41 +52,16 @@
             </div>
         {% endif %}
     </div>
+    {% include 'common/confirmation-modal.html' with id='modal-delete' %}
 
 
     <script>
-        const organizations = document.getElementsByName("organization");
-        const modals = document.getElementsByName("modal-leave");
-
-        function test(el) {
-            console.log(el)
-            alert('GRR')
-        }
-
-        function getModalByCode(code) {
-            for(let i = 0; i < modals.length; i++) {
-                if(modals[i].getAttribute("code") === code) return modals[i];
-            }
-        }
-
-        function handleLeaveClick(el) {
-            const organization_code = el.parentElement.parentElement.getAttribute("code");
-            const modal = getModalByCode(organization_code);
-            modal.classList.remove("hidden");
-        }
-
         // The below functions are called by the modal, which is in "organization/delete-confirmation.html"
-        function acceptModal(el) {
-            let modal = el.closest("[name='modal-leave']");
+        function acceptModalDelete(modal) {
             const code = modal.getAttribute("code");
             // Make request
             const url = "{% url 'organizations-leave' %}";
             fetch(`${url}?organization=${code}`).then(_ => location.reload());
-        }
-
-        function closeModal(el) {
-            let modal = el.closest("[name='modal-leave']");
-            modal.classList.add("hidden");
         }
 
     </script>

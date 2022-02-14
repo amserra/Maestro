@@ -16,11 +16,19 @@
 }
 
 .page-container {
-    @apply bg-white my-auto mx-auto w-1/2 px-20 py-10 rounded-lg shadow-md h-3/4;
+    @apply bg-white m-auto px-20 py-10 rounded-lg shadow-md;
 }
 
 .title {
-    @apply text-2xl text-gray-800 font-bold;
+    @apply text-3xl text-gray-800 font-semibold;
+}
+
+.subtitle {
+    @apply text-lg text-gray-800 font-semibold;
+}
+
+.error {
+    @apply text-sm mt-2 font-medium leading-none text-red-600;
 }
 
 /* Buttons */

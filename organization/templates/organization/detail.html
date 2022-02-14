@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    My Organization
+{% endblock %}
+
+{% block content %}
+    <div class="page-container w-1/2 h-3/4">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between">
+                <div>
+                    <p class="title">{{ organization.name }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'organizations-list' %}" type="button" class="btn-cancel">Back</a>
+                </div>
+            </div>
+            <div class="mt-6">
+                <ul class="flex flex-wrap border-b border-gray-200">
+                    <li class="mr-2">
+                        <a href="#" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-t-lg active">Detail</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="{% url 'organizations-member-list' organization %}" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">People</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="mt-10">
+                <div class="border-l-2 pl-2 border-gray-600/60">
+                    <p class="text-2xl text-blue-700">Code</p>
+                    <p class="text-xl font-light text-gray-600">{{ organization.code }}</p>
+                </div>
+                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                    <p class="text-2xl text-blue-700">Name</p>
+                    <p class="text-xl font-light text-gray-600">{{ organization.name }}</p>
+                </div>
+                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                    <p class="text-2xl text-blue-700">Created at</p>
+                    <p class="text-xl font-light text-gray-600">{{ organization.create_date|date:'F jS, Y' }}</p>
+                </div>
+                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                    <p class="text-2xl text-blue-700">Members can edit</p>
+                    <label for="toggle-example-disabled" class="flex relative items-center mb-4 cursor-not-allowed">
+                        <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if organization.members_can_edit %}checked{% endif %} disabled>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg" style="background-color: rgb(75 85 99); border-color: rgb(75 85 99)"></div>
+                    </label>
+                </div>
+                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                    <p class="text-2xl text-blue-700">Members can create</p>
+                    <label for="toggle-example-disabled" class="flex relative items-center mb-4 cursor-not-allowed">
+                        <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if organization.members_can_create %}checked{% endif %} disabled>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg" style="background-color: rgb(75 85 99); border-color: rgb(75 85 99)"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

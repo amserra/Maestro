@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block content %}
-    <div class="page-container">
+    <div class="page-container w-1/2 h-3/4">
         <p class="title">{{ title }}</p>
         <form method="post" class="w-full mt-8">
             {% csrf_token %}
             {{ form.as_ul }}
-            <input type="submit" value="Update settings" role="button" class="btn-primary mt-4"/>
+            <input type="submit" value="{% if 'Create' in title %}Create organization{% else %}Update settings{% endif %}" role="button" class="btn-primary mt-4"/>
             <a type="button" href="{% url 'organizations-list' %}" class="btn-cancel mt-1">Cancel</a>
         </form>
     </div>
