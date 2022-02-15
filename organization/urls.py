@@ -9,5 +9,7 @@ urlpatterns = [
     path('settings/<str:code>/', views.OrganizationSettingsView.as_view(), name='organizations-settings'),
     path('<str:code>/', views.OrganizationDetailView.as_view(), name='organizations-detail'),
     path('<str:code>/members/', views.OrganizationMembersView.as_view(), name='organizations-member-list'),
+    path('<str:code>/members/<str:user_email>/', views.OrganizationUserProfileView.as_view(), name='organizations-member-profile'),
     path('<str:code>/members/<str:user_email>/make-owner', views.make_user_owner, name='organizations-member-make-owner'),
+    path('<str:code>/members/<str:user_email>/block', views.block_user, name='organizations-member-block'),
 ]

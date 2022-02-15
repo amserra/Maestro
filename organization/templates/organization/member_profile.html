@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    User profile
+{% endblock %}
+
+{% block content %}
+    <div class="page-container lg:w-1/2 lg:h-3/4">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between">
+                <div>
+                    <img class="rounded-full object-cover" src="{{ member.user.avatar.url }}" alt="logo" />
+                    <p class="title mt-4">{{ member.user.get_full_name }}</p>
+                    <p class="text-md text-gray-800 font-light mt-1">{{ member.user.email }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'organizations-member-list' member.organization.code %}" type="button" class="btn-cancel">Back</a>
+                </div>
+            </div>
+            <div class="mt-10">
+                <div class="border-l-2 pl-2 border-gray-600/60">
+                    <p class="text-2xl text-blue-700">Organization</p>
+                    <p class="text-xl font-light text-gray-600">{{ member.organization.code }}</p>
+                </div>
+                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                        <p class="text-2xl text-blue-700">Status</p>
+                        <p class="text-xl font-light text-gray-600">{% if not member.has_accepted %}Pending invite{% elif member.is_blocked %}Blocked{% else %}Active{% endif %}</p>
+                </div>
+                {% if not member.has_accepted %}
+                    <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                        <p class="text-2xl text-blue-700">Invite date</p>
+                        <p class="text-xl font-light text-gray-600">{{ member.invite_date|date:'F jS, Y' }}</p>
+                    </div>
+                {% else %}
+                    <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                        <p class="text-2xl text-blue-700">Member since</p>
+                        <p class="text-xl font-light text-gray-600">{{ member.join_date|date:'F jS, Y' }}</p>
+                    </div>
+                    <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                        <p class="text-2xl text-blue-700">Owner</p>
+                        <label for="toggle-example-disabled" class="flex relative items-center mb-4 cursor-not-allowed">
+                            <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if member.is_owner %}checked{% endif %} disabled>
+                            <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
+                        </label>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

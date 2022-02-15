@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="page-container w-1/2 h-3/4">
+    <div class="page-container lg:w-1/2 lg:h-3/4">
         <div class="xl:w-full">
             <div class="flex flex-row justify-between">
                 <div>
@@ -42,14 +42,14 @@
                     <p class="text-2xl text-blue-700">Members can edit</p>
                     <label for="toggle-example-disabled" class="flex relative items-center mb-4 cursor-not-allowed">
                         <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if organization.members_can_edit %}checked{% endif %} disabled>
-                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg" style="background-color: rgb(75 85 99); border-color: rgb(75 85 99)"></div>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
                     </label>
                 </div>
                 <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
                     <p class="text-2xl text-blue-700">Members can create</p>
                     <label for="toggle-example-disabled" class="flex relative items-center mb-4 cursor-not-allowed">
                         <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if organization.members_can_create %}checked{% endif %} disabled>
-                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg" style="background-color: rgb(75 85 99); border-color: rgb(75 85 99)"></div>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
                     </label>
                 </div>
             </div>

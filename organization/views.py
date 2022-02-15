@@ -87,6 +87,15 @@ class OrganizationMembersView(LoginRequiredMixin, UserIsMember, SafePaginationMi
         return context
 
 
+class OrganizationUserProfileView(LoginRequiredMixin, UserIsMember, DetailView):
+    template_name = 'organization/member_profile.html'
+    model = Membership
+    context_object_name = 'member'
+
+    def get_object(self):
+        return get_object_or_404(Membership, organization__code=self.kwargs['code'], user__email=unquote(self.kwargs['user_email']))
+
+
 # - If user is the only owner of the organization:
 #   - If he is also the only user, then all the contexts of that organization are deleted
 #   - If he is NOT the only user, and there not any more owners, then he has to make another user from the organization owner before leaving (if he wants to force and is the only user, he can also block/remove the other users from the organization, and then yes he can leave and delete)
@@ -110,6 +119,36 @@ def organization_leave(request):
     else:  # user is an owner of an organization where there are more owners, or is a regular user
         user_membership.delete()
         messages.success(request, 'You have left the organization successfully.')
+        return HttpResponse(status=200)
+
+
+@login_required
+def block_user(request, code, user_email):
+    action = request.GET.get('action', None)
+    if not action or (action != 'block' and action != 'unblock'):
+        return HttpResponseBadRequest()
+
+    organization = get_object_or_404(Organization, code=code)
+    user = get_object_or_404(User, email=unquote(user_email))
+    current_user_membership = get_object_or_404(Membership, user=request.user, organization=organization)
+    target_user_membership = get_object_or_404(Membership, user=user, organization=organization)
+
+    if not current_user_membership.is_owner:
+        messages.error(request, 'Only owners can block another user')
+        return HttpResponseForbidden()
+    elif target_user_membership.is_owner:
+        messages.error(request, 'Owners cannot be blocked')
+        return HttpResponseForbidden()
+    elif action is 'block' and target_user_membership.is_blocked:
+        messages.error(request, 'The user already is blocked')
+        return HttpResponseBadRequest()
+    elif action is 'unblock' and not target_user_membership.is_blocked:
+        messages.error(request, 'The user already is already unblocked')
+        return HttpResponseBadRequest()
+    else:  # Target user is member and current user is owner
+        target_user_membership.is_blocked = True if action == 'block' else False
+        target_user_membership.save()
+        messages.success(request, f'{user.get_full_name()} is now {action}ed.')
         return HttpResponse(status=200)
 
 
