@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Organization invites
+{% endblock %}
+
+{% block content %}
+    <div class="page-container lg:w-1/2 lg:h-3/4">
+        <div class="xl:w-full">
+            <div class="mb-10">
+                {% include 'common/breadcrumb.html' with nav_links='Organizations Invites' %}
+            </div>
+            <div class="flex flex-row justify-between">
+                <div>
+                    <p class="title">Invites</p>
+                </div>
+                <div>
+                    <a href="{% url 'organizations-new' %}" type="button" class="btn-primary">Create organization</a>
+                </div>
+            </div>
+            <div class="mt-6">
+                <ul class="flex flex-wrap border-b border-gray-200">
+                    <li class="mr-2">
+                        <a href="{% url 'organizations-list' %}" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Organizations</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="#" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-t-lg">Invites</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="flex flex-col mt-10">
+                    <div class="overflow-hidden shadow-sm sm:rounded-lg">
+                        <table class="w-full table-fixed">
+                            <tbody>
+                            {% for invite in invites %}
+                                <tr class="text-sm font-medium border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
+                                    <td class="py-4 px-6 xl:w-2/3">
+{#                                        <a href="#" class=" text-gray-700 hover:underline">{{ invite.organization.name }}</a>#}
+                                        <p class=" text-gray-700">{{ invite.organization.name }}</p>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <a href="#" class="text-blue-600 hover:underline" onclick="
+                                        openModal(
+                                            'modal-accept',
+                                            acceptModalAccept,
+                                            {title: 'Are you sure you want to accept the invitation to the organization \'{{ invite.organization.name }}\'?'},
+                                            {code: '{{ invite.organization.code }}'})">
+                                            Accept
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>
+        {% if page_obj.paginator.num_pages > 1 %}
+            <div class="flex w-full justify-center mt-10">
+                {% include 'common/pagination.html' %}
+            </div>
+        {% endif %}
+    </div>
+    {% include 'common/confirmation-modal.html' with id='modal-accept' %}
+
+
+    <script>
+        function acceptModalAccept(modal) {
+            const code = modal.getAttribute("code");
+            // 'organizations-member-accept_invite'
+            let organizations_base = "{% url 'organizations-list' %}";
+            fetch(`${organizations_base}${code}/members/accept_invite`).then(_ => location.reload());
+        }
+
+    </script>
+{% endblock content %}

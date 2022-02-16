@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load my_filters %}
 
 {% block title %}
     User profile
@@ -7,6 +8,11 @@
 {% block content %}
     <div class="page-container lg:w-1/2 lg:h-3/4">
         <div class="xl:w-full">
+            <div class="mb-10">
+                {% with user_full_name=member.user.get_full_name|space_to_underscore %}
+                    {% include 'common/breadcrumb.html' with nav_links='Organizations '|addstr:member.organization.code|addstr:' Members '|addstr:user_full_name %}
+                {% endwith %}
+            </div>
             <div class="flex flex-row justify-between">
                 <div>
                     <img class="rounded-full object-cover" src="{{ member.user.avatar.url }}" alt="logo" />

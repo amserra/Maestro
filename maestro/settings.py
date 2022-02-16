@@ -11,12 +11,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x)8%3+39sp_2danx9718whj6mr#7j1+5q(2p%ij3=4hg^p997d'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
 ALLOWED_HOSTS = []
+
+ADMINS = [('Alexandre', os.getenv('ALEX_ADMIN_EMAIL'))]
 
 
 # Application definition
@@ -150,7 +152,8 @@ ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'account.User'
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' if DEBUG is False else 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'email_logs')
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.office365.com'
 EMAIL_PORT = 587

@@ -21,7 +21,7 @@ class Membership(models.Model):
     has_accepted = models.BooleanField(default=False)
     invite_date = models.DateTimeField(auto_now_add=True)
     # Membership
-    join_date = models.DateTimeField()
+    join_date = models.DateTimeField(null=True)  # starts at null when invite is sent
     is_owner = models.BooleanField(default=False)  # owner instead of admin to disambiguate from platform admin
     is_blocked = models.BooleanField(default=False)  # block is the same as a soft delete
 

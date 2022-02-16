@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load my_filters %}
 
 {% block title %}
     My Organization
@@ -7,6 +8,9 @@
 {% block content %}
     <div class="page-container lg:w-1/2 lg:h-3/4">
         <div class="xl:w-full">
+            <div class="mb-10">
+                {% include 'common/breadcrumb.html' with nav_links='Organizations '|addstr:organization.code|addstr:' Detail' %}
+            </div>
             <div class="flex flex-row justify-between">
                 <div>
                     <p class="title">{{ organization.name }}</p>
@@ -21,7 +25,7 @@
                         <a href="#" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-t-lg active">Detail</a>
                     </li>
                     <li class="mr-2">
-                        <a href="{% url 'organizations-member-list' organization %}" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">People</a>
+                        <a href="{% url 'organizations-member-list' organization %}" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Members</a>
                     </li>
                 </ul>
             </div>

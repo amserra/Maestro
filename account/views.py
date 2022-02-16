@@ -55,15 +55,6 @@ class SignupView(SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         user = form.save(commit=False)
 
-        # Handle no first/last name
-        if not user.first_name or not user.last_name:
-            user.first_name = choice(adjectives)
-            user.last_name = choice(animals)
-
-        # Capitalize first letter of first and last names
-        user.first_name = user.first_name.title()
-        user.last_name = user.last_name.title()
-
         # Provide initial avatar image
         try:
             filename, image = get_identicon(user.email)

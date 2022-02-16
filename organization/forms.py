@@ -1,5 +1,7 @@
 from django import forms
-from .models import Organization
+from .models import Organization, Membership
+from account.models import User
+from django.forms.widgets import Select
 
 
 class OrganizationSettingsForm(forms.ModelForm):
@@ -17,3 +19,17 @@ class OrganizationCreateForm(forms.ModelForm):
     class Meta:
         model = Organization
         fields = ['code', 'name']
+
+
+class MembershipInviteForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.organization_code = kwargs.pop('code', None)
+        super(MembershipInviteForm, self).__init__(*args, **kwargs)
+        # All users except the ones already in the organization
+        all_users = User.objects.all()
+        organization_users = Organization.objects.get(code=self.organization_code).members.all()
+        self.fields['user'].queryset = all_users.difference(organization_users)
+
+    class Meta:
+        model = Membership
+        fields = ['user']

@@ -47,6 +47,6 @@ class User(AbstractUser):
     avatar = ProcessedImageField(upload_to='avatars', processors=[ResizeToFill(100, 100)], format='JPEG')
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = UserManager()

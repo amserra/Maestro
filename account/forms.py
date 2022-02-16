@@ -63,6 +63,16 @@ class CustomAuthenticationForm(AuthenticationForm):
 
 
 class UserRegisterForm(UserCreationForm):
+    first_name = forms.CharField(
+        label='First name',
+        required=True
+    )
+
+    last_name = forms.CharField(
+        label='Last name',
+        required=True
+    )
+
     password1 = forms.CharField(
         label='Password',
         strip=False,
@@ -77,19 +87,25 @@ class UserRegisterForm(UserCreationForm):
     error_messages = {
         'missing_first_name': 'Please provide the first name',
         'missing_last_name': 'Please provide the last name',
+        'more_than_one_name': 'Please provide only one name',
         'password_mismatch': 'The two password fields didn’t match',
     }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        first_name = cleaned_data.get('first_name')
-        last_name = cleaned_data.get('last_name')
+    def clean_first_name(self):
+        first_name = self.cleaned_data["first_name"].strip().title()
+        if first_name == '':
+            raise ValidationError(self.error_messages['missing_first_name'])
+        elif len(first_name.split()) > 1:
+            raise ValidationError(self.error_messages['more_than_one_name'])
+        return first_name
 
-        # If there is one name but not the other
-        if not first_name and last_name:
-            self.add_error('first_name', self.error_messages['missing_first_name'])
-        elif first_name and not last_name:
-            self.add_error('last_name', self.error_messages['missing_last_name'])
+    def clean_last_name(self):
+        last_name = self.cleaned_data["last_name"].strip().title()
+        if last_name == '':
+            raise ValidationError(self.error_messages['missing_last_name'])
+        elif len(last_name.split()) > 1:
+            raise ValidationError(self.error_messages['more_than_one_name'])
+        return last_name
 
     class Meta:
         model = User

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load my_filters %}
 
 {% block title %}
     My Organization
@@ -7,47 +8,60 @@
 {% block content %}
     <div class="page-container lg:w-1/2 lg:h-3/4">
         <div class="xl:w-full">
+            <div class="mb-10">
+                {% include 'common/breadcrumb.html' with nav_links='Organizations My_organizations' %}
+            </div>
             <div class="flex flex-row justify-between">
                 <div>
-                    <p class="title">Organizations</p>
+                    <p class="title">My organizations</p>
                 </div>
                 <div>
                     <a href="{% url 'organizations-new' %}" type="button" class="btn-primary">Create organization</a>
                 </div>
             </div>
+            <div class="mt-6">
+                <ul class="flex flex-wrap border-b border-gray-200">
+                    <li class="mr-2">
+                        <a href="#" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-t-lg active">Organizations</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="{% url 'organizations-invites' %}" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Invites</a>
+                    </li>
+                </ul>
+            </div>
             <div class="flex flex-col mt-10">
-                    <div class="overflow-hidden shadow-sm sm:rounded-lg">
-                        <table class="w-full table-fixed">
-                            <tbody>
-                            {% for organization in organizations %}
-                                <tr class="text-sm font-medium border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
-                                    <td class="py-4 px-6 xl:w-2/3">
-                                        <a href="{% url 'organizations-detail' organization.code %}" class=" text-gray-700 hover:underline">{{ organization.name }}</a>
-                                    </td>
-                                    <td class="py-4 px-6 text-right">
-                                        {% if organization in organizations_user_owner %}
-                                            <a href="{% url 'organizations-settings' organization.code %}" class=text-blue-600 hover:underline">Settings</a>
-                                        {% endif %}
-                                    </td>
-                                    <td class="py-4 px-6 text-right">
-                                        <a href="#" class="text-blue-600 hover:underline" onclick="
-                                        openModal(
+                <div class="overflow-hidden shadow-sm sm:rounded-lg">
+                    <table class="w-full table-fixed">
+                        <tbody>
+                        {% for organization in organizations %}
+                            <tr class="text-sm font-medium border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
+                                <td class="py-4 px-6 xl:w-2/3">
+                                    <a href="{% url 'organizations-detail' organization.code %}" class=" text-gray-700 hover:underline">{{ organization.name }}</a>
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    {% if organization in organizations_user_owner %}
+                                        <a href="{% url 'organizations-settings' organization.code %}" class=text-blue-600 hover:underline">Settings</a>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    <a href="#" class="text-blue-600 hover:underline" onclick="
+                                            openModal(
                                             'modal-delete',
                                             acceptModalDelete,
-                                            {question: 'Are you sure you want to leave organization \'{{ organization.code }}\'?', description: 'If you are the owner of the organization, this will delete the organization and all its contexts.'},
+                                            {title: 'Are you sure you want to leave organization \'{{ organization.code }}\'?', subtitle: 'If you are the owner of the organization, this will delete the organization and all its contexts.'},
                                             {code: '{{ organization.code }}'})">
-                                            Leave
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                        Leave
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         {% if page_obj.paginator.num_pages > 1 %}
-            <div class="flex w-full justify-center">
+            <div class="flex w-full justify-center mt-10">
                 {% include 'common/pagination.html' %}
             </div>
         {% endif %}
@@ -59,9 +73,8 @@
         // The below functions are called by the modal, which is in "organization/delete-confirmation.html"
         function acceptModalDelete(modal) {
             const code = modal.getAttribute("code");
-            // Make request
-            const url = "{% url 'organizations-leave' %}";
-            fetch(`${url}?organization=${code}`).then(_ => location.reload());
+            // 'organizations-leave'
+            fetch(`${code}/leave`).then(_ => location.reload());
         }
 
     </script>
