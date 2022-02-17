@@ -16,7 +16,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default_unsecure_secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
-ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+else:
+    ALLOWED_HOSTS = ['maestro-web.inesc-id.pt']
 
 ADMINS = [('Alexandre', os.getenv('ALEX_ADMIN_EMAIL'))]
 
@@ -116,7 +119,7 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+USE_I18N = False
 
 USE_TZ = True
 
@@ -127,9 +130,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "static"),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
