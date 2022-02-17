@@ -63,7 +63,7 @@
                                         {% endif %}
                                         <div class="flex flex-col">
                                             <a href="{% url 'organizations-member-profile' organization.code member.user.email|urlencode %}" class="text-gray-700 hover:underline">{{ member.user.get_full_name }}{% if member.user == request.user %} (me){% endif %}</a>
-                                            <p class="text-gray-400 text-xs font-light">{% if member.is_owner %}Owner{% else %}Member{% endif %}</p>
+                                            <p class="text-gray-400 text-xs font-light">{% if not member.has_accepted %}Pending invitation{% elif member.is_blocked %}Blocked{% elif member.is_owner %}Owner{% else %}Member{% endif %}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -112,6 +112,19 @@
                                                 class="text-blue-600 hover:underline">
                                             Unblock
                                         </a>
+                                    {% elif not member.has_accepted %}
+                                        <a
+                                                href="#"
+                                                onclick="
+                                                        openModal(
+                                                        'modal-cancel-invite',
+                                                        acceptModalCancelInvite,
+                                                        {title: 'Are you sure you want to cancel the invite to {{ member.user.get_full_name }}?', subtitle: 'This action will prevent the user from joining the organization.'},
+                                                        {user: '{{ member.user.email }}'}
+                                                        )"
+                                                class="text-blue-600 hover:underline">
+                                            Uninvite
+                                        </a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -132,15 +145,22 @@
     {% include 'common/confirmation-modal.html' with id='modal-owner' %}
     {% include 'common/confirmation-modal.html' with id='modal-block' %}
     {% include 'common/form-modal.html' with id='modal-invite' form=invite_form %}
+    {% include 'common/confirmation-modal.html' with id='modal-cancel-invite' %}
 
     <script>
+        function acceptModalCancelInvite(modal) {
+            const user = modal.getAttribute("user");
+            // 'organizations-member-invite'
+            const url = "{% url 'organizations-member-invite' organization.code %}";
+            fetch(`${url}?invitee=${encodeURIComponent(user)}&action=cancel`).then(_ => location.reload());
+        }
+
         function acceptModalInvite(modal, form) {
             let select_user = form["user"];
             let user = select_user.options[select_user.selectedIndex].text;
-            const organization = modal.getAttribute("organization");
             // 'organizations-member-invite'
             const url = "{% url 'organizations-member-invite' organization.code %}";
-            fetch(`${url}?invitee=${encodeURIComponent(user)}`).then(_ => location.reload());
+            fetch(`${url}?invitee=${encodeURIComponent(user)}&action=invite`).then(_ => location.reload());
         }
 
         function acceptModalOwner(modal) {

@@ -8,6 +8,16 @@
             {% block title %}
             {% endblock title %}
         </title>
+        {# Start logo data #}
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'common/img/logo/apple-touch-icon.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'common/img/logo/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'common/img/logo/favicon-16x16.png' %}">
+        <link rel="manifest" href="{% static 'common/img/logo/site.webmanifest' %}">
+        <meta name="apple-mobile-web-app-title" content="Maestro">
+        <meta name="application-name" content="Maestro">
+        <meta name="msapplication-TileColor" content="#f2eee4">
+        <meta name="theme-color" content="#f2eee4">
+        {# End Logo data #}
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
@@ -49,7 +59,7 @@
                         <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-auto items-stretch justify-start">
                             <div  class="flex items-center">
 {#                                <img src="{% static 'organization/logo.jpeg' %}" width="400" height="400" alt="logo" />#}
-                                <img src="{% static 'common/logo.svg' %}" alt="logo" />
+                                <img class="w-14 h-14" src="{% static 'common/img/logo/maestro_white.svg' %}" alt="logo" />
 {#                                <h2 class="hidden sm:block text-base text-gray-700 font-bold leading-normal px-3">Maestro</h2>#}
                             </div>
                         </a>

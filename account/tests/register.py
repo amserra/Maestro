@@ -5,7 +5,6 @@ from django.test import TestCase
 from django.urls import reverse
 from account.forms import UserRegisterForm
 from django.core import mail
-from account.views import adjectives, animals
 
 
 class RegisterFormTests(TestCase):
@@ -37,7 +36,7 @@ class RegisterFormTests(TestCase):
             'password1': self.password,
             'password2': self.password
         })
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
     def test_register_form_invalid_no_email(self):
         form = UserRegisterForm(data={
@@ -177,16 +176,6 @@ class TestUserCreation(TestCase):
         # Check if email was sent
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'Activate your account.')
-
-    def test_user_created_no_names(self):
-        response = self.client.post(reverse('register'), data={
-            'email': self.email,
-            'password1': self.password,
-            'password2': self.password
-        })
-        user = get_user_model().objects.get(email=self.email)
-        self.assertIn(user.first_name.lower(), adjectives)
-        self.assertIn(user.last_name.lower(), animals)
 
     def test_user_activation_with_email(self):
         # Create user

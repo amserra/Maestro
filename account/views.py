@@ -4,29 +4,19 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-
 from .models import User
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404, render, redirect
-
 from .forms import ProfileUpdateForm, UserRegisterForm
 from django.contrib.staticfiles import finders
-
-from random import choice
 from hashlib import md5
 import requests
 from io import BytesIO
-
 from .tokens import account_activation_token
 from django.core.mail import EmailMessage
-
 from common.decorators.login_forbidden import login_forbidden
-
-
-adjectives = ('adorable', 'adventurous', 'alert', 'alive', 'amused', 'attractive', 'beautiful', 'better', 'bewildered', 'blue', 'brainy', 'brave', 'bright', 'calm', 'careful', 'cautious', 'charming', 'cheerful', 'clever', 'cloudy', 'colorful', 'combative', 'comfortable', 'courageous', 'curious', 'cute', 'delightful', 'determined', 'distinct', 'eager', 'elegant', 'enchanting', 'encouraging', 'energetic', 'enthusiastic', 'excited', 'expensive', 'exuberant', 'fair', 'faithful', 'famous', 'fancy', 'fantastic', 'fierce', 'friendly', 'funny', 'gentle', 'glamorous', 'glorious', 'good', 'gorgeous', 'graceful', 'handsome', 'happy', 'healthy', 'helpful', 'hilarious', 'important', 'kind', 'lovely', 'lucky', 'magnificent', 'modern', 'nice', 'outstanding', 'perfect', 'powerful', 'precious', 'sleepy', 'smiling', 'sparkling', 'splendid', 'spotless', 'successful', 'talented')
-animals = ('alligator', 'ant', 'bear', 'bee', 'bird', 'camel', 'cat', 'cheetah', 'chicken', 'chimpanzee', 'crocodile', 'deer', 'dog', 'dolphin', 'duck', 'eagle', 'elephant', 'fish', 'fly', 'fox', 'frog', 'giraffe', 'goat', 'goldfish', 'hamster', 'hippopotamus', 'horse', 'kangaroo', 'kitten', 'lion', 'lobster', 'monkey', 'octopus', 'owl', 'panda', 'puppy', 'rabbit', 'rat', 'scorpion', 'seal', 'shark', 'sheep', 'snail', 'snake', 'spider', 'squirrel', 'tiger', 'turtle', 'wolf', 'zebra')
 
 
 def get_identicon(email, image_format='jpg', size=100):

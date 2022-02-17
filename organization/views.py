@@ -113,19 +113,36 @@ class OrganizationUserProfileView(LoginRequiredMixin, UserIsMember, DetailView):
 def organization_invite_member(request, code):
     organization = get_object_or_404(Organization, code=code)
     invitee = request.GET.get('invitee', None)
+    action = request.GET.get('action', None)
+    if not action or (action != 'invite' and action != 'cancel'):
+        return HttpResponseBadRequest()
+
     invitee_user = get_object_or_404(User, email=invitee)
-    if invitee_user in organization.members.all():
-        messages.error(request, "The user is already invited or is already in the organization")
+    if action == 'invite' and invitee_user in organization.members.all():
+        messages.error(request, 'The user is already invited or is already in the organization')
+        return HttpResponseBadRequest()
+    elif action == 'cancel' and not invitee_user.membership_set.filter(organization=organization).exists():
+        messages.error(request, 'The user was never invited')
         return HttpResponseBadRequest()
     else:
-        Membership.objects.create(organization=organization, user=invitee_user).save()
-        # Send email
-        mail_subject = 'Organization invite pending'
-        url = request.build_absolute_uri(reverse('organizations-member-invite', args=[organization.code]))
-        message = f'Hello. You have been invited to the organization "{organization.name}" in Maestro. If you wish to accept the invitation, please head to {url} and click accept.'
-        EmailMessage(mail_subject, message, to=[invitee_user.email]).send()
+        if action == 'invite':
+            Membership.objects.create(organization=organization, user=invitee_user).save()
+            # Send email
+            mail_subject = 'Organization invite pending'
+            url = request.build_absolute_uri(reverse('organizations-member-invite', args=[organization.code]))
+            message = f'Hello. You have been invited to the organization "{organization.name}" in Maestro. If you wish to accept the invitation, please head to {url} and click accept.'
+            EmailMessage(mail_subject, message, to=[invitee_user.email]).send()
 
-        messages.success(request, f"You have invited the user {invitee_user.get_full_name()} to the organization {organization.name}.")
+            messages.success(request, f"You have invited the user {invitee_user.get_full_name()} for the organization {organization.name}.")
+        else:
+            invitee_user.membership_set.filter(organization=organization).delete()
+            # Send email
+            mail_subject = 'Organization invite withdrawn'
+            message = f'Hello. Your invite to the organization "{organization.name}" in Maestro has been withdrawn by one of the owners. Therefore, you can no longer join the organization.'
+            EmailMessage(mail_subject, message, to=[invitee_user.email]).send()
+
+            messages.success(request, f"You have canceled the invitation to the user {invitee_user.get_full_name()} for the organization {organization.name}.")
+
         return HttpResponse()
 
 

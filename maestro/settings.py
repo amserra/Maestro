@@ -152,8 +152,8 @@ ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'account.User'
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' if DEBUG is False else 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'email_logs')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' if DEBUG is False else 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'email_logs')
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.office365.com'
 EMAIL_PORT = 587
