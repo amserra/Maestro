@@ -3,7 +3,6 @@ from django.urls import reverse
 from django.test import TestCase
 from account.forms import CustomAuthenticationForm
 from django.contrib.auth import get_user_model
-from account.models import UserManager
 
 
 class LoginFormTests(TestCase):

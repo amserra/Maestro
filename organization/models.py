@@ -10,6 +10,17 @@ class Organization(models.Model):
     members_can_edit = models.BooleanField(default=True)
     members_can_create = models.BooleanField(default=True)
 
+    @property
+    def active_members(self):
+        return self.membership_set.filter(has_accepted=True, is_blocked=False).all()
+
+    @property
+    def owners(self):
+        return self.membership_set.filter(has_accepted=True, is_blocked=False, is_owner=True).all()
+
+    def user_in_organization(self, user: User) -> bool:
+        return self.members.filter(user=user).exists()
+
     def __str__(self):
         return self.code
 

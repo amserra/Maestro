@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 """
     Tests TODO:
     - Create organization, check if there is one member in membership and it is admin
@@ -9,5 +7,9 @@ from django.test import TestCase
     - Create organization, create a PRIVATE context within it and check that another user IN in the organization has NOT access to it
     - Leave organization NOT as an admin
     - Leave organization AS an admin with other admin existing
-    - Leave organization AS an admin being the only existing admin (should provide warning: that will the entire organization) 
+    - Leave organization AS an admin being the only existing admin (should provide warning: that will the entire organization)
 """
+
+from .organization_create import *
+from .organization_list import *
+from .organization_leave import *

@@ -167,7 +167,6 @@ class ProfileViewTests(TestCase):
         self.assertContains(response, "Profile", html=True)
 
     def test_page_name(self):
-        response = self.client.get(reverse('profile'))
         self.assertEqual('/profile/', reverse('profile'))
 
     def test_page_template(self):

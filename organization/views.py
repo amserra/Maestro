@@ -171,7 +171,7 @@ def organization_leave(request, code):
     organization = get_object_or_404(Organization, code=code)
     user_membership = get_object_or_404(Membership, user=request.user, organization=organization)
 
-    number_users_organization = Membership.objects.filter(organization=organization, is_blocked=False).count()  # only those who are not blocked count
+    number_users_organization = Membership.objects.filter(organization=organization, has_accepted=True, is_blocked=False).count()  # only those who are not blocked count
     number_owners_organization = Membership.objects.filter(organization=organization, is_owner=True).count()  # owners can't be blocked, thus the extra condition doesn't is applied
     # user_membership.is_owner and number_owners_organization == 1 # user is the only owner
     if number_users_organization == 1:  # user is the only member of the organization
