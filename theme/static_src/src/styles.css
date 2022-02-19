@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+    font-family: 'Montserrat', 'Helvetica', 'sans-serif';
+}
+
 /*For active links*/
 .active {
     @apply border-indigo-700 !important
