@@ -1,24 +1,12 @@
 from http import HTTPStatus
-from django.test import TestCase
 from django.urls import reverse
 from organization.models import Organization, Membership
-from common.tests import create_user
+from .tests_setup import OrganizationTestCase
 
 
-class OrganizationLeaveTests(TestCase):
+class OrganizationLeaveTests(OrganizationTestCase):
     def setUp(self):
-        self.user_non_member_email = 'user1@mail.com'
-        self.user_member_email = 'user2@mail.com'
-        self.user_owner_email = 'user3@mail.com'
-        self.password = 'asmartpassword1'
-        # Create users
-        self.user_non_member = create_user(email=self.user_non_member_email, password=self.password)
-        self.user_member = create_user(email=self.user_member_email, password=self.password)
-        self.user_owner = create_user(email=self.user_owner_email, password=self.password)
-        # Create organization and memberships
-        self.organization = Organization.objects.create(code='APA', name='Agencia Portuguesa do Ambiente')
-        Membership.objects.create(user=self.user_member, organization=self.organization, has_accepted=True, is_blocked=False, is_owner=False)
-        Membership.objects.create(user=self.user_owner, organization=self.organization, has_accepted=True, is_blocked=False, is_owner=True)
+        super().setUp()
 
     def test_leave_organization_anonymous_user(self):
         response = self.client.get(reverse('organizations-leave', args=[self.organization.code]))
@@ -56,3 +44,15 @@ class OrganizationLeaveTests(TestCase):
         self.assertEqual(self.organization.members.count(), 2)
         response = self.client.get(reverse('organizations-leave', args=[self.organization.code]))
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+
+    def test_leave_organization_multiple_owners(self):
+        """An owner can leave if there is another owner left"""
+        self.client.login(email=self.user_owner, password=self.password)
+        new_owner = Membership.objects.get(user=self.user_member, organization=self.organization)
+        new_owner.is_owner = True
+        new_owner.save()
+
+        self.assertEqual(self.organization.members.count(), 2)
+        self.assertEqual(self.organization.owners.count(), 2)
+        response = self.client.get(reverse('organizations-leave', args=[self.organization.code]))
+        self.assertEqual(response.status_code, HTTPStatus.OK)

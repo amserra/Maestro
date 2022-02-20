@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from common.tests import create_user
@@ -89,5 +88,6 @@ class OrganizationCreateTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertTrue(organization)
         self.assertEqual(organization.membership_set.all().count(), 1)
+        self.assertEqual(organization.membership_set.all()[0].is_owner, True)
         self.assertEqual(organization.members_can_edit, True)
         self.assertEqual(organization.members_can_create, True)

@@ -1,0 +1,13 @@
+[run]
+omit =
+    */tests/*
+    */tests.py
+    */migrations/*
+    */asgi.py
+    */wsgi.py
+    */decorators/*
+    */mixins/*
+    */templatetags/*
+    maestro/*
+    manage.py
+    theme/*

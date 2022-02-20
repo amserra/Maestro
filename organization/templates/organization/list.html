@@ -36,11 +36,11 @@
                         {% for organization in organizations %}
                             <tr class="text-sm font-medium border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
                                 <td class="py-4 px-6 xl:w-2/3">
-                                    <a href="{% url 'organizations-detail' organization.code %}" class=" text-gray-700 hover:underline">{{ organization.name }}</a>
+                                    <a href="{% url 'organizations-detail' organization.code %}" class="text-gray-700 hover:underline">{{ organization.name }}</a>
                                 </td>
                                 <td class="py-4 px-6 text-right">
                                     {% if organization in organizations_user_owner %}
-                                        <a href="{% url 'organizations-settings' organization.code %}" class=text-blue-600 hover:underline">Settings</a>
+                                        <a href="{% url 'organizations-settings' organization.code %}" class="text-blue-600 hover:underline">Settings</a>
                                     {% endif %}
                                 </td>
                                 <td class="py-4 px-6 text-right">

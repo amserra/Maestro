@@ -149,40 +149,32 @@ def organization_invite_member(request, code):
 @login_required
 def organization_accept_invite(request, code):
     organization = get_object_or_404(Organization, code=code)
-    user_membership = get_object_or_404(Membership, user=request.user, organization=organization)
+    user_membership = get_object_or_404(Membership, user=request.user, organization=organization, has_accepted=False, is_blocked=False)
 
-    if user_membership.has_accepted is True:
-        messages.error("You have already accepted the invite")
-        return HttpResponseBadRequest()
-    else:  # user_membership.has_accepted = False
-        user_membership.has_accepted = True
-        user_membership.join_date = now()
-        user_membership.save()
-        messages.success(request, f"You are now a member of the organization {organization.name}.")
-        return HttpResponse()
+    user_membership.has_accepted = True
+    user_membership.join_date = now()
+    user_membership.save()
+    messages.success(request, f"You are now a member of the organization {organization.name}.")
+    return HttpResponse()
 
 
-# - If user is the only owner of the organization:
-#   - If he is also the only user, then all the contexts of that organization are deleted
-#   - If he is NOT the only user, and there not any more owners, then he has to make another user from the organization owner before leaving (if he wants to force and is the only user, he can also block/remove the other users from the organization, and then yes he can leave and delete)
 @login_required
 @user_is_member
 def organization_leave(request, code):
     organization = get_object_or_404(Organization, code=code)
     user_membership = get_object_or_404(Membership, user=request.user, organization=organization)
 
-    number_users_organization = Membership.objects.filter(organization=organization, has_accepted=True, is_blocked=False).count()  # only those who are not blocked count
-    number_owners_organization = Membership.objects.filter(organization=organization, is_owner=True).count()  # owners can't be blocked, thus the extra condition doesn't is applied
-    # user_membership.is_owner and number_owners_organization == 1 # user is the only owner
-    if number_users_organization == 1:  # user is the only member of the organization
+    number_users_organization = Membership.objects.filter(organization=organization, has_accepted=True, is_blocked=False).count()
+    number_owners_organization = Membership.objects.filter(organization=organization, is_owner=True).count()
+    if number_users_organization == 1:
         # TODO: Delete all the contexts of the organization
         organization.delete()
         messages.success(request, 'You have left the organization successfully. Since you were the only owner, all the contexts have also been deleted.')
         return HttpResponse(status=200)
-    elif user_membership.is_owner and number_owners_organization == 1:  # there is more than one (non-blocked) user in the organization, but there is only one owner => owner has to make another user owner before leaving
+    elif user_membership.is_owner and number_owners_organization == 1:
         messages.error(request, 'Since you are the only owner of the organization, another user must be made owner before leaving the organization.')
         return HttpResponseBadRequest()
-    else:  # user is an owner of an organization where there are more owners, or is a regular user
+    else:
         user_membership.delete()
         messages.success(request, 'You have left the organization successfully.')
         return HttpResponse(status=200)
@@ -197,13 +189,10 @@ def block_user(request, code, user_email):
 
     organization = get_object_or_404(Organization, code=code)
     user = get_object_or_404(User, email=unquote(user_email))
-    current_user_membership = get_object_or_404(Membership, user=request.user, organization=organization)
-    target_user_membership = get_object_or_404(Membership, user=user, organization=organization)
+    current_user_membership = get_object_or_404(Membership, user=request.user, organization=organization, has_accepted=True, is_owner=True)
+    target_user_membership = get_object_or_404(Membership, user=user, organization=organization, has_accepted=True, is_owner=False)
 
-    if target_user_membership.is_owner:
-        messages.error(request, 'Owners cannot be blocked')
-        return HttpResponseForbidden()
-    elif action == 'block' and target_user_membership.is_blocked:
+    if action == 'block' and target_user_membership.is_blocked:
         messages.error(request, 'The user already is blocked')
         return HttpResponseBadRequest()
     elif action == 'unblock' and not target_user_membership.is_blocked:
@@ -221,17 +210,13 @@ def block_user(request, code, user_email):
 def make_user_owner(request, code, user_email):
     organization = get_object_or_404(Organization, code=code)
     user = get_object_or_404(User, email=unquote(user_email))
-    current_user_membership = get_object_or_404(Membership, user=request.user, organization=organization)
-    target_user_membership = get_object_or_404(Membership, user=user, organization=organization)
+    current_user_membership = get_object_or_404(Membership, user=request.user, organization=organization, has_accepted=True, is_blocked=False, is_owner=True)
+    target_user_membership = get_object_or_404(Membership, user=user, organization=organization, has_accepted=True, is_blocked=False, is_owner=False)
 
-    if target_user_membership.is_owner:
-        messages.error(request, 'Owners cannot be made owners again')
-        return HttpResponseForbidden()
-    else:  # Target user is member and current user is owner
-        target_user_membership.is_owner = True
-        target_user_membership.save()
-        messages.success(request, f'You have set {user.get_full_name()} as an organization owner successfully.')
-        return HttpResponse(status=200)
+    target_user_membership.is_owner = True
+    target_user_membership.save()
+    messages.success(request, f'You have set {user.get_full_name()} as an organization owner successfully.')
+    return HttpResponse(status=200)
 
 
 

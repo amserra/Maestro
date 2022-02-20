@@ -44,7 +44,7 @@ alias sphinxBuild="cd docs/ && make build";
 alias test="python manage.py test --keepdb";
 
 # Test and generate coverage report
-alias test_coverage="coverage run --source='.' manage.py test account --keepdb";
+alias testCoverage="coverage run --source='.' manage.py test --keepdb && coverage report";
 
 # Generate test coverage HTML
-alias coverage_html="coverage html";
+alias coverageHtml="coverage html";
