@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
     Maestro
@@ -6,6 +7,14 @@
 
 {% block content %}
 
-    Home
+    <div class="flex items-center justify-center xl:mx-96 mx-40">
+        <div class="flex flex-col justify-center mt-16 items-center gap-y-10">
+            <img src="{% static 'common/img/logo/maestro_transparent.svg' %}" class="w-72">
+            <p class="text-lg font-semibold text-center">An extensible, multipurpose system that
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">gathers</span>,
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">classifies</span>,
+                and <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">provides</span> data of *any* kind to external services.</p>
+        </div>
+    </div>
 
 {% endblock content %}
