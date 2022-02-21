@@ -47,6 +47,9 @@ module.exports = {
         "./node_modules/flowbite/**/*.js",
     ],
     theme: {
+        minHeight: {
+            '40rem': '40rem',
+        },
         extend: {},
     },
     plugins: [
