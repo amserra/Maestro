@@ -61,9 +61,7 @@
                     <div class="flex items-center justify-between">
                         <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-auto items-stretch justify-start">
                             <div  class="flex items-center">
-{#                                <img src="{% static 'organization/logo.jpeg' %}" width="400" height="400" alt="logo" />#}
                                 <img class="w-14 h-14" src="{% static 'common/img/logo/maestro_transparent.svg' %}" alt="logo" />
-{#                                <h2 class="hidden sm:block text-base text-gray-700 font-bold leading-normal px-3">Maestro</h2>#}
                             </div>
                         </a>
                         <div class="flex">
@@ -71,16 +69,16 @@
                                 {% if user.is_authenticated %}
                                     <a href="javascript: void(0)" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}">
                                         <span class="mr-2">
-                                            <img class="icon icon-tabler icon-tabler-grid" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg4.svg" alt="dashboard" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
                                         </span>
                                         Dashboard
                                     </a>
-                                    <a href="javascript: void(0)" class="nav-link {% if request.path == '/plugins/' %}active{% endif %}">
-                                        <span class="mr-2">
-                                            <img class="icon icon-tabler icon-tabler-puzzle" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg5.svg" alt="plugins" />
-                                        </span>
-                                        Plugins
-                                    </a>
+{#                                    <a href="javascript: void(0)" class="nav-link {% if request.path == '/plugins/' %}active{% endif %}">#}
+{#                                        <span class="mr-2">#}
+{#                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>#}
+{#                                        </span>#}
+{#                                        Plugins#}
+{#                                    </a>#}
                                 {% endif %}
                                 <a href="{% url 'about' %}" class="nav-link {% if request.path == '/about/' %}active{% endif %}">
                                     <span class="mr-2">
@@ -98,7 +96,7 @@
                             <div class="flex items-center">
                                 <div class="ml-6 relative">
                                     {% if user.is_authenticated %}
-                                        <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent focus:border-indigo-700 py-3 focus:text-indigo-700 text-gray-600 hover:text-indigo-700 flex items-center relative" x-data="{profileOpen: false}" @click="profileOpen=!profileOpen" @click.outside="profileOpen=false">
+                                        <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent py-3 text-gray-600 flex items-center relative" x-data="{profileOpen: false}" @click="profileOpen=!profileOpen" @click.outside="profileOpen=false">
                                             <ul class="p-2 w-44 border-r bg-white absolute rounded right-0 shadow top-0 mt-16" x-show="profileOpen" style="display: none">
                                                 <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
                                                     <a href="{% url 'profile' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
@@ -131,7 +129,8 @@
                                                 <img class="rounded-full h-10 w-10 object-cover" src="{{ request.user.avatar.url }}" alt="logo" />
                                             </div>
                                             <div class="ml-2">
-                                                <img class="icon icon-tabler icon-tabler-chevron-down cursor-pointer" src="https://tuk-cdn.s3.amazonaws.com/can-uploader/light-with-button-svg8.svg" alt="chevron down" />
+                                                <svg class="cursor-pointer" x-show="profileOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="6 15 12 9 18 15" /></svg>
+                                                <svg class="cursor-pointer" x-show="!profileOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="6 9 12 15 18 9"/></svg>
                                             </div>
                                         </button>
                                     {% else %}
