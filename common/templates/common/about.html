@@ -1,11 +1,35 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Maestro - About
+    Maestro | About
 {% endblock title %}
 
 {% block content %}
 
-    About
+    <div class="xl:mx-96 mx-40">
+        <p class="text-3xl font-medium mt-16">What is <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">Maestro</span>?</p>
+        <ul class="mt-16 list-disc space-y-3">
+            <li class="text-xl font-medium">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">Maestro</span> is a system that can help you get the data that you need.
+                It can gather and classify data according to the users' preferences, which are called search contexts.
+                A user can create multiple search contexts, and search contexts can be shared among users through organizations.
+            </li>
+            <li class="text-xl font-medium">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">Maestro</span> gathers data through gather plugins.
+                These are programs that can fetch data from different sources: crawling websites, through APIs, RSS feeds, or others.
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">Maestro</span>'s architecture makes it easy to create new gather plugins, by providing developers an easy, pluggable interface.
+            </li>
+            <li class="text-xl font-medium">
+                The same plugin-driven approach is taken on the classification part.
+                Classification programs can be as simple as a set of conditional statements, and as complex as an ML model.
+                Developers can encapsulate their classification programs in a simple interface that can be integrated with <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">Maestro</span> easily.
+                Note that a user may opt to use <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">Maestro</span> only to gather data.
+            </li>
+            <li class="text-xl font-medium">
+                Finally, by defining a destination target through a webhook, your program can receive and use the data gathered and classified
+                by <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">Maestro</span> to your end-purpose.
+            </li>
+        </ul>
+    </div>
 
 {% endblock content %}
