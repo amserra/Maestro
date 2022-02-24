@@ -9,7 +9,7 @@ from .models import SearchContext
 
 
 class DashboardView(LoginRequiredMixin, SafePaginationMixin, ListView):
-    template_name = 'context/dashboard.html'
+    template_name = 'context/list.html'
     context_object_name = 'contexts'
     paginate_by = 4
 
@@ -20,7 +20,7 @@ class DashboardView(LoginRequiredMixin, SafePaginationMixin, ListView):
             organization__membership__is_blocked=False,
             organization__membership__has_accepted=True
         )
-        return contexts_user | contexts_user_organizations
+        return (contexts_user | contexts_user_organizations).order_by('status')
 
 
 class SearchContextCreateView(LoginRequiredMixin, TitleMixin, SuccessMessageMixin, CreateView):

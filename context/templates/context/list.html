@@ -10,7 +10,7 @@
         <div class="xl:w-full">
             <div class="flex flex-row justify-between items-center">
                 <div>
-                    <p class="title">Dashboard</p>
+                    <p class="title">Search contexts</p>
                 </div>
                 <div>
                     <a href="{% url 'contexts-new' %}" class="btn-primary">Create search context</a>
@@ -21,9 +21,9 @@
                     <div class="col-span-1 flex flex-col p-6 max-w-md bg-white rounded-lg border border-gray-200 shadow-md">
                         <h2 class="mb-2 text-xl font-semibold tracking-tight text-gray-900">
                             {% if context.owner|get_type == 'User' %}
-                                Me/ {{ context.code }}
+                                <span class="text-yellow-400">Me/</span> {{ context.code }}
                             {% else %}
-                                {{ context.owner.code }}/ {{ context.code }}
+                                <span class="text-yellow-400">{{ context.owner.code }}/</span> {{ context.code }}
                             {% endif %}
                         </h2>
                         <p class="mb-3 font-normal text-gray-700 mt-auto text-justify truncate min-h-[1rem]">{{ context.description }}</p>
