@@ -1,7 +1,9 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
+from context.models import SearchContext
 
 
 class UserManager(BaseUserManager):
@@ -50,3 +52,10 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = UserManager()
+
+    contexts = GenericRelation(SearchContext, object_id_field='owner_id', content_type_field='owner_type', related_query_name='user')
+
+    @property
+    def organizations_active(self):
+        return self.organization_set.filter(membership__has_accepted=True, membership__is_blocked=False)
+

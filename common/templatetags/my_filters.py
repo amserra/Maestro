@@ -22,3 +22,8 @@ def space_to_underscore(value):
 def addstr(arg1, arg2):
     """concatenate arg1 & arg2"""
     return str(arg1) + str(arg2)
+
+
+@register.filter
+def get_type(value):
+    return value.__class__.__name__

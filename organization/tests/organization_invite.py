@@ -47,6 +47,12 @@ class OrganizationInviteTests(OrganizationTestCase):
         response = self.client.get(create_invite_url(self.organization.code, self.user_member_encoded_email, 'invite'))
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
+    def test_invite_non_existing_user(self):
+        self.client.login(email=self.user_owner_email, password=self.password)
+
+        response = self.client.get(create_invite_url(self.organization.code, 'nonexistingemail@mail.com', 'invite'))
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+
     def test_invite_user_owner(self):
         self.user_member_membership.is_owner = True
         self.user_member_membership.save()
@@ -168,6 +174,53 @@ class OrganizationAcceptInviteTests(OrganizationTestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(self.organization.membership_set.get(user=self.user_member).has_accepted, True)
+
+
+class OrganizationDeclineInviteTests(OrganizationTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('organizations-member-decline_invite', args=[self.organization.code])
+
+    def test_page_name(self):
+        self.assertEqual(
+            self.url,
+            f"/organizations/{self.organization.code}/members/decline_invite"
+        )
+
+    def test_decline_invite_user_anonymous(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertIn('login', response.url)
+
+    def test_decline_invite_user_non_member(self):
+        self.client.login(email=self.user_member_email, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+    def test_decline_invite_user_already_in_organization(self):
+        self.user_member_membership.has_accepted = True
+        self.user_member_membership.save()
+        self.client.login(email=self.user_member_email, password=self.password)
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+    def test_decline_invite_user_blocked(self):
+        self.user_member_membership.is_blocked = True
+        self.user_member_membership.save()
+        self.client.login(email=self.user_member_email, password=self.password)
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+    def test_decline_invite_user_not_in_organization(self):
+        self.user_member_membership.has_accepted = False
+        self.user_member_membership.save()
+        self.client.login(email=self.user_member_email, password=self.password)
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertNotIn(self.user_member_membership, self.organization.membership_set.all())
 
 
 class OrganizationInvitesViewTests(OrganizationTestCase):

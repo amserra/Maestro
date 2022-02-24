@@ -12,7 +12,7 @@
                 {% csrf_token %}
                 {{ form.as_ul }}
                 <div class="flex">
-                    <button name="accept-button-text" role="button" class="btn-primary">Accept</button>
+                    <button name="accept-button-text" role="button" class="btn-primary mr-2">Accept</button>
                     <button onclick="closeModal(this)" type="button" name="cancel-button-text" class="btn-cancel">Cancel</button>
                 </div>
             </form>

@@ -93,7 +93,7 @@ class OrganizationMembersView(LoginRequiredMixin, UserIsMember, SafePaginationMi
         context = super(OrganizationMembersView, self).get_context_data(*args, **kwargs)
         organization = Organization.objects.get(code=self.kwargs['code'])
         context['organization'] = organization
-        context['invite_form'] = MembershipInviteForm(code=organization.code)
+        context['invite_form'] = MembershipInviteForm()
         # Tells if user is organization's owner
         context['is_owner'] = Membership.objects.filter(organization=organization, user=self.request.user, is_owner=True).exists()
         return context
@@ -114,12 +114,19 @@ def organization_invite_member(request, code):
     organization = get_object_or_404(Organization, code=code)
     invitee = request.GET.get('invitee', None)
     action = request.GET.get('action', None)
+
     if not action or (action != 'invite' and action != 'cancel'):
         return HttpResponseBadRequest()
 
-    invitee_user = get_object_or_404(User, email=invitee)
+    invitee_user = User.objects.filter(email=invitee)
+    if not invitee_user.exists():
+        messages.error(request, 'The email you provided doesn\'t belong to a Maestro\'s user.')
+        return HttpResponseBadRequest()
+    else:
+        invitee_user = invitee_user[0]
+
     if action == 'invite' and invitee_user in organization.members.all():
-        messages.error(request, 'The user is already invited or is already in the organization')
+        messages.error(request, 'The user is already invited or is already in the organization.')
         return HttpResponseBadRequest()
     elif action == 'cancel' and not invitee_user.membership_set.filter(organization=organization).exists():
         messages.error(request, 'The user was never invited')
@@ -155,7 +162,17 @@ def organization_accept_invite(request, code):
     user_membership.join_date = now()
     user_membership.save()
     messages.success(request, f"You are now a member of the organization {organization.name}.")
-    return HttpResponse()
+    return HttpResponse(status=200)
+
+
+@login_required
+def organization_decline_invite(request, code):
+    organization = get_object_or_404(Organization, code=code)
+    user_membership = get_object_or_404(Membership, user=request.user, organization=organization, has_accepted=False, is_blocked=False)
+
+    user_membership.delete()
+    messages.success(request, f"You have declined the invite to the organization {organization.code}.")
+    return HttpResponse(status=200)
 
 
 @login_required
@@ -167,7 +184,7 @@ def organization_leave(request, code):
     number_users_organization = Membership.objects.filter(organization=organization, has_accepted=True, is_blocked=False).count()
     number_owners_organization = Membership.objects.filter(organization=organization, is_owner=True).count()
     if number_users_organization == 1:
-        # TODO: Delete all the contexts of the organization
+        organization.contexts.all().delete()
         organization.delete()
         messages.success(request, 'You have left the organization successfully. Since you were the only owner, all the contexts have also been deleted.')
         return HttpResponse(status=200)

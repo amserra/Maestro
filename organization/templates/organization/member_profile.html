@@ -13,14 +13,14 @@
                     {% include 'common/breadcrumb.html' with nav_links='Organizations '|addstr:member.organization.code|addstr:' Members '|addstr:user_full_name %}
                 {% endwith %}
             </div>
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row justify-between ">
                 <div>
                     <img class="rounded-full object-cover" src="{{ member.user.avatar.url }}" alt="logo" />
                     <p class="title mt-4">{{ member.user.get_full_name }}</p>
                     <p class="text-md text-gray-800 font-light mt-1">{{ member.user.email }}</p>
                 </div>
                 <div>
-                    <a href="{% url 'organizations-member-list' member.organization.code %}" type="button" class="btn-cancel">Back</a>
+                    <a href="{% url 'organizations-member-list' member.organization.code %}" class="btn-cancel">Back</a>
                 </div>
             </div>
             <div class="mt-10">

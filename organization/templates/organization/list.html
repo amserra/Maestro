@@ -11,12 +11,12 @@
             <div class="mb-10">
                 {% include 'common/breadcrumb.html' with nav_links='Organizations My_organizations' %}
             </div>
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row justify-between items-center">
                 <div>
                     <p class="title">My organizations</p>
                 </div>
                 <div>
-                    <a href="{% url 'organizations-new' %}" type="button" class="btn-primary">Create organization</a>
+                    <a href="{% url 'organizations-new' %}" class="btn-primary">Create organization</a>
                 </div>
             </div>
             <div class="mt-6">
@@ -59,7 +59,7 @@
                     </table>
                 </div>
                 {% if organizations.count == 0 %}
-                    <p class="text-lg font-medium">You don't belong to any organization</p>
+                    <p class="text-lg font-medium">You don't belong to any organization.</p>
                 {% endif %}
             </div>
         </div>

@@ -10,12 +10,12 @@
             <div class="mb-10">
                 {% include 'common/breadcrumb.html' with nav_links='Organizations Invites' %}
             </div>
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row justify-between items-center">
                 <div>
                     <p class="title">Invites</p>
                 </div>
                 <div>
-                    <a href="{% url 'organizations-new' %}" type="button" class="btn-primary">Create organization</a>
+                    <a href="{% url 'organizations-new' %}" class="btn-primary">Create organization</a>
                 </div>
             </div>
             <div class="mt-6">
@@ -35,8 +35,17 @@
                         {% for invite in invites %}
                             <tr class="text-sm font-medium border-b even:bg-white odd:bg-gray-50" name="organization" code="{{ organization.code }}">
                                 <td class="py-4 px-6 xl:w-2/3">
-                                    {#                                        <a href="#" class=" text-gray-700 hover:underline">{{ invite.organization.name }}</a>#}
                                     <p class=" text-gray-700">{{ invite.organization.name }}</p>
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    <a href="#" class="text-blue-600 hover:underline" onclick="
+                                            openModal(
+                                            'modal-decline',
+                                            acceptModalDecline,
+                                            {title: 'Are you sure you want to decline the invitation to the organization \'{{ invite.organization.name }}\'?'},
+                                            {code: '{{ invite.organization.code }}'})">
+                                        Decline
+                                    </a>
                                 </td>
                                 <td class="py-4 px-6 text-right">
                                     <a href="#" class="text-blue-600 hover:underline" onclick="
@@ -54,7 +63,7 @@
                     </table>
                 </div>
                 {% if invites.count == 0 %}
-                    <p class="text-lg font-medium">You have no invites</p>
+                    <p class="text-lg font-medium">You have no invites.</p>
                 {% endif %}
             </div>
         </div>
@@ -65,6 +74,7 @@
         {% endif %}
     </div>
     {% include 'common/confirmation-modal.html' with id='modal-accept' %}
+    {% include 'common/confirmation-modal.html' with id='modal-decline' %}
 
 
     <script>
@@ -73,6 +83,13 @@
             // 'organizations-member-accept_invite'
             let organizations_base = "{% url 'organizations-list' %}";
             fetch(`${organizations_base}${code}/members/accept_invite`).then(_ => location.reload());
+        }
+
+        function acceptModalDecline(modal) {
+            const code = modal.getAttribute("code");
+            // 'organizations-member-accept_invite'
+            let organizations_base = "{% url 'organizations-list' %}";
+            fetch(`${organizations_base}${code}/members/decline_invite`).then(_ => location.reload());
         }
 
     </script>

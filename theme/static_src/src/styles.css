@@ -38,13 +38,17 @@ html {
 /* Buttons */
 
 .btn-default {
-    @apply focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 w-full whitespace-nowrap transition duration-300 ease-in-out
+    @apply focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center w-full whitespace-nowrap transition duration-300 ease-in-out
 }
 
 .btn-primary {
     @apply btn-default text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-800
 }
 
+.btn-secondary {
+    @apply btn-default text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-yellow-300
+}
+
 .btn-cancel {
-    @apply btn-default text-gray-500 border-2 border-gray-300 bg-transparent hover:bg-gray-200 hover:border-gray-200 focus:ring-gray-200
+    @apply btn-default text-gray-500 border-2 border-gray-300 hover:bg-gray-200 hover:border-gray-200 focus:ring-gray-200
 }

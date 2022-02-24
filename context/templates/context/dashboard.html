@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load my_filters %}
+
+{% block title %}
+    Maestro | Dashboard
+{% endblock %}
+
+{% block content %}
+    <div class="page-container lg:w-2/3 min-h-40rem flex flex-col">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between items-center">
+                <div>
+                    <p class="title">Dashboard</p>
+                </div>
+                <div>
+                    <a href="{% url 'contexts-new' %}" class="btn-primary">Create search context</a>
+                </div>
+            </div>
+            <div class="container mx-auto mt-10 grid md:grid-cols-2 justify-center gap-4">
+                {% for context in contexts %}
+                    <div class="col-span-1 flex flex-col p-6 max-w-md bg-white rounded-lg border border-gray-200 shadow-md">
+                        <h2 class="mb-2 text-xl font-semibold tracking-tight text-gray-900">
+                            {% if context.owner|get_type == 'User' %}
+                                Me/ {{ context.code }}
+                            {% else %}
+                                {{ context.owner.code }}/ {{ context.code }}
+                            {% endif %}
+                        </h2>
+                        <p class="mb-3 font-normal text-gray-700 mt-auto text-justify truncate min-h-[1rem]">{{ context.description }}</p>
+                        <div class="flex flex-wrap justify-between">
+                            <a href="#" class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300">
+                                Details
+                                <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 -mr-1 w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </a>
+                            <div class="inline-flex items-center">
+                                {% if context.status == 'Finished' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#7bc62d" fill="#7bc62d" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
+                                {% elif context.status == 'Running' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffbf00" fill="#ffbf00" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
+                                {% elif context.status == 'Stopped' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ff4500" fill="#ff4500" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
+                                {% elif context.status == 'Not configured' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#9e9e9e" fill="#9e9e9e" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
+                                {% endif %}
+                                <p>{{ context.status }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if contexts.count == 0 %}
+                <p class="text-lg">You have no search contexts. Try creating one!</p>
+            {% endif %}
+        </div>
+        {% if page_obj.paginator.num_pages > 1 %}
+            <div class="flex w-full justify-center mt-auto">
+                {% include 'common/pagination.html' %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

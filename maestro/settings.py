@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'common',
     'account',
     'organization',
+    'context',
 ]
 
 MIDDLEWARE = [

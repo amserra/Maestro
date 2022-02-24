@@ -11,7 +11,7 @@
             <div class="mb-10">
                 {% include 'common/breadcrumb.html' with nav_links='Organizations '|addstr:organization.code|addstr:' Members' %}
             </div>
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row justify-between items-center">
                 <div class="pr-8">
                     <p class="title">{{ organization.name }}</p>
                 </div>
@@ -25,12 +25,11 @@
                                    {title: 'Invite an user', acceptButton: 'Invite'},
                                    {organization: '{{ organization.code }}'}
                                    )"
-                           type="button"
-                           class="btn-primary">
+                           class="btn-primary mr-2">
                             Invite
                         </a>
                     {% endif %}
-                    <a href="{% url 'organizations-list' %}" type="button" class="btn-cancel">Back</a>
+                    <a href="{% url 'organizations-list' %}" class="btn-cancel">Back</a>
                 </div>
             </div>
             <div class="mt-6">
@@ -156,8 +155,7 @@
         }
 
         function acceptModalInvite(modal, form) {
-            let select_user = form["user"];
-            let user = select_user.options[select_user.selectedIndex].text;
+            let user = form["user"].value;
             // 'organizations-member-invite'
             const url = "{% url 'organizations-member-invite' organization.code %}";
             fetch(`${url}?invitee=${encodeURIComponent(user)}&action=invite`).then(_ => location.reload());

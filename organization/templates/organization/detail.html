@@ -11,12 +11,12 @@
             <div class="mb-10">
                 {% include 'common/breadcrumb.html' with nav_links='Organizations '|addstr:organization.code|addstr:' Detail' %}
             </div>
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row justify-between items-center">
                 <div>
                     <p class="title">{{ organization.name }}</p>
                 </div>
                 <div>
-                    <a href="{% url 'organizations-list' %}" type="button" class="btn-cancel">Back</a>
+                    <a href="{% url 'organizations-list' %}" class="btn-cancel">Back</a>
                 </div>
             </div>
             <div class="mt-6">

@@ -1,10 +1,5 @@
-<input  class="
-            border border-gray-300 pl-3 py-3 shadow-sm rounded text-sm
-            {% if "readonly" in widget.attrs.values %}
-            bg-gray-100 focus:border-gray-300 focus:ring-0 cursor-default
-            {% else %}
-            bg-transparent focus:border-indigo-700
-            {% endif %}"
+<input  class="border border-gray-300 pl-3 py-3 shadow-sm rounded text-sm bg-transparent focus:border-indigo-700
+            disabled:bg-gray-100 disabled:focus:border-gray-300 disabled:focus:ring-0 disabled:cursor-default disabled:cursor-not-allowed"
         type="{{ widget.type }}"
         name="{{ widget.name }}"
         {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}

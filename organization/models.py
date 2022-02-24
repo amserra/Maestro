@@ -1,5 +1,7 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from account.models import User
+from context.models import SearchContext
 
 
 class Organization(models.Model):
@@ -9,6 +11,8 @@ class Organization(models.Model):
     members = models.ManyToManyField(User, through='Membership')
     members_can_edit = models.BooleanField(default=True)
     members_can_create = models.BooleanField(default=True)
+
+    contexts = GenericRelation(SearchContext, object_id_field='owner_id', content_type_field='owner_type', related_query_name='organization')
 
     @property
     def active_members(self):

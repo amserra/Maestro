@@ -97,7 +97,7 @@ class ProfileView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('profile')
     model = User
     form_class = ProfileUpdateForm
-    success_message = 'Your profile was updated successfully'
+    success_message = 'Your profile was updated successfully.'
 
     def get_form_kwargs(self):
         kwargs = super(ProfileView, self).get_form_kwargs()
