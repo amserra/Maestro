@@ -1,5 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from context.helpers import get_user_search_contexts
+from context.models import SearchContext
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class UserHasAccess(UserPassesTestMixin):
@@ -9,5 +11,12 @@ class UserHasAccess(UserPassesTestMixin):
         user = self.request.user
         context_code = self.kwargs.get('code', None)
 
-        contexts = get_user_search_contexts(user)
-        return contexts.filter(code=context_code).exists()
+        try:
+            context = SearchContext.objects.get(code=context_code)
+            if context.owner_type.name == 'user':
+                return True
+            else:
+                organization = context.owner
+                return True if user in organization.active_members else False
+        except ObjectDoesNotExist:
+            return False

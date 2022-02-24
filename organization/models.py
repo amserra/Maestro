@@ -16,11 +16,11 @@ class Organization(models.Model):
 
     @property
     def active_members(self):
-        return self.membership_set.filter(has_accepted=True, is_blocked=False).all()
+        return self.members.filter(membership__has_accepted=True, membership__is_blocked=False).all()
 
     @property
     def owners(self):
-        return self.membership_set.filter(has_accepted=True, is_blocked=False, is_owner=True).all()
+        return self.members.filter(membership__has_accepted=True, membership__is_blocked=False, membership__is_owner=True).all()
 
     def user_in_organization(self, user: User) -> bool:
         return self.members.filter(user=user).exists()

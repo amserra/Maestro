@@ -46,6 +46,47 @@
                     </div>
                 {% endif %}
             </div>
+            <div class="mt-10">
+                {% if context.owner_type.name == 'organization' %}
+                    {% if context.owner.members_can_edit %}
+                        <a href="{% url 'contexts-configuration-create' context.code %}" class="btn-primary">Configure</a>
+                        <a  href="#"
+                            onclick="
+                                    openModal(
+                                    'modal-delete',
+                                    acceptModalDelete,
+                                    {title: 'Are you sure you want to delete the context {{ context.code }}?', subtitle: 'This action will be effective.'},
+                                    {code: '{{ context.code }}'}
+                                    )"
+                            class="btn-danger">
+                            Delete
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'contexts-configuration-create' context.code %}" class="btn-primary">Configure</a>
+                    <a  href="#"
+                        onclick="
+                                openModal(
+                                'modal-delete',
+                                acceptModalDelete,
+                                {title: 'Are you sure you want to delete the context {{ context.code }}?', subtitle: 'This action will be effective.'},
+                                {code: '{{ context.code }}'}
+                                )"
+                        class="btn-danger">
+                        Delete
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
+
+    {% include 'common/confirmation-modal.html' with id='modal-delete' %}
+
+    <script>
+        function acceptModalDelete(modal) {
+            // 'contexts-delete'
+            const url = "{% url 'contexts-delete' context.code %}";
+            fetch(url).then(response => window.location.replace(response.url));
+        }
+    </script>
 {% endblock content %}

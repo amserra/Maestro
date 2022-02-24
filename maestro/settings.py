@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'theme',
     'widget_tweaks',
     'imagekit',
+    'taggit',
     'common',
     'account',
     'organization',

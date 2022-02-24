@@ -3,7 +3,7 @@ from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 from django.core.exceptions import ValidationError
 
 from organization.models import Organization
-from .models import SearchContext
+from .models import SearchContext, Configuration
 import re
 
 
@@ -31,3 +31,10 @@ class SearchContextCreateForm(forms.ModelForm):
     class Meta:
         model = SearchContext
         fields = ['owner', 'code', 'name', 'description']
+
+
+class ConfigurationCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Configuration
+        fields = ['search_string', 'keywords']
