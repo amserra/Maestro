@@ -67,7 +67,7 @@
                         <div class="flex">
                             <div class="flex mr-16">
                                 {% if user.is_authenticated %}
-                                    <a href="{% url 'contexts-list' %}" class="nav-link {% if request.path == '/contexts/' %}active{% endif %}">
+                                    <a href="{% url 'contexts-list' %}" class="nav-link {% if '/contexts/' in request.path %}active{% endif %}">
                                         <span class="mr-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
                                         </span>

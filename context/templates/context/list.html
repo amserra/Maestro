@@ -28,7 +28,7 @@
                         </h2>
                         <p class="mb-3 font-normal text-gray-700 mt-auto text-justify truncate min-h-[1rem]">{{ context.description }}</p>
                         <div class="flex flex-wrap justify-between">
-                            <a href="#" class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300">
+                            <a href="{% url 'contexts-detail' context.code %}" class="inline-flex items-center py-2 px-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300">
                                 Details
                                 <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 -mr-1 w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             </a>

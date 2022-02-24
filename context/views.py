@@ -4,7 +4,10 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from common.mixins import SafePaginationMixin, TitleMixin
+from organization.authorization import UserIsMember
+from .authorization import UserHasAccess
 from .forms import SearchContextCreateForm
+from .helpers import get_user_search_contexts
 from .models import SearchContext
 
 
@@ -14,17 +17,11 @@ class DashboardView(LoginRequiredMixin, SafePaginationMixin, ListView):
     paginate_by = 4
 
     def get_queryset(self):
-        contexts_user = SearchContext.objects.filter(user=self.request.user)
-        contexts_user_organizations = SearchContext.objects.filter(
-            organization__membership__user=self.request.user,
-            organization__membership__is_blocked=False,
-            organization__membership__has_accepted=True
-        )
-        return (contexts_user | contexts_user_organizations).order_by('status')
+        contexts = get_user_search_contexts(self.request.user)
+        return contexts.order_by('status')
 
 
-class SearchContextCreateView(LoginRequiredMixin, TitleMixin, SuccessMessageMixin, CreateView):
-    title = 'Create a search context'
+class SearchContextCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'context/create.html'
     success_url = reverse_lazy('contexts-list')
     model = SearchContext
@@ -48,3 +45,11 @@ class SearchContextCreateView(LoginRequiredMixin, TitleMixin, SuccessMessageMixi
         context.code = form.cleaned_data['name'].replace(' ', '-').lower()
         context.save()
         return super().form_valid(form)
+
+
+class SearchContextDetailView(LoginRequiredMixin, UserHasAccess, DetailView):
+    template_name = 'context/detail.html'
+    model = SearchContext
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
+    context_object_name = 'context'

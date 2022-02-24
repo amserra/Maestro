@@ -12,11 +12,15 @@
                 {% include 'common/breadcrumb.html' with nav_links='Organizations '|addstr:organization.code|addstr:' Detail' %}
             </div>
             <div class="flex flex-row justify-between items-center">
-                <div>
+                <div class="mr-6">
                     <p class="title">{{ organization.name }}</p>
                 </div>
                 <div>
-                    <a href="{% url 'organizations-list' %}" class="btn-cancel">Back</a>
+                    {% if request.GET.from %}
+                        <a href="{{ request.GET.from }}" class="btn-cancel">Back</a>
+                    {% else %}
+                        <a href="{% url 'organizations-list' %}" class="btn-cancel">Back</a>
+                    {% endif %}
                 </div>
             </div>
             <div class="mt-6">
@@ -30,26 +34,26 @@
                 </ul>
             </div>
             <div class="mt-10">
-                <div class="border-l-2 pl-2 border-gray-600/60">
+                <div class="">
                     <p class="text-2xl text-blue-700">Code</p>
                     <p class="text-xl font-light text-gray-600">{{ organization.code }}</p>
                 </div>
-                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                <div class="mt-6">
                     <p class="text-2xl text-blue-700">Name</p>
                     <p class="text-xl font-light text-gray-600">{{ organization.name }}</p>
                 </div>
-                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                <div class="mt-6">
                     <p class="text-2xl text-blue-700">Created at</p>
                     <p class="text-xl font-light text-gray-600">{{ organization.create_date|date:'F jS, Y' }}</p>
                 </div>
-                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                <div class="mt-6">
                     <p class="text-2xl text-blue-700">Members can edit</p>
                     <label for="toggle-example-disabled" class="flex relative items-center mb-4 cursor-not-allowed">
                         <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if organization.members_can_edit %}checked{% endif %} disabled>
                         <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
                     </label>
                 </div>
-                <div class="border-l-2 pl-2 border-gray-600/60 mt-6">
+                <div class="mt-6">
                     <p class="text-2xl text-blue-700">Members can create</p>
                     <label for="toggle-example-disabled" class="flex relative items-center mb-4 cursor-not-allowed">
                         <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if organization.members_can_create %}checked{% endif %} disabled>

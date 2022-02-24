@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load my_filters %}
+
+{% block title %}
+    Search context '{{ context.code }}'
+{% endblock %}
+
+{% block content %}
+    <div class="page-container lg:w-1/2 min-h-40rem">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between items-center">
+                <div class="mr-6">
+                    <p class="title">{{ context.name }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'contexts-list' %}" class="btn-cancel">Back</a>
+                </div>
+            </div>
+            <div class="mt-10">
+                <div class="">
+                    <p class="text-2xl text-blue-700">Code</p>
+                    <p class="text-xl font-light text-gray-600">{{ context.code }}</p>
+                </div>
+                <div class="mt-6">
+                    <p class="text-2xl text-blue-700">Name</p>
+                    <p class="text-xl font-light text-gray-600">{{ context.name }}</p>
+                </div>
+                <div class="mt-6">
+                    <p class="text-2xl text-blue-700">Owner</p>
+                    {% if context.owner_type.name == 'organization' %}
+                        <a href="{% url 'organizations-detail' context.owner.code %}?from={{ request.path }}" class="text-xl font-normal text-gray-600 underline decoration-blue-700 decoration-dashed hover:decoration-solid decoration-2 underline-offset-1">
+                            {{ context.owner.name }}
+                        </a>
+                    {% else %}
+                        <p class="text-xl font-light text-gray-600">(Me) {{ context.owner.get_full_name }}</p>
+                    {% endif %}
+                </div>
+                <div class="mt-6">
+                    <p class="text-2xl text-blue-700">Created at</p>
+                    <p class="text-xl font-light text-gray-600">{{ context.create_date|date:'F jS, Y' }}</p>
+                </div>
+                {% if context.owner_type.name == 'organization' %}
+                    <div class="mt-6">
+                        <p class="text-2xl text-blue-700">Created by</p>
+                        <a href="{% url 'organizations-member-profile' context.owner.code context.creator|urlencode %}?from={{ request.path }}" class="text-xl font-normal text-gray-600 underline decoration-blue-700 decoration-dashed hover:decoration-solid decoration-2 underline-offset-1">{{ context.creator.get_full_name }}</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

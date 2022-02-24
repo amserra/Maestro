@@ -20,7 +20,11 @@
                     <p class="text-md text-gray-800 font-light mt-1">{{ member.user.email }}</p>
                 </div>
                 <div>
-                    <a href="{% url 'organizations-member-list' member.organization.code %}" class="btn-cancel">Back</a>
+                    {% if request.GET.from %}
+                        <a href="{{ request.GET.from }}" class="btn-cancel">Back</a>
+                    {% else %}
+                        <a href="{% url 'organizations-member-list' member.organization.code %}" class="btn-cancel">Back</a>
+                    {% endif %}
                 </div>
             </div>
             <div class="mt-10">

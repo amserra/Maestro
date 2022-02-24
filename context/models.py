@@ -14,6 +14,8 @@ class SearchContext(models.Model):
     code = models.CharField(max_length=30)  # unique for the user/organization. Created by the system based on the name
     name = models.CharField(max_length=30, blank=False)  # required
     description = models.TextField(blank=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(to='account.User', on_delete=models.SET_NULL, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Not configured')
 
     # Owner of search context (can be User or Organization)
