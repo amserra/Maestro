@@ -66,8 +66,17 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
     model = Configuration
     context_object_name = 'configuration'
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+
     def get_object(self, queryset=None):
-        return get_object_or_404(SearchContext, code=self.kwargs.get('code')).configuration
+        return self.context.configuration
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['context'] = self.context
+        return context
 
 
 class SearchContextConfigurationCreateView(LoginRequiredMixin, UserCanEdit, SuccessMessageMixin, ModelFormMixin, FormView):
@@ -109,7 +118,8 @@ class SearchContextConfigurationCreateView(LoginRequiredMixin, UserCanEdit, Succ
 def search_context_delete(request, code):
     context = get_object_or_404(SearchContext, code=code)
 
-    context.configuration.delete()
+    if context.configuration:
+        context.configuration.delete()
     context.delete()
 
     return redirect('contexts-list')

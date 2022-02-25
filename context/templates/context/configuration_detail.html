@@ -2,18 +2,18 @@
 {% load my_filters %}
 
 {% block title %}
-    Search context '{{ configuration.context.code }}' configuration
+    Search context '{{ context.code }}' configuration
 {% endblock %}
 
 {% block content %}
-    <div class="page-container lg:w-1/2 min-h-40rem">
+    <div class="page-container lg:w-1/2 min-h-40rem flex flex-col">
         <div class="xl:w-full">
             <div class="mb-10">
-                {% include 'common/breadcrumb.html' with nav_links='Search_contexts '|addstr:configuration.context.code|addstr:' Configuration' %}
+                {% include 'common/breadcrumb.html' with nav_links='Search_contexts '|addstr:context.code|addstr:' Configuration' %}
             </div>
             <div class="flex flex-row justify-between items-center">
                 <div class="mr-6">
-                    <p class="title">{{ configuration.context.name }}</p>
+                    <p class="title">{{ context.name }}</p>
                 </div>
                 <div>
                     <a href="{% url 'contexts-list' %}" class="btn-cancel">Back</a>
@@ -22,7 +22,7 @@
             <div class="mt-6">
                 <ul class="flex flex-wrap border-b border-gray-200">
                     <li class="mr-2">
-                        <a href="{% url 'contexts-detail' configuration.context.code %}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Basic information</a>
+                        <a href="{% url 'contexts-detail' context.code %}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Basic information</a>
                     </li>
                     <li class="mr-2">
                         <a href="#" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-t-lg active">Configuration</a>
@@ -30,35 +30,39 @@
                 </ul>
             </div>
             <div class="mt-10">
-                <div class="">
-                    <p class="text-2xl text-blue-700">Search string</p>
-                    <p class="text-xl font-light text-gray-600">{{ configuration.search_string }}</p>
-                </div>
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Keywords</p>
-                    {% for keyword in configuration.keywords.all %}
-                        <div class="px-2 py-1 bg-indigo-600 rounded inline-flex text-white font-light">
-                            {{ keyword }}
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="mt-10">
-                {% if configuration.context.owner_type.name == 'user' or configuration.context.owner_type.name == 'organization' and configuration.context.owner.members_can_edit %}
-                    <a href="{% url 'contexts-configuration-update' configuration.context.code %}?from={{ request.path }}" class="btn-primary">Configure</a>
-                    <a  href="#"
-                        onclick="
-                                openModal(
-                                'modal-delete',
-                                acceptModalDelete,
-                                {title: 'Are you sure you want to delete the context {{ context.code }}?', subtitle: 'This action will be effective.'},
-                                {code: '{{ context.code }}'}
-                                )"
-                        class="btn-danger">
-                        Delete
-                    </a>
+                {% if configuration %}
+                    <div>
+                        <p class="text-2xl text-blue-700">Search string</p>
+                        <p class="text-xl font-light text-gray-600">{{ configuration.search_string }}</p>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-2xl text-blue-700">Keywords</p>
+                        {% for keyword in configuration.keywords.all %}
+                            <div class="px-2 py-1 bg-indigo-600 rounded inline-flex text-white font-light">
+                                {{ keyword }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>This context hasn't been configured yet. Configure it by clicking the <span class="text-blue-600">Configure</span> button below.</p>
                 {% endif %}
             </div>
+        </div>
+        <div class="mt-auto">
+            {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                <a href="{% url 'contexts-configuration-update' context.code %}?from={{ request.path }}" class="btn-primary">Configure</a>
+                <a  href="#"
+                    onclick="
+                            openModal(
+                            'modal-delete',
+                            acceptModalDelete,
+                            {title: 'Are you sure you want to delete the context {{ context.code }}?', subtitle: 'This action will be effective.'},
+                            {code: '{{ context.code }}'}
+                            )"
+                    class="btn-danger">
+                    Delete
+                </a>
+            {% endif %}
         </div>
     </div>
 
@@ -67,7 +71,7 @@
     <script>
         function acceptModalDelete(modal) {
             // 'contexts-delete'
-            const url = "{% url 'contexts-delete' configuration.context.code %}";
+            const url = "{% url 'contexts-delete' context.code %}";
             fetch(url).then(response => window.location.replace(response.url));
         }
     </script>
