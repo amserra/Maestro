@@ -9,6 +9,10 @@ class Configuration(models.Model):
     search_string = models.CharField(max_length=50, help_text='This field should be similar to what you would input on a search engine.')
     keywords = TaggableManager()
 
+    @property
+    def context(self):
+        return self.searchcontext_set.all()[0]
+
 
 class SearchContext(models.Model):
     STATUS_CHOICES = [

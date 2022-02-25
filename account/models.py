@@ -3,6 +3,8 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
+
+from context.helpers import get_user_search_contexts
 from context.models import SearchContext
 
 
@@ -58,4 +60,9 @@ class User(AbstractUser):
     @property
     def organizations_active(self):
         return self.organization_set.filter(membership__has_accepted=True, membership__is_blocked=False)
+
+    @property
+    def all_contexts(self):
+        """Returns the contexts the user has access to (organization and self)"""
+        return get_user_search_contexts(self)
 

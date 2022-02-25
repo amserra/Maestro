@@ -1,9 +1,8 @@
 from django.db.models.query import QuerySet
-from account.models import User
 from context.models import SearchContext
 
 
-def get_user_search_contexts(user: User) -> QuerySet[SearchContext]:
+def get_user_search_contexts(user) -> QuerySet[SearchContext]:
     """Gets the search contexts the user has access to"""
     contexts_user = SearchContext.objects.filter(user=user)
     contexts_user_organizations = SearchContext.objects.filter(

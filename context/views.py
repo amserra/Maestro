@@ -1,22 +1,26 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import resolve
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
-from common.mixins import SafePaginationMixin, TitleMixin
-from organization.authorization import UserIsMember
+from django.views.generic import CreateView, DetailView, FormView
+from django.views.generic.edit import ModelFormMixin
+from django_filters.views import FilterView
+from common.decorators import PaginatedFilterView
+from common.mixins import SafePaginationMixin
 from .authorization import UserHasAccess, UserCanEdit, user_can_edit
+from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, ConfigurationCreateForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration
 
 
-class DashboardView(LoginRequiredMixin, SafePaginationMixin, ListView):
+class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFilterView, FilterView):
     template_name = 'context/list.html'
     context_object_name = 'contexts'
     paginate_by = 4
+    filterset_class = SearchContextFilter
 
     def get_queryset(self):
         contexts = get_user_search_contexts(self.request.user)
@@ -57,18 +61,36 @@ class SearchContextDetailView(LoginRequiredMixin, UserHasAccess, DetailView):
     context_object_name = 'context'
 
 
-class SearchContextConfigurationCreateView(LoginRequiredMixin, UserCanEdit, CreateView):
-    template_name = 'context/configuration_create.html'
+class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, DetailView):
+    template_name = 'context/configuration_detail.html'
     model = Configuration
+    context_object_name = 'configuration'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(SearchContext, code=self.kwargs.get('code')).configuration
+
+
+class SearchContextConfigurationCreateView(LoginRequiredMixin, UserCanEdit, SuccessMessageMixin, ModelFormMixin, FormView):
     form_class = ConfigurationCreateForm
-    success_message = 'The search was configured successfully.'
+    http_method_names = ['get', 'post']
+    template_name = 'context/configuration_configure.html'
+    success_message = 'The search context was configured successfully.'
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.context = SearchContext.objects.get(code=self.kwargs.get('code'))
+        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        if self.context.configuration:
+            self.object = self.context.configuration
+        else:
+            self.object = None
 
     def get_success_url(self):
-        return reverse_lazy('contexts-detail', args=[self.context.code])
+        from_url = self.request.GET.get('from', None)
+        if from_url:
+            resolved_url = resolve(from_url)
+            return reverse_lazy(resolved_url.url_name, args=[resolved_url.kwargs['code']])
+        else:
+            return reverse_lazy('contexts-detail', args=[self.context.code])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'imagekit',
     'taggit',
+    'django_filters',
     'common',
     'account',
     'organization',

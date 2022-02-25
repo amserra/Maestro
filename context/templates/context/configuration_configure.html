@@ -13,8 +13,12 @@ Maestro | Configure search context
             {% csrf_token %}
             {{ form.as_ul }}
             <div class="flex flex-col gap-3 mt-10">
-                <input type="submit" value="Create search context configuration" role="button" class="btn-primary"/>
-                <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Cancel</a>
+                <input type="submit" value="Update search context configuration" role="button" class="btn-primary"/>
+                {% if request.GET.from %}
+                    <a href="{{ request.GET.from }}" class="btn-cancel">Cancel</a>
+                {% else %}
+                    <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Cancel</a>
+                {% endif %}
             </div>
         </form>
     </div>

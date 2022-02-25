@@ -3,203 +3,213 @@
 
 <!DOCTYPE html>
 <html data-theme="garden" lang="en">
-    <head>
-        <title>
-            {% block title %}
-            {% endblock title %}
-        </title>
-        {# Start logo data #}
-        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'common/img/logo/apple-touch-icon.png' %}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'common/img/logo/favicon-32x32.png' %}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'common/img/logo/favicon-16x16.png' %}">
-        <link rel="manifest" href="{% static 'common/img/logo/site.webmanifest' %}">
-        <meta name="apple-mobile-web-app-title" content="Maestro">
-        <meta name="application-name" content="Maestro">
-        <meta name="msapplication-TileColor" content="#f2eee4">
-        <meta name="theme-color" content="#f2eee4">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-        {# End Logo data #}
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <script src="//unpkg.com/alpinejs" defer></script>
-        <script src="{% static 'common/js/modal-handler.js' %}"></script>
-        {% tailwind_css %}
-    </head>
+<head>
+    <title>
+        {% block title %}
+        {% endblock title %}
+    </title>
+    {# Start logo data #}
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'common/img/logo/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'common/img/logo/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'common/img/logo/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'common/img/logo/site.webmanifest' %}">
+    <meta name="apple-mobile-web-app-title" content="Maestro">
+    <meta name="application-name" content="Maestro">
+    <meta name="msapplication-TileColor" content="#f2eee4">
+    <meta name="theme-color" content="#f2eee4">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    {# End Logo data #}
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="{% static 'common/js/modal-handler.js' %}"></script>
+    {% tailwind_css %}
+</head>
 
-    <style>
-        /* hidden on default */
-        #modal-viewport { display: none; }
+<style>
+    /* hidden on default */
+    #modal-viewport {
+        display: none;
+    }
 
-        /* smaller devices than 768px (below md breakpoint: sm screens) will have a popup */
-        @media only screen and (max-width:768px) {
-            #modal-viewport { display: flex; }
+    /* smaller devices than 768px (below md breakpoint: sm screens) will have a popup */
+    @media only screen and (max-width: 768px) {
+        #modal-viewport {
+            display: flex;
         }
-    </style>
+    }
+</style>
 
-    <div id="modal-viewport" class="fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-hidden flex justify-center items-center w-full h-full">
-        <div>
-            <div class="relative px-4 w-full max-w-md h-full md:h-auto">
-                <div class="relative bg-white rounded-lg shadow">
-                    <div class="p-6 text-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-4 w-14 h-14 text-gray-400" viewBox="0 0 24 24" stroke-width="1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M10 10l4 4m0 -4l-4 4" /></svg>
-                        <h3 class="mb-5 text-lg font-normal text-gray-500">Viewport not supported</h3>
-                        <h3 class="mb-5 text-sm font-normal text-gray-500">The size of the device you are using is not supported. Please access Maestro in a larger screen.</h3>
-                    </div>
+<div id="modal-viewport" class="fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-hidden flex justify-center items-center w-full h-full">
+    <div>
+        <div class="relative px-4 w-full max-w-md h-full md:h-auto">
+            <div class="relative bg-white rounded-lg shadow">
+                <div class="p-6 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-4 w-14 h-14 text-gray-400" viewBox="0 0 24 24" stroke-width="1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9"/><path d="M10 10l4 4m0 -4l-4 4"/></svg>
+                    <h3 class="mb-5 text-lg font-normal text-gray-500">Viewport not supported</h3>
+                    <h3 class="mb-5 text-sm font-normal text-gray-500">The size of the device you are using is not supported. Please access Maestro in a larger screen.</h3>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <body class="flex flex-col h-full bg-gray-100">
+<body class="flex flex-col h-full bg-gray-100">
 
-        <div class="w-full">
-            <nav role="navigation" class="bg-white shadow">
-                <div class="mx-auto container px-6 py-0">
-                    <div class="flex items-center justify-between">
-                        <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-auto items-stretch justify-start">
-                            <div  class="flex items-center">
-                                <img class="w-14 h-14" src="{% static 'common/img/logo/maestro_transparent.svg' %}" alt="logo" />
-                            </div>
-                        </a>
-                        <div class="flex">
-                            <div class="flex mr-16">
-                                {% if user.is_authenticated %}
-                                    <a href="{% url 'contexts-list' %}" class="nav-link {% if '/contexts/' in request.path %}active{% endif %}">
+<div class="w-full">
+    <nav role="navigation" class="bg-white shadow">
+        <div class="mx-auto container px-6 py-0">
+            <div class="flex items-center justify-between">
+                <a href="{% url 'home' %}" class="focus:ring-1 focus:ring-indigo-700 rounded-md flex w-auto items-stretch justify-start">
+                    <div class="flex items-center">
+                        <img class="w-14 h-14" src="{% static 'common/img/logo/maestro_transparent.svg' %}" alt="logo"/>
+                    </div>
+                </a>
+                <div class="flex">
+                    <div class="flex mr-16">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'contexts-list' %}" class="nav-link {% if '/contexts/' in request.path %}active{% endif %}">
                                         <span class="mr-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
                                         </span>
-                                        Search contexts
-                                    </a>
-{#                                    <a href="javascript: void(0)" class="nav-link {% if request.path == '/plugins/' %}active{% endif %}">#}
-{#                                        <span class="mr-2">#}
-{#                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>#}
-{#                                        </span>#}
-{#                                        Plugins#}
-{#                                    </a>#}
-                                {% endif %}
-                                <a href="{% url 'about' %}" class="nav-link {% if request.path == '/about/' %}active{% endif %}">
+                                Search contexts
+                            </a>
+                            {#                                    <a href="javascript: void(0)" class="nav-link {% if request.path == '/plugins/' %}active{% endif %}">#}
+                            {#                                        <span class="mr-2">#}
+                            {#                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>#}
+                            {#                                        </span>#}
+                            {#                                        Plugins#}
+                            {#                                    </a>#}
+                        {% endif %}
+                        <a href="{% url 'about' %}" class="nav-link {% if request.path == '/about/' %}active{% endif %}">
                                     <span class="mr-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-help" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="17" x2="12" y2="17.01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-help" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="17" x2="12" y2="17.01"/><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4"/></svg>
                                     </span>
-                                    About
-                                </a>
-                                <a href="{% url 'roadmap' %}" class="nav-link {% if request.path == '/roadmap/' %}active{% endif %}">
+                            About
+                        </a>
+                        <a href="{% url 'roadmap' %}" class="nav-link {% if request.path == '/roadmap/' %}active{% endif %}">
                                     <span class="mr-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-route" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="6" cy="19" r="2" /><circle cx="18" cy="5" r="2" /><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-route" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5"/></svg>
                                     </span>
-                                    Roadmap
-                                </a>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="ml-6 relative">
-                                    {% if user.is_authenticated %}
-                                        <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent py-3 text-gray-600 flex items-center relative" x-data="{profileOpen: false}" @click="profileOpen=!profileOpen" @click.outside="profileOpen=false">
-                                            <ul class="p-2 w-44 border-r bg-white absolute rounded right-0 shadow top-0 mt-16" x-show="profileOpen" style="display: none">
-                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
-                                                    <a href="{% url 'profile' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" /><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
-                                                        <span class="ml-2">My profile</span>
-                                                    </a>
-                                                </li>
-                                                <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
-                                                    <a href="{% url 'organizations-list' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="9" cy="7" r="4" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M21 21v-2a4 4 0 0 0 -3 -3.85" /></svg>
-                                                        <span class="ml-2">My organizations</span>
-                                                    </a>
-                                                </li>
-                                                {% if user.is_staff %}
-                                                    <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
-                                                        <a href="{% url 'admin:index' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crown" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4z" /></svg>
-                                                            <span class="ml-2">Admin Panel</span>
-                                                        </a>
-                                                    </li>
-                                                {% endif %}
-                                                <li class="border-t-2 border-gray-200 cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
-                                                    <a href="{% url 'logout' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
-                                                        <span class="ml-2">Logout</span>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                            <div class="cursor-pointer flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-white transition duration-150 ease-in-out">
-                                                <img class="rounded-full h-10 w-10 object-cover" src="{{ request.user.avatar.url }}" alt="logo" />
-                                            </div>
-                                            <div class="ml-2">
-                                                <svg class="cursor-pointer" x-show="profileOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="6 15 12 9 18 15" /></svg>
-                                                <svg class="cursor-pointer" x-show="!profileOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="6 9 12 15 18 9"/></svg>
-                                            </div>
-                                        </button>
-                                    {% else %}
-                                        <a href="{% url 'login' %}" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 font-bold hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                            Roadmap
+                        </a>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="ml-6 relative">
+                            {% if user.is_authenticated %}
+                                <button aria-label="dropdown" class="focus:outline-none border-b-2 border-transparent py-3 text-gray-600 flex items-center relative" x-data="{profileOpen: false}" @click="profileOpen=!profileOpen" @click.outside="profileOpen=false">
+                                    <ul class="p-2 w-44 border-r bg-white absolute rounded right-0 shadow top-0 mt-16" x-show="profileOpen" style="display: none">
+                                        <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                            <a href="{% url 'profile' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg>
+                                                <span class="ml-2">My profile</span>
+                                            </a>
+                                        </li>
+                                        <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                            <a href="{% url 'organizations-list' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg>
+                                                <span class="ml-2">My organizations</span>
+                                            </a>
+                                        </li>
+                                        {% if user.is_staff %}
+                                            <li class="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                                <a href="{% url 'admin:index' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crown" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4z"/></svg>
+                                                    <span class="ml-2">Admin Panel</span>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        <li class="border-t-2 border-gray-200 cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-2 hover:text-indigo-700 focus:text-indigo-700 focus:outline-none">
+                                            <a href="{% url 'logout' %}" class="focus:underline focus:text-indigo-700 focus:outline-none flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-logout" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M7 12h14l-3 -3m0 6l3 -3"/></svg>
+                                                <span class="ml-2">Logout</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="cursor-pointer flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-white transition duration-150 ease-in-out">
+                                        <img class="rounded-full h-10 w-10 object-cover" src="{{ request.user.avatar.url }}" alt="logo"/>
+                                    </div>
+                                    <div class="ml-2">
+                                        <svg class="cursor-pointer" x-show="profileOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="6 15 12 9 18 15"/></svg>
+                                        <svg class="cursor-pointer" x-show="!profileOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#374151" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="6 9 12 15 18 9"/></svg>
+                                    </div>
+                                </button>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="focus:text-indigo-700 border-b-2 border-transparent focus:border-indigo-700 flex px-5 items-center py-6 text-sm leading-5 text-gray-700 font-bold hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
                                             <span class="mr-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-login" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M20 12h-13l3 -3m0 6l-3 -3" /></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-login" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M20 12h-13l3 -3m0 6l-3 -3"/></svg>
                                             </span>
-                                            Sign in
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
+                                    Sign in
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
-            </nav>
-
-            <!-- Code block ends -->
+            </div>
         </div>
+    </nav>
 
-        {% block content %}
-        {% endblock content %}
+    <!-- Code block ends -->
+</div>
 
-        {% for message in messages %}
-            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-                <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-green-100 border-t-4 border-green-500 dark:bg-green-200 absolute bottom-0 w-full transition-opacity duration-1000 ease-in-out" role="alert">
-                    <svg class="flex-shrink-0 w-5 h-5 text-green-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                    <div class="ml-3 text-sm font-medium text-green-700">
-                        {{ message }}
-                    </div>
-                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-100 dark:bg-green-200 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 dark:hover:bg-green-300 inline-flex h-8 w-8"  data-collapse-toggle="alert-border-3" aria-label="Close">
-                      <span class="sr-only">Dismiss</span>
-                      <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </button>
+{% block content %}
+{% endblock content %}
+
+<div class="fixed inset-x-0 bottom-0">
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-green-100 border-t-4 border-green-500 w-full transition-opacity duration-1000 ease-in-out" role="alert">
+                <svg class="flex-shrink-0 w-5 h-5 text-green-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <div class="ml-3 text-sm font-medium text-green-700">
+                    {{ message }}
                 </div>
-            {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
-                <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-blue-100 border-t-4 border-blue-500 dark:bg-blue-200 absolute bottom-0 w-full transition-opacity duration-1000 ease-in-out" role="alert">
-                    <svg class="flex-shrink-0 w-5 h-5 text-blue-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                    <div class="ml-3 text-sm font-medium text-blue-700">
-                        {{ message }}
-                    </div>
-                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-blue-100 dark:bg-blue-200 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 dark:hover:bg-blue-300 inline-flex h-8 w-8"  data-collapse-toggle="alert-border-3" aria-label="Close">
-                      <span class="sr-only">Dismiss</span>
-                      <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </button>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8" data-collapse-toggle="alert-border-3" aria-label="Close">
+                    <span class="sr-only">Dismiss</span>
+                    <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+            <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-blue-100 border-t-4 border-blue-500 w-full transition-opacity duration-1000 ease-in-out" role="alert">
+                <svg class="flex-shrink-0 w-5 h-5 text-blue-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <div class="ml-3 text-sm font-medium text-blue-700">
+                    {{ message }}
                 </div>
-            {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
-                <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-yellow-100 border-t-4 border-yellow-500 dark:bg-yellow-200 absolute bottom-0 w-full transition-opacity duration-1000 ease-in-out" role="alert">
-                    <svg class="flex-shrink-0 w-5 h-5 text-yellow-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                    <div class="ml-3 text-sm font-medium text-yellow-700">
-                        {{ message }}
-                    </div>
-                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-yellow-100 dark:bg-yellow-200 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 dark:hover:bg-yellow-300 inline-flex h-8 w-8"  data-collapse-toggle="alert-border-3" aria-label="Close">
-                      <span class="sr-only">Dismiss</span>
-                      <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </button>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-blue-100 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 inline-flex h-8 w-8" data-collapse-toggle="alert-border-3" aria-label="Close">
+                    <span class="sr-only">Dismiss</span>
+                    <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+            <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-yellow-100 border-t-4 border-yellow-500 w-full transition-opacity duration-1000 ease-in-out" role="alert">
+                <svg class="flex-shrink-0 w-5 h-5 text-yellow-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <div class="ml-3 text-sm font-medium text-yellow-700">
+                    {{ message }}
                 </div>
-            {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-                <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-red-100 border-t-4 border-red-500 dark:bg-red-200 absolute bottom-0 w-full transition-opacity duration-1000 ease-in-out" role="alert">
-                    <svg class="flex-shrink-0 w-5 h-5 text-red-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                    <div class="ml-3 text-sm font-medium text-red-700">
-                        {{ message }}
-                    </div>
-                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-100 dark:bg-red-200 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 dark:hover:bg-red-300 inline-flex h-8 w-8"  data-collapse-toggle="alert-border-3" aria-label="Close">
-                      <span class="sr-only">Dismiss</span>
-                      <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </button>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-yellow-100 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex h-8 w-8" data-collapse-toggle="alert-border-3" aria-label="Close">
+                    <span class="sr-only">Dismiss</span>
+                    <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-red-100 border-t-4 border-red-500 absolute bottom-0 w-full transition-opacity duration-1000 ease-in-out" role="alert">
+                <svg class="flex-shrink-0 w-5 h-5 text-red-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <div class="ml-3 text-sm font-medium text-red-700">
+                    {{ message }}
                 </div>
-            {% endif %}
-        {% endfor %}
-    </body>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-100 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8" data-collapse-toggle="alert-border-3" aria-label="Close">
+                    <span class="sr-only">Dismiss</span>
+                    <svg @click="show = false" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+</body>
 </html>
