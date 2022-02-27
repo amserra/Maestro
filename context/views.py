@@ -29,10 +29,16 @@ class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFi
 
 class SearchContextCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'context/create.html'
-    success_url = reverse_lazy('contexts-list')
     model = SearchContext
     form_class = SearchContextCreateForm
     success_message = 'The search context was created successfully.'
+
+    def get_success_url(self):
+        # Conditionally choose success url based on the name of the button clicked
+        if 'create_configure' in self.request.POST:
+            return reverse_lazy('contexts-configuration-update', args=[self.object.code])
+        else:
+            return reverse_lazy('contexts-detail', args=[self.object.code])
 
     def get_form_kwargs(self):
         kwargs = super(SearchContextCreateView, self).get_form_kwargs()

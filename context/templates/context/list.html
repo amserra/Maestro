@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="page-container lg:w-3/4 min-h-40rem flex flex-col">
+    <div class="page-container lg:w-3/4 min-h-45rem flex flex-col">
         <div class="xl:w-full">
             <div class="flex flex-row justify-between items-center">
                 <div>
@@ -47,18 +47,20 @@
                                 </div>
                             </div>
                         </div>
+                    {% empty %}
+                        <p class="text-lg">No search contexts found.</p>
                     {% endfor %}
                 </div>
-                <div class="border-2 p-4 rounded-md shadow-md">
+                <div class="border-2 p-4 rounded-md shadow-md hidden lg:block">
                     <form method="get">
                         {{ filter.form.as_ul }}
-                        <input type="submit" value="Filter" class="btn-primary mt-auto cursor-pointer" />
+                        <div class="mt-auto flex flex-col gap-y-2">
+                            <input type="submit" value="Filter" class="btn-primary" />
+                            <a href="{% url 'contexts-list' %}" class="btn-cancel">Clear filters</a>
+                        </div>
                     </form>
                 </div>
             </div>
-            {% if contexts.count == 0 %}
-                <p class="text-lg">You have no search contexts. Try creating one!</p>
-            {% endif %}
         </div>
         {% if page_obj.paginator.num_pages > 1 %}
             <div class="flex w-full justify-center mt-auto">

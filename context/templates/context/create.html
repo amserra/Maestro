@@ -13,8 +13,8 @@ Maestro | Create search context
             {{ form.as_ul }}
             <div class="flex flex-col gap-3 mt-10">
                 <div class="flex gap-2">
-                    <input type="submit" value="Create and configure search context" role="button" class="btn-primary"/>
-                    <input type="submit" value="Create search context" role="button" class="btn-secondary"/>
+                    <input type="submit" name="create_configure" value="Create and configure search context" role="button" class="btn-primary"/>
+                    <input type="submit" name="create" value="Create search context" role="button" class="btn-secondary"/>
                 </div>
                 <a href="{% url 'contexts-list' %}" class="btn-cancel">Cancel</a>
             </div>

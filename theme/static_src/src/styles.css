@@ -38,7 +38,7 @@ html {
 /* Buttons */
 
 .btn-default {
-    @apply focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center w-full whitespace-nowrap transition duration-300 ease-in-out
+    @apply focus:ring-4 font-medium rounded-lg text-sm cursor-pointer px-5 py-2.5 text-center w-full whitespace-nowrap transition duration-300 ease-in-out
 }
 
 .btn-primary {
