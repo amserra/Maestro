@@ -24,8 +24,17 @@ Maestro | Create search context
     <script>
         const code = document.getElementById("id_code");
         const name = document.getElementById("id_name");
+
+        function get_code(value) {
+            return value.trim().toLowerCase().replace(/\s{2,}/g,' ').replace(/[^0-9a-z\- ]/gi, '').replaceAll(" ", "-");
+        }
+
+        if (name.value !== "") {
+            code.value = get_code(name.value);
+        }
+
         name.addEventListener("keyup", (ev) => {
-            code.value = ev.target.value.trim().toLowerCase().replace(/\s{2,}/g,' ').replace(/[^0-9a-z ]/gi, '').replaceAll(" ", "-");
+            code.value = get_code(ev.target.value);
         });
     </script>
 {% endblock content %}

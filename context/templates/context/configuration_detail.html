@@ -37,11 +37,13 @@
                     </div>
                     <div class="mt-6">
                         <p class="text-2xl text-blue-700">Keywords</p>
-                        {% for keyword in configuration.keywords.all %}
-                            <div class="px-2 py-1 bg-indigo-600 rounded inline-flex text-white font-light">
-                                {{ keyword }}
-                            </div>
-                        {% endfor %}
+                        <div class="flex gap-2 mt-2">
+                            {% for keyword in configuration.keywords.all %}
+                                <div class="px-2 py-1 bg-indigo-600 rounded text-white font-light">
+                                    {{ keyword }}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% else %}
                     <p>This context hasn't been configured yet. Configure it by clicking the <span class="text-blue-600">Configure</span> button below.</p>

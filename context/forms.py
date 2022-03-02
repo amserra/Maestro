@@ -11,6 +11,10 @@ class SearchContextCreateForm(forms.ModelForm):
     code = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), disabled=True, required=False)
     owner = forms.ChoiceField()
 
+    error_messages = {
+        'duplicate_code': 'A context you have access to already has that code.',
+    }
+
     def __init__(self, user, *args, **kwargs):
         super(SearchContextCreateForm, self).__init__(*args, **kwargs)
         self.user = user
@@ -27,6 +31,11 @@ class SearchContextCreateForm(forms.ModelForm):
         if cleaned_name == '':
             raise ValidationError('Invalid name.', code='invalid_name')
         return cleaned_name
+
+    def clean(self):
+        code = self.cleaned_data['name'].replace(' ', '-').lower()
+        if self.user.all_contexts.filter(code=code).exists():
+            self.add_error('code', self.error_messages['duplicate_code'])
 
     class Meta:
         model = SearchContext
