@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'imagekit',
     'taggit',
     'django_filters',
+    'django_celery_results',
     'common',
     'account',
     'organization',
@@ -173,3 +174,10 @@ LOGIN_URL = 'login'
 
 if not DEBUG:
     NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'
+
+# Celery configurations
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_ACCEPT_CONTENT = ['json', 'pickle']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/London'
+CELERY_RESULT_BACKEND = 'django-db'
