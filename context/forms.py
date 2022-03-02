@@ -13,6 +13,7 @@ class SearchContextCreateForm(forms.ModelForm):
 
     error_messages = {
         'duplicate_code': 'A context you have access to already has that code.',
+        'invalid_name': 'Invalid name.'
     }
 
     def __init__(self, user, *args, **kwargs):
@@ -29,11 +30,15 @@ class SearchContextCreateForm(forms.ModelForm):
         # Strip and replace multiple spaces by a single space
         cleaned_name = re.sub(' +', ' ', self.cleaned_data['name'].strip())
         if cleaned_name == '':
-            raise ValidationError('Invalid name.', code='invalid_name')
+            raise ValidationError(self.error_messages['invalid_name'], code='invalid_name')
         return cleaned_name
 
     def clean(self):
-        code = self.cleaned_data['name'].replace(' ', '-').lower()
+        code = self.cleaned_data.get('name', None)
+        if code is None:
+            raise ValidationError(self.error_messages['invalid_name'], code='invalid_name')
+
+        code = code.replace(' ', '-').lower()
         if self.user.all_contexts.filter(code=code).exists():
             self.add_error('code', self.error_messages['duplicate_code'])
 
