@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load my_filters %}
+
+{% block title %}
+    Maestro | Search context '{{ context.code }}' configuration
+{% endblock %}
+
+{% block content %}
+    <div class="page-container lg:w-1/2 min-h-45rem flex flex-col">
+        <div class="xl:w-full">
+            <div class="mb-10">
+                {% include 'common/breadcrumb.html' with nav_links='Search_contexts '|addstr:context.code|addstr:' Configuration'|addstr:' Advanced' %}
+            </div>
+            <div class="flex flex-row justify-between items-center">
+                <div class="mr-6">
+                    <p class="title">{{ context.name }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'contexts-list' %}" class="btn-cancel">Back</a>
+                </div>
+            </div>
+            <div class="mt-6">
+                <ul class="flex flex-wrap border-b border-gray-200">
+                    <li class="mr-2">
+                        <a href="{% url 'contexts-detail' context.code %}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Information</a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="#" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-t-lg active">Configuration</a>
+                    </li>
+                </ul>
+            </div>
+            {% if configuration %}
+                <div>
+                    <ul class="flex flex-wrap border-gray-200">
+                        <li class="mr-2">
+                            <a href="{% url 'contexts-configuration-detail' context.code %}?page=essential" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center text-gray-500 rounded-b-lg hover:text-gray-600 hover:bg-gray-50">Essential</a>
+                        </li>
+                        <li class="mr-2">
+                            <a href="#" class="inline-block py-4 px-4 text-sm font-medium text-center text-blue-600 bg-gray-100 rounded-b-lg active">Advanced</a>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="mt-10">
+                {% if configuration %}
+                    {% if configuration.seed_urls %}
+                        <div class="mt-6">
+                            <p class="text-2xl text-blue-700">Custom URLs</p>
+                            <div class="flex flex-col mt-2">
+                                {% for url in configuration.seed_urls %}
+                                    <p class="font-light text-gray-600">{{ url }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="mr-10">This context doesn't have any advanced configurations. You can add them by configuring it.</p>
+                    {% endif %}
+                {% else %}
+                    <p class="mr-10">This context hasn't been configured yet. Configure it by clicking the <span class="text-blue-600">Configure</span> button below.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mt-auto">
+            {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                {% if context.configuration %}
+                    <a href="{% url 'contexts-start' context.code %}" class="btn-success">Start</a>
+                {% endif %}
+                <a href="{% url 'contexts-configuration-update' context.code %}?from={{ request.path }}" class="btn-primary">Configure</a>
+                <a  href="#"
+                    onclick="
+                            openModal(
+                            'modal-delete',
+                            acceptModalDelete,
+                            {title: 'Are you sure you want to delete the context {{ context.code }}?', subtitle: 'This action will be effective.'},
+                            {code: '{{ context.code }}'}
+                            )"
+                    class="btn-danger">
+                    Delete
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% include 'common/confirmation-modal.html' with id='modal-delete' %}
+
+    <script>
+        function acceptModalDelete(modal) {
+            // 'contexts-delete'
+            const url = "{% url 'contexts-delete' context.code %}";
+            fetch(url).then(response => window.location.replace(response.url));
+        }
+    </script>
+{% endblock content %}

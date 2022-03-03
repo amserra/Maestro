@@ -73,9 +73,15 @@ class SearchContextDetailView(LoginRequiredMixin, UserHasAccess, DetailView):
 
 
 class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, DetailView):
-    template_name = 'context/configuration_detail.html'
     model = Configuration
     context_object_name = 'configuration'
+
+    def get_template_names(self):
+        page = self.request.GET.get('page', None)
+        if page == 'advanced':
+            return ['context/configuration_detail_advanced.html']
+        else:
+            return ['context/configuration_detail_essential.html']
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)

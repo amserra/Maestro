@@ -12,12 +12,14 @@ class ContextConfigureFormTest(ContextTestCase):
     def setUp(self):
         self.search_string = 'how to find dolphins'
         self.keywords = 'dolphin, cetaceous'
+        self.data_type = 'Images'
         super().setUp()
 
     def test_context_configure_success(self):
         form = ConfigurationCreateForm(data={
             'search_string': self.search_string,
-            'keywords': self.keywords
+            'keywords': self.keywords,
+            'data_type': self.data_type
         })
         self.assertTrue(form.is_valid())
 
