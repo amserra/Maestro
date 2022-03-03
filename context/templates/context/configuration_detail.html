@@ -52,6 +52,9 @@
         </div>
         <div class="mt-auto">
             {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                {% if context.configuration %}
+                    <a href="{% url 'contexts-start' context.code %}" class="btn-success">Start</a>
+                {% endif %}
                 <a href="{% url 'contexts-configuration-update' context.code %}?from={{ request.path }}" class="btn-primary">Configure</a>
                 <a  href="#"
                     onclick="

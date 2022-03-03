@@ -181,3 +181,6 @@ CELERY_ACCEPT_CONTENT = ['json', 'pickle']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/London'
 CELERY_RESULT_BACKEND = 'django-db'
+
+# SerpAPI key
+SERPAPI_KEY = os.getenv('SERPAPI_KEY', '')

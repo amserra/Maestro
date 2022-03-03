@@ -1,0 +1,25 @@
+{% spaceless %}
+<div id="dynamic-array-widget">
+    <div class="flex flex-col mb-4 gap-y-4">
+        {% for widget in widget.subwidgets %}
+            {% include widget.template_name %}
+        {% endfor %}
+    </div>
+    <div>
+        <button type="button" class="btn-secondary max-w-min" onclick="handleClick()">Add another</button>
+    </div>
+</div>
+{% endspaceless %}
+
+<script>
+    const div = document.getElementById("dynamic-array-widget").children[0];
+
+    function handleClick(e) {
+        let new_input = div.lastChild.cloneNode(true);
+        new_input.value = ''
+        let id_parts = new_input.getAttribute('id').split('_');
+        let id = id_parts.slice(0, -1).join('_') + '_' + String(parseInt(id_parts.slice(-1)[0]) + 1);
+        new_input.id = id
+        div.appendChild(new_input)
+    }
+</script>

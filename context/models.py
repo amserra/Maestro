@@ -2,12 +2,19 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from taggit.managers import TaggableManager
+from django.contrib.postgres.fields import ArrayField
 
 
 class Configuration(models.Model):
-    # Perhaps more than one search string allowed?
-    search_string = models.CharField(max_length=50, help_text='This field should be similar to what you would input on a search engine.')
+    IMAGES = 'Images'
+    DATA_TYPE_CHOICES = [
+        (IMAGES, 'Images')
+    ]
+
+    search_string = models.CharField(max_length=50, help_text='This field should be similar to what you would input on a search engine.')  # Perhaps more than one search string allowed?
     keywords = TaggableManager()
+    data_type = models.CharField(max_length=10, choices=DATA_TYPE_CHOICES, help_text='Data type that will be gathered.')
+    seed_urls = ArrayField(models.URLField(), null=True)
 
     @property
     def context(self):
@@ -15,11 +22,17 @@ class Configuration(models.Model):
 
 
 class SearchContext(models.Model):
+    FINISHED = 'Finished'
+    NOT_CONFIGURED = 'Not configured'
+    GATHERING_URLS = 'Gathering urls'
+    RUNNING = 'Running'
+    STOPPED = 'Stopped'
     STATUS_CHOICES = [
-        ('Finished', 'Finished'),
-        ('Not configured', 'Not configured'),
-        ('Running', 'Running'),
-        ('Stopped', 'Stopped'),
+        (FINISHED, 'Finished'),
+        (NOT_CONFIGURED, 'Not configured'),
+        (GATHERING_URLS, 'Gathering urls'),
+        (RUNNING, 'Running'),
+        (STOPPED, 'Stopped'),
     ]
 
     # Meta configurations
@@ -37,6 +50,13 @@ class SearchContext(models.Model):
 
     # "Inner" configurations
     configuration = models.ForeignKey(to=Configuration, on_delete=models.SET_NULL, null=True)
+
+    @property
+    def owner_code(self):
+        if self.owner_type.name == 'organization':
+            return self.owner.code
+        else:
+            return self.owner.email
 
     def __str__(self):
         return self.code

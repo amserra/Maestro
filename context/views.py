@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import resolve
 from django.urls import reverse_lazy
@@ -14,6 +15,9 @@ from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, ConfigurationCreateForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration
+from .tasks import delete_context_folder, create_context_folder, gather_urls
+from django.contrib import messages
+from celery import chain
 
 
 class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFilterView, FilterView):
@@ -56,6 +60,7 @@ class SearchContextCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateVie
         context.owner = owner_object
         context.code = form.cleaned_data['name'].replace(' ', '-').lower()
         context.save()
+        create_context_folder.delay(context.owner_code, context.code)
         return super().form_valid(form)
 
 
@@ -127,5 +132,26 @@ def search_context_delete(request, code):
     if context.configuration:
         context.configuration.delete()
     context.delete()
+    delete_context_folder.delay(context.owner_code, context.code)
 
     return redirect('contexts-list')
+
+
+@login_required
+@user_can_edit
+def search_context_start(request, code):
+    context = get_object_or_404(SearchContext, code=code)
+
+    if not context.configuration:
+        return HttpResponseBadRequest()
+
+    context.status = SearchContext.GATHERING_URLS
+    context.save()
+
+    # chain(gather_urls.s())  # TODO: pass necessary data
+    messages.success(request, 'Search context execution started successfully.')
+
+    if request.META['HTTP_REFERER']:
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
+    else:
+        return redirect('contexts-detail', code=context.code)

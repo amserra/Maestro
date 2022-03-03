@@ -34,14 +34,14 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 -mr-1 w-4 h-4" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 </a>
                                 <div class="inline-flex items-center">
-                                    {% if context.status == 'Finished' %}
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#7bc62d" fill="#7bc62d" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
-                                    {% elif context.status == 'Running' %}
+                                    {% if context.status == 'Running' %}
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffbf00" fill="#ffbf00" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
                                     {% elif context.status == 'Stopped' %}
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ff4500" fill="#ff4500" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
                                     {% elif context.status == 'Not configured' %}
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#9e9e9e" fill="#9e9e9e" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
+                                    {% else %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6" viewBox="0 0 24 24" stroke-width="1.5" stroke="#7bc62d" fill="#7bc62d" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4"/></svg>
                                     {% endif %}
                                     <p>{{ context.status }}</p>
                                 </div>

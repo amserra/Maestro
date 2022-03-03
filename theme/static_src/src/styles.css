@@ -49,6 +49,10 @@ html {
     @apply btn-default text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-yellow-300
 }
 
+.btn-success {
+    @apply btn-default text-white bg-green-700 hover:bg-green-800 focus:ring-green-300
+}
+
 .btn-danger {
     @apply btn-default text-white bg-red-700 hover:bg-red-800 focus:ring-red-300
 }

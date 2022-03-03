@@ -1,8 +1,8 @@
 from django import forms
-from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 
-from organization.models import Organization
+from common.forms import DynamicArrayField, DynamicArrayWidget
 from .models import SearchContext, Configuration
 import re
 
@@ -48,7 +48,8 @@ class SearchContextCreateForm(forms.ModelForm):
 
 
 class ConfigurationCreateForm(forms.ModelForm):
+    seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, invalid_message='The element in the position %(nth)s has an invalid URL.')
 
     class Meta:
         model = Configuration
-        fields = ['search_string', 'keywords']
+        fields = ['search_string', 'keywords', 'data_type', 'seed_urls']
