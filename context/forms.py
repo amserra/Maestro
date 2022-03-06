@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 
 from common.forms import DynamicArrayField
-from .models import SearchContext, Configuration, Gatherer, AdvancedConfiguration
+from .models import SearchContext, Configuration, Gatherer, AdvancedConfiguration, COUNTRY_CHOICES
 import re
 
 
@@ -55,8 +55,9 @@ class EssentialConfigurationForm(forms.ModelForm):
 
 
 class AdvancedConfigurationForm(forms.ModelForm):
+    country_of_search = forms.ChoiceField(choices=COUNTRY_CHOICES)
     gatherers = forms.ModelMultipleChoiceField(queryset=Gatherer.objects.filter(is_active=True), required=False)
-    seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, invalid_message='The element in the position %(nth)s has an invalid URL.')
+    seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
 
     error_messages = {
         'incompatibility': 'The use of the gatherer %s is incompatible with the use of the gatherer %s.',
@@ -75,4 +76,4 @@ class AdvancedConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = AdvancedConfiguration
-        fields = ['seed_urls', 'gatherers']
+        fields = ['country_of_search', 'seed_urls', 'gatherers']
