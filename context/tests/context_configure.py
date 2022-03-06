@@ -2,7 +2,7 @@ from http import HTTPStatus
 from django.urls import reverse
 from context.models import SearchContext
 from context.tests.tests_setup import ContextTestCase
-from context.forms import ConfigurationCreateForm
+from context.forms import EssentialConfigurationForm
 
 
 class ContextConfigureFormTest(ContextTestCase):
@@ -16,7 +16,7 @@ class ContextConfigureFormTest(ContextTestCase):
         super().setUp()
 
     def test_context_configure_success(self):
-        form = ConfigurationCreateForm(data={
+        form = EssentialConfigurationForm(data={
             'search_string': self.search_string,
             'keywords': self.keywords,
             'data_type': self.data_type
