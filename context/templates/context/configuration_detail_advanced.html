@@ -29,7 +29,7 @@
                     </li>
                 </ul>
             </div>
-            {% if configuration %}
+            {% if context.configuration %}
                 <div>
                     <ul class="flex flex-wrap border-gray-200">
                         <li class="mr-2">
@@ -43,20 +43,18 @@
             {% endif %}
             <div class="mt-10">
                 {% if configuration %}
-                    {% if configuration.seed_urls %}
-                        <div class="mt-6">
-                            <p class="text-2xl text-blue-700">Custom URLs</p>
-                            <div class="flex flex-col mt-2">
-                                {% for url in configuration.seed_urls %}
-                                    <p class="font-light text-gray-600">{{ url }}</p>
-                                {% endfor %}
+                        {% if configuration.seed_urls %}
+                            <div class="mt-6">
+                                <p class="text-2xl text-blue-700">Custom seed URLs</p>
+                                <div class="flex flex-col mt-2">
+                                    {% for url in configuration.seed_urls %}
+                                        <p class="font-light text-gray-600">{{ url }}</p>
+                                    {% endfor %}
+                                </div>
                             </div>
-                        </div>
-                    {% else %}
-                        <p class="mr-10">This context doesn't have any advanced configurations. You can add them by configuring it.</p>
-                    {% endif %}
+                        {% endif %}
                 {% else %}
-                    <p class="mr-10">This context hasn't been configured yet. Configure it by clicking the <span class="text-blue-600">Configure</span> button below.</p>
+                    <p class="mr-10">This context doesn't have any advanced configurations. You can add them by clicking the <span class="text-blue-600">Configure</span> button below.</p>
                 {% endif %}
             </div>
         </div>
@@ -65,7 +63,7 @@
                 {% if context.configuration %}
                     <a href="{% url 'contexts-start' context.code %}" class="btn-success">Start</a>
                 {% endif %}
-                <a href="{% url 'contexts-configuration-update' context.code %}?from={{ request.path }}" class="btn-primary">Configure</a>
+                <a href="{% url 'contexts-configuration-update' context.code %}?form=advanced&from={{ request.path }}" class="btn-primary">Configure</a>
                 <a  href="#"
                     onclick="
                             openModal(

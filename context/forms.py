@@ -1,9 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
+from django.db.models import QuerySet
 
-from common.forms import DynamicArrayField, DynamicArrayWidget
-from .models import SearchContext, Configuration
+from common.forms import DynamicArrayField
+from .models import SearchContext, Configuration, Gatherer, AdvancedConfiguration
 import re
 
 
@@ -47,9 +47,32 @@ class SearchContextCreateForm(forms.ModelForm):
         fields = ['owner', 'code', 'name', 'description']
 
 
-class ConfigurationCreateForm(forms.ModelForm):
-    seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, invalid_message='The element in the position %(nth)s has an invalid URL.')
+class EssentialConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = Configuration
-        fields = ['search_string', 'keywords', 'data_type', 'seed_urls']
+        fields = ['search_string', 'keywords', 'data_type']
+
+
+class AdvancedConfigurationForm(forms.ModelForm):
+    gatherers = forms.ModelMultipleChoiceField(queryset=Gatherer.objects.filter(is_active=True), required=False)
+    seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, invalid_message='The element in the position %(nth)s has an invalid URL.')
+
+    error_messages = {
+        'incompatibility': 'The use of the gatherer %s is incompatible with the use of the gatherer %s.',
+    }
+
+    def clean_gatherers(self):
+        # Check if there is an element of the gatherers that is in gatherer.incompatible_with. There probablly is a better way to do this
+        gatherers: QuerySet[Gatherer] = self.cleaned_data["gatherers"]
+        for gatherer in gatherers:
+            incompatible_gatherers = gatherer.incompatible_with.filter(is_active=True)
+            for incompatible_gatherer in incompatible_gatherers:
+                if incompatible_gatherer in gatherers:
+                    raise ValidationError(self.error_messages['incompatibility'], params=(gatherer, incompatible_gatherer), code='incompatibility')
+
+        return gatherers
+
+    class Meta:
+        model = AdvancedConfiguration
+        fields = ['seed_urls', 'gatherers']

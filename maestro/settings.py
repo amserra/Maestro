@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'taggit',
     'django_filters',
     'django_celery_results',
+    'debug_toolbar',
     'common',
     'account',
     'organization',
@@ -55,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'maestro.urls'
@@ -184,3 +186,7 @@ CELERY_RESULT_BACKEND = 'django-db'
 
 # SerpAPI key
 SERPAPI_KEY = os.getenv('SERPAPI_KEY', '')
+
+# Bing API key
+BING_SUBSCRIPTION_KEY = os.getenv('BING_SUBSCRIPTION_KEY', '')
+BING_WEB_SEARCH_ENDPOINT = os.getenv('BING_WEB_SEARCH_ENDPOINT', '')

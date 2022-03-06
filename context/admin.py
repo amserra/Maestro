@@ -1,3 +1,7 @@
 from django.contrib import admin
+from context.models import Gatherer
 
-# Register your models here.
+
+@admin.register(Gatherer)
+class Gatherers(admin.ModelAdmin):
+    pass

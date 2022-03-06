@@ -12,7 +12,7 @@ from common.decorators import PaginatedFilterView
 from common.mixins import SafePaginationMixin
 from .authorization import UserHasAccess, UserCanEdit, user_can_edit
 from .filters import SearchContextFilter
-from .forms import SearchContextCreateForm, ConfigurationCreateForm
+from .forms import SearchContextCreateForm, AdvancedConfigurationForm, EssentialConfigurationForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration
 from .tasks import delete_context_folder, create_context_folder, gather_urls
@@ -76,19 +76,22 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
     model = Configuration
     context_object_name = 'configuration'
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        self.page = self.request.GET.get('page', None)
+
     def get_template_names(self):
-        page = self.request.GET.get('page', None)
-        if page == 'advanced':
+        if self.page == 'advanced':
             return ['context/configuration_detail_advanced.html']
         else:
             return ['context/configuration_detail_essential.html']
 
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
-
     def get_object(self, queryset=None):
-        return self.context.configuration
+        if self.page == 'advanced':
+            return self.context.configuration.advanced_configuration
+        else:
+            return self.context.configuration
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -96,8 +99,7 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
         return context
 
 
-class SearchContextConfigurationCreateView(LoginRequiredMixin, UserCanEdit, SuccessMessageMixin, ModelFormMixin, FormView):
-    form_class = ConfigurationCreateForm
+class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEdit, SuccessMessageMixin, ModelFormMixin, FormView):
     http_method_names = ['get', 'post']
     template_name = 'context/configuration_configure.html'
     success_message = 'The search context was configured successfully.'
@@ -105,18 +107,33 @@ class SearchContextConfigurationCreateView(LoginRequiredMixin, UserCanEdit, Succ
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
         self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
-        if self.context.configuration:
+        self.from_url = self.request.GET.get('from', None)
+        self.form = self.request.GET.get('form', None)
+
+        if self.form == 'advanced' and self.context.configuration and self.context.configuration.advanced_configuration:
+            self.object = self.context.configuration.advanced_configuration
+        elif (self.form == 'essential' or self.form is None) and self.context.configuration:
             self.object = self.context.configuration
         else:
             self.object = None
 
     def get_success_url(self):
-        from_url = self.request.GET.get('from', None)
-        if from_url:
-            resolved_url = resolve(from_url)
-            return reverse_lazy(resolved_url.url_name, args=[resolved_url.kwargs['code']])
+        if self.from_url:
+            resolved_url = resolve(self.from_url)
+            if self.form:
+                return f"{reverse_lazy(resolved_url.url_name, args=[resolved_url.kwargs['code']])}?page={self.form}"
+            else:
+                return reverse_lazy(resolved_url.url_name, args=[resolved_url.kwargs['code']])
         else:
             return reverse_lazy('contexts-detail', args=[self.context.code])
+
+    def get_form(self, form_class=None):
+        if self.form and self.form == 'advanced':
+            form_class = AdvancedConfigurationForm
+        else:
+            form_class = EssentialConfigurationForm
+
+        return form_class(**self.get_form_kwargs())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -125,8 +142,19 @@ class SearchContextConfigurationCreateView(LoginRequiredMixin, UserCanEdit, Succ
 
     def form_valid(self, form):
         configuration = form.save()
-        self.context.configuration = configuration
-        self.context.save()
+        if type(form).__name__ == EssentialConfigurationForm.__name__:
+            self.context.configuration = configuration
+            self.context.status = SearchContext.READY
+            self.context.save()
+        else:
+            if self.context.configuration is None:
+                context_conf = Configuration(advanced_configuration=configuration)
+                context_conf.save()
+                self.context.configuration = context_conf
+                self.context.save()
+            else:
+                self.context.configuration.advanced_configuration = configuration
+                self.context.save()
         return super().form_valid(form)
 
 
