@@ -1,23 +1,51 @@
+import importlib.util
 import os
 import shutil
+from context.models import SearchContext, Fetcher, Configuration, AdvancedConfiguration
 from maestro.celery import app
 from django.conf import settings
 
 
-@app.task(bind=True)
-def gather_urls(self, data_type: str, search_string: str, user_urls: list[str]):
-    if data_type == 'Images':  # gather images
-        # Use search_string to get through SerpAPI's Google Search Engine API to gather images and also urls (2 calls)
-        urls = []
-    else:
-        # handle other data_type cases!
-        pass
+def fetcher_parameters(configuration: Configuration, advanced_configuration: AdvancedConfiguration):
+    search_string = configuration.search_string
+    country_code = advanced_configuration.country_of_search if advanced_configuration and advanced_configuration.country_of_search else AdvancedConfiguration.DEFAULT_COUNTRY_OF_SEARCH
+    return search_string, country_code
 
-    # append to the urls the user_urls
-    urls.extend(user_urls)
-    # save this urls to a file (to cache on further gather_urls and reduce number of API calls?)
-    # pass the urls to the next function/use the file in the next function
-    pass
+
+@app.task(bind=True)
+def fetch_urls(self, context_id):
+    list_of_urls = []
+
+    context = SearchContext.objects.get(id=context_id)
+    configuration = context.configuration
+    advanced_configuration = context.configuration.advanced_configuration
+
+    if advanced_configuration:
+        fetchers = list(advanced_configuration.fetchers.all())
+    else:
+        fetchers = list(Fetcher.objects.filter(is_active=True, is_default=True))
+
+    for fetcher in fetchers:
+        if fetcher.type == Fetcher.PYTHON_SCRIPT:
+            spec = importlib.util.spec_from_file_location(fetcher.name, fetcher.path)
+            fetcher_script = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(fetcher_script)
+
+            fetcher_params = fetcher_parameters(configuration, advanced_configuration)
+            try:
+                result = fetcher_script.main(*fetcher_params)
+                list_of_urls.extend(result)
+            except Exception as ex:
+                print(f"Fetcher {fetcher} failed:\n{ex}")
+
+    if advanced_configuration and advanced_configuration.seed_urls != []:
+        list_of_urls.extend(advanced_configuration.seed_urls)
+
+    # Write in file
+    with open(f'{settings.CONTEXTS_DATA_DIR}/{context.owner_code}/{context.code}/urls.txt', 'w') as f:
+        f.write(str(list_of_urls))
+
+    return list_of_urls
 
 
 @app.task(bind=True)

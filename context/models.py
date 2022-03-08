@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -8,12 +10,26 @@ from django.contrib.postgres.fields import ArrayField
 COUNTRY_CHOICES = [('PT', 'Portugal'), ('US', 'United States')]
 
 
-class Gatherer(models.Model):
+def fetchers_path():
+    return os.path.join(settings.BASE_DIR, 'fetchers')
+
+
+class Fetcher(models.Model):
+    PYTHON_SCRIPT = 'Python'
+    SCRAPY_SCRIPT = 'Scrapy'
+    FETCHER_TYPE = [
+        (PYTHON_SCRIPT, 'Python script'),
+        (SCRAPY_SCRIPT, 'Scrapy script'),
+    ]
+
     name = models.CharField(max_length=50)
-    # Some gatherers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
+    # Some fetchers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
     incompatible_with = models.ManyToManyField(to="self", blank=True)
     is_active = models.BooleanField(default=True)
-    is_default = models.BooleanField(default=False, help_text='Tells if this gatherer is used by default (when a context doesn\'t have gatherers specified). A default gatherer is only used if it is active.')
+    is_default = models.BooleanField(default=False, help_text='Tells if this fetcher is used by default (when a context doesn\'t have fetchers specified). A default fetcher is only used if it is active.')
+    type = models.CharField(max_length=20, choices=FETCHER_TYPE)
+    path = models.FilePathField(path=fetchers_path, recursive=True, match='fetcher_*')
+    # TODO: Ideally there's another field here: supported datatypes. Some fetchers (e.g.: bing image) don't make sense fetching some data types (e.g.: sounds). Since we are only supporting image data type for now, we can leave it like this
 
     def __str__(self):
         return self.name
@@ -40,13 +56,23 @@ class ImagesConfiguration(models.Model):
 
 
 class AdvancedConfiguration(models.Model):
-    country_of_search = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default='PT', null=True)
+    DEFAULT_COUNTRY_OF_SEARCH = 'PT'
+
+    country_of_search = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default=DEFAULT_COUNTRY_OF_SEARCH, null=True)
     # freshness/date = ...
     seed_urls = ArrayField(models.URLField(), null=True)
-    gatherers = models.ManyToManyField(to=Gatherer, blank=True)
+    fetchers = models.ManyToManyField(to=Fetcher, blank=True)
 
     # Data-type-specific configurations
+    # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
     images_configuration = models.ForeignKey(to=ImagesConfiguration, on_delete=models.SET_NULL, null=True)
+
+    @property
+    def context(self):
+        return self.configuration_set.all()[0].context
+
+    def __str__(self):
+        return f'{self.context}\'s advanced configuration'
 
 
 class Configuration(models.Model):
@@ -67,19 +93,22 @@ class Configuration(models.Model):
     def context(self):
         return self.searchcontext_set.all()[0]
 
+    def __str__(self):
+        return f'{self.context}\'s configuration'
+
 
 class SearchContext(models.Model):
     FINISHED = 'Finished'
     NOT_CONFIGURED = 'Not configured'
     READY = 'Ready'
-    GATHERING_URLS = 'Gathering urls'
+    FETCHING_URLS = 'Fetching urls'
     RUNNING = 'Running'
     STOPPED = 'Stopped'
     STATUS_CHOICES = [
         (FINISHED, 'Finished'),
         (NOT_CONFIGURED, 'Not configured'),
         (READY, 'Ready'),
-        (GATHERING_URLS, 'Gathering urls'),
+        (FETCHING_URLS, 'Fetching urls'),
         (RUNNING, 'Running'),
         (STOPPED, 'Stopped'),
     ]

@@ -15,7 +15,7 @@ from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, AdvancedConfigurationForm, EssentialConfigurationForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration
-from .tasks import delete_context_folder, create_context_folder, gather_urls
+from .tasks import delete_context_folder, create_context_folder, fetch_urls
 from django.contrib import messages
 from celery import chain
 
@@ -154,7 +154,7 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
                 self.context.save()
             else:
                 self.context.configuration.advanced_configuration = configuration
-                self.context.save()
+                self.context.configuration.save()
         return super().form_valid(form)
 
 
@@ -179,10 +179,10 @@ def search_context_start(request, code):
     if not context.configuration:
         return HttpResponseBadRequest()
 
-    context.status = SearchContext.GATHERING_URLS
+    context.status = SearchContext.FETCHING_URLS
     context.save()
 
-    # chain(gather_urls.s())  # TODO: pass necessary data
+    chain(fetch_urls.s(context.id)).apply_async()
     messages.success(request, 'Search context execution started successfully.')
 
     if request.META['HTTP_REFERER']:

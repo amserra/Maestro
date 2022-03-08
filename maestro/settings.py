@@ -189,4 +189,8 @@ SERPAPI_KEY = os.getenv('SERPAPI_KEY', '')
 
 # Bing API key
 BING_SUBSCRIPTION_KEY = os.getenv('BING_SUBSCRIPTION_KEY', '')
-BING_WEB_SEARCH_ENDPOINT = os.getenv('BING_WEB_SEARCH_ENDPOINT', '')
+
+# Context's data directory
+CONTEXTS_DATA_DIR = os.path.join(BASE_DIR, 'contexts_data')
+
+LOGS_PATH = os.path.join(BASE_DIR, 'logs')

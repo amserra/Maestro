@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 
 from common.forms import DynamicArrayField
-from .models import SearchContext, Configuration, Gatherer, AdvancedConfiguration, COUNTRY_CHOICES
+from .models import SearchContext, Configuration, Fetcher, AdvancedConfiguration, COUNTRY_CHOICES
 import re
 
 
@@ -56,24 +56,24 @@ class EssentialConfigurationForm(forms.ModelForm):
 
 class AdvancedConfigurationForm(forms.ModelForm):
     country_of_search = forms.ChoiceField(choices=COUNTRY_CHOICES)
-    gatherers = forms.ModelMultipleChoiceField(queryset=Gatherer.objects.filter(is_active=True), required=False)
+    fetchers = forms.ModelMultipleChoiceField(queryset=Fetcher.objects.filter(is_active=True), required=False)
     seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
 
     error_messages = {
-        'incompatibility': 'The use of the gatherer %s is incompatible with the use of the gatherer %s.',
+        'incompatibility': 'The use of the fetcher %s is incompatible with the use of the fetcher %s.',
     }
 
-    def clean_gatherers(self):
-        # Check if there is an element of the gatherers that is in gatherer.incompatible_with. There probablly is a better way to do this
-        gatherers: QuerySet[Gatherer] = self.cleaned_data["gatherers"]
-        for gatherer in gatherers:
-            incompatible_gatherers = gatherer.incompatible_with.filter(is_active=True)
-            for incompatible_gatherer in incompatible_gatherers:
-                if incompatible_gatherer in gatherers:
-                    raise ValidationError(self.error_messages['incompatibility'], params=(gatherer, incompatible_gatherer), code='incompatibility')
+    def clean_fetchers(self):
+        # Check if there is an element of the fetchers that is in fetchers.incompatible_with. There probablly is a better way to do this
+        fetchers: QuerySet[Fetcher] = self.cleaned_data["fetchers"]
+        for fetcher in fetchers:
+            incompatible_fetchers = fetcher.incompatible_with.filter(is_active=True)
+            for incompatible_fetcher in incompatible_fetchers:
+                if incompatible_fetcher in fetchers:
+                    raise ValidationError(self.error_messages['incompatibility'], params=(fetcher, incompatible_fetcher), code='incompatibility')
 
-        return gatherers
+        return fetchers
 
     class Meta:
         model = AdvancedConfiguration
-        fields = ['country_of_search', 'seed_urls', 'gatherers']
+        fields = ['country_of_search', 'seed_urls', 'fetchers']

@@ -1,7 +1,7 @@
 from django.contrib import admin
-from context.models import Gatherer
+from context.models import Fetcher
 
 
-@admin.register(Gatherer)
-class Gatherers(admin.ModelAdmin):
+@admin.register(Fetcher)
+class Fetchers(admin.ModelAdmin):
     pass

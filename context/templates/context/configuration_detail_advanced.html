@@ -61,12 +61,12 @@
                                 </ul>
                             </div>
                         {% endif %}
-                        {% if configuration.gatherers %}
+                        {% if configuration.fetchers.all %}
                             <div class="mt-6">
-                                <p class="text-2xl text-blue-700">Gatherers</p>
+                                <p class="text-2xl text-blue-700">Fetchers</p>
                                 <ul class="flex flex-col mt-2 list-disc list-inside">
-                                    {% for gatherer in configuration.gatherers.all %}
-                                        <li class="font-light text-gray-600">{{ gatherer }}</li>
+                                    {% for fetcher in configuration.fetchers.all %}
+                                        <li class="font-light text-gray-600">{{ fetcher }}</li>
                                     {% endfor %}
                                 </ul>
                             </div>
