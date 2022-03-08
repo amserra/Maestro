@@ -133,3 +133,6 @@ media/**
 .idea/**
 static/**
 
+# Project-specific
+contexts_data/**
+logs/**
