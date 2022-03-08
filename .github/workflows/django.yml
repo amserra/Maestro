@@ -60,7 +60,7 @@ jobs:
                   python manage.py makemigrations account
                   python manage.py migrate
             - name: Run celery worker for tests
-                run: celery -A maestro worker -l info --detach
+              run: celery -A maestro worker -l info --detach
             - name: Run Tests
               env:
                   DATABASE_NAME: maestro_db
