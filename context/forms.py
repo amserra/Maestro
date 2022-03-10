@@ -76,4 +76,4 @@ class AdvancedConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = AdvancedConfiguration
-        fields = ['country_of_search', 'seed_urls', 'fetchers']
+        fields = ['country_of_search', 'seed_urls', 'fetchers', 'yield_after_gathering_data']

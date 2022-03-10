@@ -1,5 +1,6 @@
 import os
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -62,6 +63,7 @@ class AdvancedConfiguration(models.Model):
     # freshness/date = ...
     seed_urls = ArrayField(models.URLField(), null=True)
     fetchers = models.ManyToManyField(to=Fetcher, blank=True)
+    yield_after_gathering_data = models.BooleanField(default=True, help_text='Whether to stop or not after data is gathered. This is recommended to be on, because it will potentially allow for better results.')
 
     # Data-type-specific configurations
     # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
@@ -83,7 +85,7 @@ class Configuration(models.Model):
 
     # Essential configuration
     search_string = models.CharField(max_length=50, help_text='This field should be similar to what you would input on a search engine.')  # Perhaps more than one search string allowed?
-    keywords = TaggableManager()
+    keywords = TaggableManager(help_text='A comma-separated list of words. Think of them as hashtags.')
     data_type = models.CharField(max_length=10, choices=DATA_TYPE_CHOICES, help_text='Data type that will be gathered.')
 
     # Advanced configuration FK
@@ -102,6 +104,8 @@ class SearchContext(models.Model):
     NOT_CONFIGURED = 'Not configured'
     READY = 'Ready'
     FETCHING_URLS = 'Fetching urls'
+    GATHERING_DATA = 'Gathering data'
+    WAITING_DATA_REVISION = 'Waiting data revision'
     RUNNING = 'Running'
     STOPPED = 'Stopped'
     STATUS_CHOICES = [
@@ -109,6 +113,8 @@ class SearchContext(models.Model):
         (NOT_CONFIGURED, 'Not configured'),
         (READY, 'Ready'),
         (FETCHING_URLS, 'Fetching urls'),
+        (GATHERING_DATA, 'Gathering data'),
+        (WAITING_DATA_REVISION, 'Waiting for data revision'),
         (RUNNING, 'Running'),
         (STOPPED, 'Stopped'),
     ]
@@ -119,7 +125,7 @@ class SearchContext(models.Model):
     description = models.TextField(blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(to='account.User', on_delete=models.SET_NULL, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Not configured')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Not configured')
 
     # Owner of search context (can be User or Organization)
     owner_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
@@ -136,5 +142,26 @@ class SearchContext(models.Model):
         else:
             return self.owner.email
 
+    @property
+    def context_folder(self):
+        return os.path.join(settings.CONTEXTS_DATA_DIR, self.owner_code, self.code)
+
     def __str__(self):
         return self.code
+
+
+def api_logs_path():
+    return os.path.join(settings.LOGS_PATH, 'apis')
+
+
+class APIResults(models.Model):
+    """
+        Caches API request queries. This prevents duplicate requests. Used only in a dev (settings.DEBUG=True) environment
+        Not applicable to non-dev environments because they may require time-sensitive data
+    """
+    configuration = models.JSONField(encoder=DjangoJSONEncoder)
+    fetcher = models.ForeignKey(to=Fetcher, on_delete=models.CASCADE)
+    result_file = models.FilePathField(path=api_logs_path)
+
+    def __str__(self):
+        return f'API results for fetcher {self.fetcher}'

@@ -31,14 +31,8 @@ def build_accept_language(country_code: str, get_english_results: bool = True) -
     return language
 
 
-def parse_args(*args):
-    query = args[0]
-    country_code = args[1]
-    return query, country_code
-
-
-def main(*args):
-    query, country_code = parse_args(*args)
+def main(data: dict):
+    query, country_code = data.values()  # unpack values of dict
 
     # Add your Bing Search V7 subscription key and endpoint to your environment variables.
     subscription_key = settings.BING_SUBSCRIPTION_KEY
@@ -61,9 +55,6 @@ def main(*args):
         response_json = response.json()
 
         links = [value['contentUrl'] for value in response_json['value']]
-
-        with open(f'{settings.LOGS_PATH}/apis/{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}_bing_image_api.json', 'w') as f:
-            json.dump(response_json, f)
 
         # print("\nHeaders:\n")
         # print(response.headers)
