@@ -12,7 +12,7 @@ class ContextConfigureFormTest(ContextTestCase):
     def setUp(self):
         self.search_string = 'how to find dolphins'
         self.keywords = 'dolphin, cetaceous'
-        self.data_type = 'Images'
+        self.data_type = 'IMAGES'
         super().setUp()
 
     def test_context_configure_success(self):
