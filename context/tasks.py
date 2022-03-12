@@ -1,10 +1,16 @@
 import importlib.util
+import logging
 import os
 import shutil
+
+from scrapy.utils.project import get_project_settings
+
 from context.models import SearchContext, Fetcher, Configuration, AdvancedConfiguration, APIResults
 from maestro.celery import app
 from django.conf import settings
-from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerProcess, Crawler, CrawlerRunner
+from scrapy import Spider
+from scrapy.utils import log
 from datetime import datetime
 import ast
 from collections import OrderedDict
@@ -100,7 +106,7 @@ def run_default_gatherer(self, urls: list[str], context_id):
     os.makedirs(context_log_path, exist_ok=True)
 
     log_file = os.path.join(context_log_path, f'{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}_gatherer.txt')
-    process = CrawlerProcess({
+    crawler_settings = {
         'SPIDER_MODULES': 'gatherers.defaultImageGatherer.defaultImageGatherer.spiders',
         'ITEM_PIPELINES': {
             # 'scrapy.pipelines.images.ImagesPipeline': 1
@@ -114,9 +120,21 @@ def run_default_gatherer(self, urls: list[str], context_id):
         },
         'LOG_FILE': log_file,
         'TELNETCONSOLE_ENABLED': False
-    })
+    }
+
+    process = CrawlerProcess(crawler_settings)
     process.crawl('defaultImageSpider', urls=urls)
     process.start()
+
+    if context.configuration.data_type == Configuration.IMAGES:
+        # Copy thumbnails to the media folder
+        src_folder = os.path.join(context_data_path, 'thumbs')  # folder with the thumbs
+        if os.path.isdir(src_folder):
+            dest_folder = os.path.join(settings.MEDIA_ROOT, context.owner_code, context.code)  # context folder in media folder
+            os.makedirs(dest_folder, exist_ok=True)
+            files = os.listdir(src_folder)
+            for file in files:
+                shutil.copy2(os.path.join(src_folder, file), dest_folder)
 
     context.status = SearchContext.WAITING_DATA_REVISION
     context.save()
@@ -136,9 +154,20 @@ def create_context_folder(self, owner_code, context_code):
 
 
 @app.task(bind=True)
-def delete_context_folder(self, owner_code, context_code):
+def delete_context_folder(self, context_id):
+    context = SearchContext.objects.get(id=context_id)
+    owner_code = context.owner_code
+    code = context.code
+
+    # Delete from DB
+    if context.configuration:
+        if context.configuration.advanced_configuration:
+            context.configuration.advanced_configuration.delete()
+        context.configuration.delete()
+    context.delete()
+
     try:
-        shutil.rmtree(f'{settings.BASE_DIR}/contexts_data/{owner_code}/{context_code}')
+        shutil.rmtree(f'{settings.BASE_DIR}/contexts_data/{owner_code}/{code}')
         return True
     except Exception as e:
         print(e)

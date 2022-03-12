@@ -16,3 +16,8 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks(['context'])
 
+# Necessary for scrapy not to throw "Reactor not restartable" exception
+app.conf.update(
+    worker_max_tasks_per_child=1,
+    broker_pool_limit=None
+)

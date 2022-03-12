@@ -78,7 +78,7 @@ class AdvancedConfiguration(models.Model):
 
 
 class Configuration(models.Model):
-    IMAGES = 'Images'
+    IMAGES = 'IMAGES'
     DATA_TYPE_CHOICES = [
         (IMAGES, 'Images')
     ]
@@ -100,23 +100,17 @@ class Configuration(models.Model):
 
 
 class SearchContext(models.Model):
-    FINISHED = 'Finished'
-    NOT_CONFIGURED = 'Not configured'
-    READY = 'Ready'
-    FETCHING_URLS = 'Fetching urls'
-    GATHERING_DATA = 'Gathering data'
-    WAITING_DATA_REVISION = 'Waiting data revision'
-    RUNNING = 'Running'
-    STOPPED = 'Stopped'
+    NOT_CONFIGURED = 'NOT CONFIGURED'
+    READY = 'READY'
+    FETCHING_URLS = 'FETCHING'
+    GATHERING_DATA = 'GATHERING'
+    WAITING_DATA_REVISION = 'WAITING'
     STATUS_CHOICES = [
-        (FINISHED, 'Finished'),
         (NOT_CONFIGURED, 'Not configured'),
         (READY, 'Ready'),
         (FETCHING_URLS, 'Fetching urls'),
         (GATHERING_DATA, 'Gathering data'),
-        (WAITING_DATA_REVISION, 'Waiting for data revision'),
-        (RUNNING, 'Running'),
-        (STOPPED, 'Stopped'),
+        (WAITING_DATA_REVISION, 'Waiting data revision'),
     ]
 
     # Meta configurations
@@ -125,7 +119,7 @@ class SearchContext(models.Model):
     description = models.TextField(blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(to='account.User', on_delete=models.SET_NULL, null=True)
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Not configured')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES)
 
     # Owner of search context (can be User or Organization)
     owner_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

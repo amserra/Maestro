@@ -9,11 +9,13 @@ class DefaultImageSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = getattr(self, 'urls', None)
+        self.log(f"URLS:{urls}")
+        print(f"URLS:{urls}")
         if urls is None:
             return
 
         for url in urls:
-            if ('.png' in url) or ('.jpg' in url) or ('.jpeg' in url) or ('.gif' in url):
+            if ('.png' in url.lower()) or ('.jpg' in url.lower()) or ('.jpeg' in url.lower()) or ('.gif' in url.lower()):
                 yield scrapy.Request(url=url, callback=self.parse_image)
             else:
                 yield scrapy.Request(url=url, callback=self.parse_html)

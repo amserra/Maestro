@@ -1,6 +1,8 @@
+import os
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import resolve
@@ -18,6 +20,7 @@ from .models import SearchContext, Configuration
 from .tasks import delete_context_folder, create_context_folder, fetch_urls, run_default_gatherer
 from django.contrib import messages
 from celery import chain
+from django.conf import settings
 
 
 class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFilterView, FilterView):
@@ -59,6 +62,7 @@ class SearchContextCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateVie
 
         context.owner = owner_object
         context.code = form.cleaned_data['name'].replace(' ', '-').lower()
+        context.status = SearchContext.NOT_CONFIGURED
         context.save()
         create_context_folder.delay(context.owner_code, context.code)
         return super().form_valid(form)
@@ -162,12 +166,9 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
 @user_can_edit
 def search_context_delete(request, code):
     context = get_object_or_404(SearchContext, code=code)
+    delete_context_folder.delay(context.id)
 
-    if context.configuration:
-        context.configuration.delete()
-    context.delete()
-    delete_context_folder.delay(context.owner_code, context.code)
-
+    messages.success(request, 'Context deleted successfully.')
     return redirect('contexts-list')
 
 
@@ -177,6 +178,9 @@ def search_context_start(request, code):
     context = get_object_or_404(SearchContext, code=code)
 
     if not context.configuration:
+        return HttpResponseBadRequest()
+
+    if context.status != SearchContext.READY:
         return HttpResponseBadRequest()
 
     context.status = SearchContext.FETCHING_URLS
@@ -189,3 +193,43 @@ def search_context_start(request, code):
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
     else:
         return redirect('contexts-detail', code=context.code)
+
+
+class SearchContextStatusView(LoginRequiredMixin, UserHasAccess, DetailView):
+    template_name = 'context/status.html'
+    model = SearchContext
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
+    context_object_name = 'context'
+
+
+class SearchContextDataReviewView(LoginRequiredMixin, UserCanEdit, DetailView):
+    model = SearchContext
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
+    context_object_name = 'context'
+
+    def get_template_names(self):
+        search_context = self.get_object()
+        if search_context.configuration.data_type == Configuration.IMAGES:
+            return ['context/review_images.html']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        search_context: SearchContext = self.get_object()
+        if search_context.configuration.data_type == Configuration.IMAGES:
+            # Media folder where the thumbs are
+            folder = os.path.join(settings.MEDIA_ROOT, search_context.owner_code, search_context.code)
+            files = os.listdir(folder)
+
+            # Pagination
+            paginator = Paginator(files, 15)
+            page_number = self.request.GET.get('page', None)
+            if page_number is not None:
+                page_obj = paginator.get_page(page_number)
+            else:
+                page_obj = paginator.get_page(1)
+
+            context['page_obj'] = page_obj
+            context['files'] = page_obj.object_list
+        return context

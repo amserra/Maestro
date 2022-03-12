@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Maestro | Review '{{ context.code }}' images
+{% endblock %}
+
+{% block content %}
+    {% get_media_prefix as media_prefix %}
+    <div class="page-container lg:w-3/4 min-h-45rem flex flex-col">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between items-center">
+                <div>
+                    <p class="title">Gathered data</p>
+                    <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
+                </div>
+                <div>
+                    <a href="{% url 'contexts-detail' context.code %}" class="btn-primary">Save changes</a>
+                    <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>
+                    <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
+                </div>
+            </div>
+            <div class="mt-10 grid grid-cols-5 gap-4">
+                {% for file in files %}
+                    <div class="w-40 p-2 border-2 border-gray-300 rounded-md bg-gray-200 shadow">
+                        <div class="w-36 h-36 flex content-start gap-2">
+                            <img class="object-fill overflow-hidden object-left-bottom w-36 h-36" src="{{media_prefix}}{{ context.owner_code }}/{{ context.code }}/{{ file }}">
+                            <input onclick="handleCheckboxClick(this)" type="checkbox" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2" checked>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if page_obj.paginator.num_pages > 1 %}
+            <div class="flex w-full justify-center mt-10">
+                {% include 'common/pagination.html' %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function handleCheckboxClick(el) {
+            const checked = el.checked;
+            const image = el.previousElementSibling;
+            const main_div_active_classes = ["border-gray-300", "bg-gray-200"]
+            const main_div_inactive_classes = ["border-gray-300", "bg-gray-200", "grayscale", "brightness-75"]
+            const main_div = el.parentNode.parentNode;
+
+            if(checked === true) {
+                main_div_active_classes.forEach((class_name) => main_div.classList.add(class_name));
+                main_div_inactive_classes.forEach((class_name) => main_div.classList.remove(class_name));
+            } else {
+                main_div_active_classes.forEach((class_name) => main_div.classList.remove(class_name));
+                main_div_inactive_classes.forEach((class_name) => main_div.classList.add(class_name));
+            }
+        }
+    </script>
+{% endblock %}
