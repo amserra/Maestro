@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import resolve
 from django.urls import reverse_lazy
@@ -202,6 +202,19 @@ class SearchContextStatusView(LoginRequiredMixin, UserHasAccess, DetailView):
     slug_url_kwarg = 'code'
     context_object_name = 'context'
 
+    def get(self, request, *args, **kwargs):
+        context_status = self.get_object().status
+
+        # Requested status by javascript
+        if 'status' in request.GET:
+            return JsonResponse({'status': context_status})
+
+        if context_status != SearchContext.FETCHING_URLS and context_status != SearchContext.GATHERING_DATA:
+            return redirect('contexts-detail', code=self.get_object().code)
+
+        # Normal get request for template
+        return super().get(request, *args, **kwargs)
+
 
 class SearchContextDataReviewView(LoginRequiredMixin, UserCanEdit, DetailView):
     model = SearchContext
@@ -233,3 +246,4 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserCanEdit, DetailView):
             context['page_obj'] = page_obj
             context['files'] = page_obj.object_list
         return context
+

@@ -3,6 +3,7 @@ from django.urls import reverse
 from context.models import SearchContext
 from context.tests.tests_setup import ContextTestCase
 from context.forms import SearchContextCreateForm
+from django.test import override_settings
 
 
 class ContextCreateFormTest(ContextTestCase):
@@ -111,6 +112,7 @@ class ContextCreateTest(ContextTestCase):
         super().setUp()
         self.client.login(email=self.user.email, password=self.password)
 
+    @override_settings(CELERY_ALWAYS_EAGER=True)
     def test_context_create(self):
         response = self.client.post(reverse('contexts-new'), data={
             'name': self.context_name,
