@@ -13,19 +13,25 @@
                 <div>
                     <p class="title">Gathered data</p>
                     <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
+                    <p class="subtitle">Number of images: <span class="font-normal">{{ context.datastream.count }}</span></p>
                 </div>
                 <div>
-                    <a href="{% url 'contexts-detail' context.code %}" class="btn-primary">Save changes</a>
-                    <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>
+                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                        <a onclick="handleSaveChanges()" class="btn-primary">Save changes</a>
+                        <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>
+                    {% endif %}
                     <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
                 </div>
             </div>
             <div class="mt-10 grid grid-cols-5 gap-4">
+                {% csrf_token %}
                 {% for file in files %}
                     <div class="w-40 p-2 border-2 border-gray-300 rounded-md bg-gray-200 shadow">
                         <div class="w-36 h-36 flex content-start gap-2">
                             <img class="object-fill overflow-hidden object-left-bottom w-36 h-36" src="{{media_prefix}}{{ context.owner_code }}/{{ context.code }}/{{ file }}">
-                            <input onclick="handleCheckboxClick(this)" type="checkbox" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2" checked>
+                            {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                                <input onclick="handleCheckboxClick(this)" type="checkbox" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2" checked>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
@@ -39,6 +45,30 @@
     </div>
 
     <script>
+        function handleSaveChanges() {
+            const files = [];
+            const csrfTokenValue = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            document.querySelectorAll('input[type=checkbox]:not(:checked)').forEach((el) => {
+                if(el.className !== '') {
+                    let fullPath = el.previousElementSibling.src;
+                    let fileName = fullPath.replace(/^.*[\\\/]/, '');
+                    files.push(fileName);
+                }
+            });
+
+            let formData = new FormData();
+            formData.append('files', files);
+            fetch("{% url 'contexts-review-save' context.code %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfTokenValue
+                },
+                body: formData
+            }).then((res) => {
+                window.location.href = res.url;
+            });
+        }
+
         function handleCheckboxClick(el) {
             const checked = el.checked;
             const image = el.previousElementSibling;

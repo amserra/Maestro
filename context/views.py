@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import resolve
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, FormView
@@ -21,6 +21,7 @@ from .tasks import delete_context_folder, create_context_folder, fetch_urls, run
 from django.contrib import messages
 from celery import chain
 from django.conf import settings
+import json
 
 
 class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFilterView, FilterView):
@@ -123,7 +124,7 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
 
     def get_success_url(self):
         if self.from_url:
-            resolved_url = resolve(self.from_url)
+            resolved_url = resolve(self.from_url.split('?', 1)[0])  # resolve only works if no query params are in the url
             if self.form:
                 return f"{reverse_lazy(resolved_url.url_name, args=[resolved_url.kwargs['code']])}?page={self.form}"
             else:
@@ -216,7 +217,7 @@ class SearchContextStatusView(LoginRequiredMixin, UserHasAccess, DetailView):
         return super().get(request, *args, **kwargs)
 
 
-class SearchContextDataReviewView(LoginRequiredMixin, UserCanEdit, DetailView):
+class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView):
     model = SearchContext
     slug_field = 'code'
     slug_url_kwarg = 'code'
@@ -247,3 +248,31 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserCanEdit, DetailView):
             context['files'] = page_obj.object_list
         return context
 
+
+@login_required
+@user_can_edit
+def save_images_review(request, code):
+    if not request.method == 'POST':
+        return HttpResponseBadRequest()
+
+    context = SearchContext.objects.get(code=code)
+
+    if context.status != SearchContext.WAITING_DATA_REVISION:
+        return HttpResponseBadRequest()
+
+    files = request.POST.get('files', None)
+    if files is None:
+        return HttpResponseBadRequest()
+
+    files = files.split(',')
+
+    media_folder = context.context_folder_media
+    thumb_folder = os.path.join(context.context_folder, 'data', 'thumbs')
+    original_folder = os.path.join(context.context_folder, 'data', 'full')
+    for file in files:
+        os.remove(os.path.join(media_folder, file))
+        os.remove(os.path.join(thumb_folder, file))
+        os.remove(os.path.join(original_folder, file))
+
+    messages.success(request, 'Alterations made successfully.')
+    return redirect('contexts-review', code=context)

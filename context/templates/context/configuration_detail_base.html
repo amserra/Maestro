@@ -2,7 +2,7 @@
 {% load my_filters %}
 
 {% block content %}
-    <div class="page-container lg:w-3/5 min-h-45rem flex flex-col">
+    <div class="page-container lg:w-3/5 min-h-48rem flex flex-col">
         <div class="xl:w-full">
             <div class="mb-10">
                 {% block breadcrumb %}
@@ -34,7 +34,7 @@
                 {% elif context.status == 'FETCHING' or context.status == 'GATHERING' %}
                     <a href="{% url 'contexts-status' context.code %}" class="btn-secondary">Progress</a>
                 {% endif %}
-                <a href="{% url 'contexts-configuration-update' context.code %}?form={{ request.GET.page|default_if_none:'essential' }}&from={{ request.get_full_path }}" class="btn-primary">Configure</a>
+                <a href="{% url 'contexts-configuration-update' context.code %}?form={{ request.GET.page|default:'essential' }}&from={{ request.get_full_path }}" class="btn-primary">Configure</a>
                 <a  href="#"
                     onclick="
                             openModal(

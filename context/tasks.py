@@ -5,7 +5,7 @@ import shutil
 
 from scrapy.utils.project import get_project_settings
 
-from context.models import SearchContext, Fetcher, Configuration, AdvancedConfiguration, APIResults
+from context.models import SearchContext, Fetcher, Configuration, AdvancedConfiguration, APIResults, ImageDataStream
 from maestro.celery import app
 from django.conf import settings
 from scrapy.crawler import CrawlerProcess, Crawler, CrawlerRunner
@@ -127,14 +127,27 @@ def run_default_gatherer(self, urls: list[str], context_id):
     process.start()
 
     if context.configuration.data_type == Configuration.IMAGES:
-        # Copy thumbnails to the media folder
-        src_folder = os.path.join(context_data_path, 'thumbs')  # folder with the thumbs
-        if os.path.isdir(src_folder):
-            dest_folder = os.path.join(settings.MEDIA_ROOT, context.owner_code, context.code)  # context folder in media folder
-            os.makedirs(dest_folder, exist_ok=True)
-            files = os.listdir(src_folder)
+        # Copy thumbnails to the media folder and add entries to DB
+        thumbs_folder = os.path.join(context_data_path, 'thumbs')
+        original_folder = os.path.join(context_data_path, 'full')
+        thumbs_media_folder = os.path.join(settings.MEDIA_ROOT, context.owner_code, context.code)
+
+        if os.path.isdir(thumbs_folder):
+            os.makedirs(thumbs_media_folder, exist_ok=True)
+            files = os.listdir(thumbs_folder)
+
+            objs = []
             for file in files:
-                shutil.copy2(os.path.join(src_folder, file), dest_folder)
+                file_path_in_thumb_media_folder = os.path.join(thumbs_folder, file)
+                shutil.copy2(file_path_in_thumb_media_folder, thumbs_media_folder)
+                # Add entries to DB
+                objs.append(ImageDataStream(
+                    context=context,
+                    data=os.path.join(original_folder, file),
+                    data_thumb=os.path.join(thumbs_folder, file),
+                    data_thumb_media=file_path_in_thumb_media_folder
+                ))
+            ImageDataStream.objects.bulk_create(objs)
 
     context.status = SearchContext.WAITING_DATA_REVISION
     context.save()
@@ -156,8 +169,8 @@ def create_context_folder(self, owner_code, context_code):
 @app.task(bind=True)
 def delete_context_folder(self, context_id):
     context = SearchContext.objects.get(id=context_id)
-    owner_code = context.owner_code
-    code = context.code
+    context_folder = context.context_folder
+    context_folder_media = context.context_folder_media
 
     # Delete from DB
     if context.configuration:
@@ -167,7 +180,8 @@ def delete_context_folder(self, context_id):
     context.delete()
 
     try:
-        shutil.rmtree(f'{settings.BASE_DIR}/contexts_data/{owner_code}/{code}')
+        shutil.rmtree(context_folder)
+        shutil.rmtree(context_folder_media)
         return True
     except Exception as e:
         print(e)

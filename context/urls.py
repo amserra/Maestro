@@ -12,4 +12,5 @@ urlpatterns = [
     path('<str:code>/start/', views.search_context_start, name='contexts-start'),
     path('<str:code>/status/', views.SearchContextStatusView.as_view(), name='contexts-status'),
     path('<str:code>/review/', views.SearchContextDataReviewView.as_view(), name='contexts-review'),
+    path('<str:code>/review/save', views.save_images_review, name='contexts-review-save'),
 ]

@@ -11,6 +11,30 @@ from django.contrib.postgres.fields import ArrayField
 COUNTRY_CHOICES = [('PT', 'Portugal'), ('US', 'United States')]
 
 
+def post_processors_path():
+    return os.path.join(settings.BASE_DIR, 'post_processors')
+
+
+class PostProcessor(models.Model):
+    """
+    Represents a post-processor. A post-processor enhances the datastream, either the data objects themselves (e.g.: rotate all the images), or the metadata associated with each (e.g.: retrieve exif data).
+    """
+    PYTHON_SCRIPT = 'Python'
+    POST_PROCESSOR_TYPE = [
+        (PYTHON_SCRIPT, 'Python script'),
+    ]
+
+    name = models.CharField(max_length=50)
+    # Some fetchers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
+    is_active = models.BooleanField(default=True)
+    type = models.CharField(max_length=20, choices=POST_PROCESSOR_TYPE)
+    path = models.FilePathField(path=post_processors_path, recursive=True)
+    # The supported data type (image/text/other), and the type of post-processor depend on the folder where the post-processor is stored
+
+    def __str__(self):
+        return self.name
+
+
 def fetchers_path():
     return os.path.join(settings.BASE_DIR, 'fetchers')
 
@@ -140,6 +164,18 @@ class SearchContext(models.Model):
     def context_folder(self):
         return os.path.join(settings.CONTEXTS_DATA_DIR, self.owner_code, self.code)
 
+    @property
+    def context_folder_media(self):
+        return os.path.join(settings.MEDIA_ROOT, self.owner_code, self.code)
+
+    @property
+    def datastream(self):
+        if self.imagedatastream_set.exists():
+            return self.imagedatastream_set.all()
+        # Other datatype cases
+        else:
+            return None
+
     def __str__(self):
         return self.code
 
@@ -159,3 +195,19 @@ class APIResults(models.Model):
 
     def __str__(self):
         return f'API results for fetcher {self.fetcher}'
+
+
+class DataStream(models.Model):
+    metadata = models.JSONField(encoder=DjangoJSONEncoder, null=True)
+    data = models.NOT_PROVIDED  # overriden in subclass
+    context = models.ForeignKey(to=SearchContext, on_delete=models.CASCADE)
+    add_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
+class ImageDataStream(DataStream):
+    data = models.FilePathField(max_length=200)
+    data_thumb = models.FilePathField(max_length=200)
+    data_thumb_media = models.FilePathField(max_length=200)
