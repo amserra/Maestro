@@ -25,7 +25,7 @@ def image_coordinates(img):
 # Dont return exceptions. Instead return None if something goes wrong (exception handeling is with the post processor)
 # Return a dict, where the key is the data name and the value the value itself
 # The input depends on the data type, but tipically is a string (for files, the file path)
-def main(image_path='/Users/amserra/Downloads/IMG_7964/IMG_7964.jpg'):
+def main(image_path):
     try:
         with open(image_path, 'rb') as src:
             img = Image(src)

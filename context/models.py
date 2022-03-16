@@ -7,32 +7,9 @@ from django.contrib.contenttypes.models import ContentType
 from taggit.managers import TaggableManager
 from django.contrib.postgres.fields import ArrayField
 
-
+# Hardcoded for now
+THUMB_SIZE = (270, 270)
 COUNTRY_CHOICES = [('PT', 'Portugal'), ('US', 'United States')]
-
-
-def post_processors_path():
-    return os.path.join(settings.BASE_DIR, 'post_processors')
-
-
-class PostProcessor(models.Model):
-    """
-    Represents a post-processor. A post-processor enhances the datastream, either the data objects themselves (e.g.: rotate all the images), or the metadata associated with each (e.g.: retrieve exif data).
-    """
-    PYTHON_SCRIPT = 'Python'
-    POST_PROCESSOR_TYPE = [
-        (PYTHON_SCRIPT, 'Python script'),
-    ]
-
-    name = models.CharField(max_length=50)
-    # Some fetchers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
-    is_active = models.BooleanField(default=True)
-    type = models.CharField(max_length=20, choices=POST_PROCESSOR_TYPE)
-    path = models.FilePathField(path=post_processors_path, recursive=True)
-    # The supported data type (image/text/other), and the type of post-processor depend on the folder where the post-processor is stored
-
-    def __str__(self):
-        return self.name
 
 
 def fetchers_path():
@@ -60,18 +37,7 @@ class Fetcher(models.Model):
         return self.name
 
 
-class ImagesConfiguration(models.Model):
-    SMALL = 'Small'
-    MEDIUM = 'Medium'
-    LARGE = 'Large'
-    IMAGES_SIZE_CHOICES = [
-        (SMALL, 'Small'),
-        (MEDIUM, 'Medium'),
-        (LARGE, 'Large')
-    ]
-
-    size = models.CharField(max_length=10, choices=IMAGES_SIZE_CHOICES, null=True)
-
+class ImageConfiguration(models.Model):
     min_width = models.IntegerField(blank=True)
     min_height = models.IntegerField(blank=True)
     max_width = models.IntegerField(blank=True)
@@ -87,11 +53,12 @@ class AdvancedConfiguration(models.Model):
     # freshness/date = ...
     seed_urls = ArrayField(models.URLField(), null=True)
     fetchers = models.ManyToManyField(to=Fetcher, blank=True)
+    post_processors = models.ManyToManyField(to='PostProcessor', blank=True)
     yield_after_gathering_data = models.BooleanField(default=True, help_text='Whether to stop or not after data is gathered. This is recommended to be on, because it will potentially allow for better results.')
 
     # Data-type-specific configurations
     # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
-    images_configuration = models.ForeignKey(to=ImagesConfiguration, on_delete=models.SET_NULL, null=True)
+    images_configuration = models.ForeignKey(to=ImageConfiguration, on_delete=models.SET_NULL, null=True)
 
     @property
     def context(self):
@@ -170,8 +137,8 @@ class SearchContext(models.Model):
 
     @property
     def datastream(self):
-        if self.imagedatastream_set.exists():
-            return self.imagedatastream_set.all()
+        if self.imagedata_set.exists():
+            return self.imagedata_set.all()
         # Other datatype cases
         else:
             return None
@@ -197,7 +164,7 @@ class APIResults(models.Model):
         return f'API results for fetcher {self.fetcher}'
 
 
-class DataStream(models.Model):
+class Data(models.Model):
     metadata = models.JSONField(encoder=DjangoJSONEncoder, null=True)
     data = models.NOT_PROVIDED  # overriden in subclass
     context = models.ForeignKey(to=SearchContext, on_delete=models.CASCADE)
@@ -207,7 +174,40 @@ class DataStream(models.Model):
         abstract = True
 
 
-class ImageDataStream(DataStream):
+class ImageData(Data):
     data = models.FilePathField(max_length=200)
     data_thumb = models.FilePathField(max_length=200)
     data_thumb_media = models.FilePathField(max_length=200)
+
+
+def post_processors_path():
+    return os.path.join(settings.BASE_DIR, 'post_processors')
+
+
+class PostProcessor(models.Model):
+    """
+    Represents a post-processor. A post-processor enhances the datastream, either the data objects themselves (e.g.: rotate all the images), or the metadata associated with each (e.g.: retrieve exif data).
+    """
+    PYTHON_SCRIPT = 'Python'
+    POST_PROCESSOR_TYPE = [
+        (PYTHON_SCRIPT, 'Python script'),
+    ]
+
+    DATA_MANIPULATION = 'DATA'
+    METADATA_RETRIEVAL = 'METADATA'
+    POST_PROCESSOR_KIND = [
+        (DATA_MANIPULATION, 'Data manipulation'),
+        (METADATA_RETRIEVAL, 'Metadata retrieval'),
+    ]
+
+    name = models.CharField(max_length=50)
+    # Some fetchers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
+    is_active = models.BooleanField(default=True)
+    type = models.CharField(max_length=20, choices=POST_PROCESSOR_TYPE)
+    data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
+    kind = models.CharField(max_length=20, choices=POST_PROCESSOR_KIND)
+    path = models.FilePathField(path=post_processors_path, recursive=True)
+    # The supported data type (image/text/other), and the type of post-processor depend on the folder where the post-processor is stored
+
+    def __str__(self):
+        return self.name

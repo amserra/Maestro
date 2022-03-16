@@ -1,16 +1,10 @@
 import importlib.util
-import logging
 import os
 import shutil
-
-from scrapy.utils.project import get_project_settings
-
-from context.models import SearchContext, Fetcher, Configuration, AdvancedConfiguration, APIResults, ImageDataStream
+from context.models import SearchContext, Fetcher, Configuration, AdvancedConfiguration, APIResults, ImageData, PostProcessor, THUMB_SIZE
 from maestro.celery import app
 from django.conf import settings
-from scrapy.crawler import CrawlerProcess, Crawler, CrawlerRunner
-from scrapy import Spider
-from scrapy.utils import log
+from scrapy.crawler import CrawlerProcess
 from datetime import datetime
 import ast
 from collections import OrderedDict
@@ -116,7 +110,7 @@ def run_default_gatherer(self, urls: list[str], context_id):
         'IMAGES_MIN_HEIGHT': 110,
         'IMAGES_MIN_WIDTH': 110,
         'IMAGES_THUMBS': {
-            'big': (270, 270),
+            'big': THUMB_SIZE,
         },
         'LOG_FILE': log_file,
         'TELNETCONSOLE_ENABLED': False
@@ -141,16 +135,54 @@ def run_default_gatherer(self, urls: list[str], context_id):
                 file_path_in_thumb_media_folder = os.path.join(thumbs_folder, file)
                 shutil.copy2(file_path_in_thumb_media_folder, thumbs_media_folder)
                 # Add entries to DB
-                objs.append(ImageDataStream(
+                objs.append(ImageData(
                     context=context,
                     data=os.path.join(original_folder, file),
                     data_thumb=os.path.join(thumbs_folder, file),
                     data_thumb_media=file_path_in_thumb_media_folder
                 ))
-            ImageDataStream.objects.bulk_create(objs)
+            ImageData.objects.bulk_create(objs)
 
     context.status = SearchContext.WAITING_DATA_REVISION
     context.save()
+
+    return True
+
+
+@app.task(bind=True)
+def run_post_processors(self, context_id):
+    context = SearchContext.objects.get(id=context_id)
+    datastream = context.datastream
+    # post processors only used if context has advanced configuration
+    advanced_configuration = context.configuration.advanced_configuration
+    if not datastream.exists():
+        return False
+
+    post_processors = advanced_configuration.post_processors.all()
+
+    for post_processor in post_processors:
+        if post_processor.type == PostProcessor.PYTHON_SCRIPT:
+            spec = importlib.util.spec_from_file_location(post_processor.name, post_processor.path)
+            post_processor_script = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(post_processor_script)
+
+            # Post processors shouldn't return exceptions, but for safety it's better to catch if one occurs
+            try:
+                for data in datastream:
+                    result = post_processor_script.main(data.data)
+                    if result is not None:
+                        if post_processor.kind == PostProcessor.DATA_MANIPULATION:
+                            if post_processor.data_type == Configuration.IMAGES:
+                                # TODO: Not needed yet! Use functions in utils/image. What is the input? PIL object?
+                                pass
+                            else:
+                                data.data = result
+                        elif post_processor.kind == PostProcessor.METADATA_RETRIEVAL:
+                            data.metadata = result
+                        data.save()
+
+            except Exception as ex:
+                print(f"Post-processor {post_processor} failed:\n{ex}")
 
     return True
 

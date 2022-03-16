@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 
 from common.forms import DynamicArrayField
-from .models import SearchContext, Configuration, Fetcher, AdvancedConfiguration, COUNTRY_CHOICES
+from .models import SearchContext, Configuration, Fetcher, AdvancedConfiguration, COUNTRY_CHOICES, PostProcessor
 import re
 
 
@@ -57,6 +57,7 @@ class EssentialConfigurationForm(forms.ModelForm):
 class AdvancedConfigurationForm(forms.ModelForm):
     country_of_search = forms.ChoiceField(choices=COUNTRY_CHOICES)
     fetchers = forms.ModelMultipleChoiceField(queryset=Fetcher.objects.filter(is_active=True), required=False)
+    post_processors = forms.ModelMultipleChoiceField(queryset=PostProcessor.objects.filter(is_active=True), required=False)
     seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
 
     error_messages = {
@@ -76,4 +77,4 @@ class AdvancedConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = AdvancedConfiguration
-        fields = ['country_of_search', 'seed_urls', 'fetchers', 'yield_after_gathering_data']
+        fields = ['country_of_search', 'seed_urls', 'fetchers', 'post_processors', 'yield_after_gathering_data']
