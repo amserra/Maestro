@@ -13,6 +13,10 @@ def about(request):
     return render(request, 'common/about.html')
 
 
+def components(request):
+    return render(request, 'common/components.html')
+
+
 # Error views
 def bad_request(request, exception):
     context = {}
