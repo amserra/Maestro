@@ -29,8 +29,11 @@ class AdvancedConfiguration(models.Model):
     seed_urls = ArrayField(models.URLField(), null=True)
     fetchers = models.ManyToManyField(to='Fetcher', blank=True)
     post_processors = models.ManyToManyField(to='PostProcessor', blank=True)
+    filters = models.ManyToManyField(to='Filter', blank=True)
     yield_after_gathering_data = models.BooleanField(default=True, help_text='Whether to stop or not after data is gathered. This is recommended to be on, because it will potentially allow for better results.')
 
+    # Built-in filters
+    strict_filtering = models.BooleanField(default=False, help_text='Whether to discard objects that don\'t match the filter criteria even if the evaluation is inconclusive.')
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
 
@@ -41,6 +44,13 @@ class AdvancedConfiguration(models.Model):
     @property
     def context(self):
         return self.configuration_set.all()[0].context
+
+    def get_filterable_data(self):
+        """The data returned here will be passed to the filters. It is a set of columns of the advanced configuration that might be used by filters."""
+        return {
+            'start_date': self.start_date,
+            'end_date': self.end_date
+        }
 
     def __str__(self):
         return f'{self.context}\'s advanced configuration'
@@ -220,6 +230,9 @@ class Filter(models.Model):
     data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
     path = models.FilePathField(path=filters_path, recursive=True)
 
+    def __str__(self):
+        return self.name
+
 
 # Data objects
 class Data(models.Model):
@@ -227,6 +240,7 @@ class Data(models.Model):
     data = models.NOT_PROVIDED  # overriden in subclass
     context = models.ForeignKey(to=SearchContext, on_delete=models.CASCADE)
     add_date = models.DateTimeField(auto_now_add=True)
+    filtered = models.BooleanField(default=False)  # tells if the data object was filtered by a filter, so it is not considered in the next stages
 
     class Meta:
         abstract = True
@@ -236,3 +250,6 @@ class ImageData(Data):
     data = models.FilePathField(max_length=200)
     data_thumb = models.FilePathField(max_length=200)
     data_thumb_media = models.FilePathField(max_length=200)
+
+    def __str__(self):
+        return f'Image data of context {self.context.code}: {os.path.basename(self.data)}'

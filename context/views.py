@@ -16,7 +16,7 @@ from .authorization import UserHasAccess, UserCanEdit, user_can_edit
 from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, AdvancedConfigurationForm, EssentialConfigurationForm
 from .helpers import get_user_search_contexts
-from .models import SearchContext, Configuration
+from .models import SearchContext, Configuration, AdvancedConfiguration, Filter
 from .tasks import delete_context_folder, create_context_folder, fetch_urls, run_default_gatherer
 from django.contrib import messages
 from celery import chain
@@ -148,17 +148,20 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
     def form_valid(self, form):
         configuration = form.save()
         if type(form).__name__ == EssentialConfigurationForm.__name__:
-            self.context.configuration = configuration
+            essential_configuration: Configuration = configuration
+            self.context.configuration = essential_configuration
             self.context.status = SearchContext.READY
             self.context.save()
         else:
+            advanced_configuration: AdvancedConfiguration = configuration
             if self.context.configuration is None:
-                context_conf = Configuration(advanced_configuration=configuration)
+                advanced_configuration.save()
+                context_conf = Configuration(advanced_configuration=advanced_configuration)
                 context_conf.save()
                 self.context.configuration = context_conf
                 self.context.save()
             else:
-                self.context.configuration.advanced_configuration = configuration
+                self.context.configuration.advanced_configuration = advanced_configuration
                 self.context.configuration.save()
         return super().form_valid(form)
 

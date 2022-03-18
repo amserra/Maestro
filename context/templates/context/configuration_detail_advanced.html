@@ -75,6 +75,20 @@
                     </ul>
                 </div>
             {% endif %}
+            {% if configuration.start_date or configuration.end_date %}
+                <div class="mt-6">
+                    <p class="text-2xl text-blue-700">Date interval</p>
+                    <div class="flex flex-col mt-2">
+                        {% if configuration.start_date and not configuration.end_date %}
+                            <p class="font-light text-gray-600">Since {{ configuration.start_date|date:'G:i \o\f F jS, Y G:i' }}</p>
+                        {% elif not configuration.start_date and configuration.end_date %}
+                            <p class="font-light text-gray-600">Until {{ configuration.end_date|date:'G:i \o\f F jS, Y G:i' }}</p>
+                        {% else %}
+                            <p class="font-light text-gray-600">From {{ configuration.start_date|date:'G:i \o\f F jS, Y' }} until {{ configuration.end_date|date:'G:i \o\f F jS, Y' }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         {% else %}
             <p class="mr-10">This context doesn't have any advanced configurations. You can add them by clicking the <span class="text-blue-600">Configure</span> button below.</p>
         {% endif %}

@@ -64,8 +64,8 @@ class AdvancedConfigurationForm(forms.ModelForm):
     fetchers = forms.ModelMultipleChoiceField(queryset=Fetcher.objects.filter(is_active=True), required=False)
     post_processors = forms.ModelMultipleChoiceField(queryset=PostProcessor.objects.filter(is_active=True), required=False)
     seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
-    start_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
-    end_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
+    start_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
+    end_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
 
     error_messages = {
         'incompatibility': 'The use of the fetcher %s is incompatible with the use of the fetcher %s.',
@@ -102,4 +102,4 @@ class AdvancedConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = AdvancedConfiguration
-        fields = ['country_of_search', 'seed_urls', 'fetchers', 'post_processors', 'yield_after_gathering_data', 'start_date', 'end_date']
+        fields = ['country_of_search', 'seed_urls', 'fetchers', 'post_processors', 'filters', 'yield_after_gathering_data', 'strict_filtering', 'start_date', 'end_date']
