@@ -36,4 +36,14 @@
             </form>
         </div>
     {% endwith %}
+
+    <script>
+        const now = new Date();
+        const max = now.toISOString().slice(0, 16);
+        console.log(max)
+        const date_inputs = document.querySelectorAll("input[type=datetime-local]");
+        for(let i = 0; i < date_inputs.length; i++) {
+            date_inputs[i].setAttribute("max", max);
+        }
+    </script>
 {% endblock content %}

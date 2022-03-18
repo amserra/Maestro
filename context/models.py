@@ -12,31 +12,6 @@ THUMB_SIZE = (270, 270)
 COUNTRY_CHOICES = [('PT', 'Portugal'), ('US', 'United States')]
 
 
-def fetchers_path():
-    return os.path.join(settings.BASE_DIR, 'fetchers')
-
-
-class Fetcher(models.Model):
-    PYTHON_SCRIPT = 'Python'
-    SCRAPY_SCRIPT = 'Scrapy'
-    FETCHER_TYPE = [
-        (PYTHON_SCRIPT, 'Python script'),
-        (SCRAPY_SCRIPT, 'Scrapy script'),
-    ]
-
-    name = models.CharField(max_length=50)
-    # Some fetchers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
-    incompatible_with = models.ManyToManyField(to="self", blank=True)
-    is_active = models.BooleanField(default=True)
-    is_default = models.BooleanField(default=False, help_text='Tells if this fetcher is used by default (when a context doesn\'t have fetchers specified). A default fetcher is only used if it is active.')
-    type = models.CharField(max_length=20, choices=FETCHER_TYPE)
-    path = models.FilePathField(path=fetchers_path, recursive=True, match='fetcher_*')
-    # TODO: Ideally there's another field here: supported datatypes. Some fetchers (e.g.: bing image) don't make sense fetching some data types (e.g.: sounds). Since we are only supporting image data type for now, we can leave it like this
-
-    def __str__(self):
-        return self.name
-
-
 class ImageConfiguration(models.Model):
     min_width = models.IntegerField(blank=True)
     min_height = models.IntegerField(blank=True)
@@ -52,9 +27,12 @@ class AdvancedConfiguration(models.Model):
     country_of_search = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default=DEFAULT_COUNTRY_OF_SEARCH, null=True)
     # freshness/date = ...
     seed_urls = ArrayField(models.URLField(), null=True)
-    fetchers = models.ManyToManyField(to=Fetcher, blank=True)
+    fetchers = models.ManyToManyField(to='Fetcher', blank=True)
     post_processors = models.ManyToManyField(to='PostProcessor', blank=True)
     yield_after_gathering_data = models.BooleanField(default=True, help_text='Whether to stop or not after data is gathered. This is recommended to be on, because it will potentially allow for better results.')
+
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
 
     # Data-type-specific configurations
     # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
@@ -70,8 +48,10 @@ class AdvancedConfiguration(models.Model):
 
 class Configuration(models.Model):
     IMAGES = 'IMAGES'
+    AGNOSTIC = 'AGNOSTIC'
     DATA_TYPE_CHOICES = [
-        (IMAGES, 'Images')
+        (IMAGES, 'Images'),
+        (AGNOSTIC, 'Agnostic')
     ]
 
     # Essential configuration
@@ -157,27 +137,38 @@ class APIResults(models.Model):
         Not applicable to non-dev environments because they may require time-sensitive data
     """
     configuration = models.JSONField(encoder=DjangoJSONEncoder)
-    fetcher = models.ForeignKey(to=Fetcher, on_delete=models.CASCADE)
+    fetcher = models.ForeignKey(to='Fetcher', on_delete=models.CASCADE)
     result_file = models.FilePathField(path=api_logs_path)
 
     def __str__(self):
         return f'API results for fetcher {self.fetcher}'
 
 
-class Data(models.Model):
-    metadata = models.JSONField(encoder=DjangoJSONEncoder, null=True)
-    data = models.NOT_PROVIDED  # overriden in subclass
-    context = models.ForeignKey(to=SearchContext, on_delete=models.CASCADE)
-    add_date = models.DateTimeField(auto_now_add=True)
+# Components
 
-    class Meta:
-        abstract = True
+def fetchers_path():
+    return os.path.join(settings.BASE_DIR, 'fetchers')
 
 
-class ImageData(Data):
-    data = models.FilePathField(max_length=200)
-    data_thumb = models.FilePathField(max_length=200)
-    data_thumb_media = models.FilePathField(max_length=200)
+class Fetcher(models.Model):
+    PYTHON_SCRIPT = 'Python'
+    SCRAPY_SCRIPT = 'Scrapy'
+    FETCHER_TYPE = [
+        (PYTHON_SCRIPT, 'Python script'),
+        (SCRAPY_SCRIPT, 'Scrapy script'),
+    ]
+
+    name = models.CharField(max_length=50)
+    # Some fetchers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
+    incompatible_with = models.ManyToManyField(to="self", blank=True)
+    is_active = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=False, help_text='Tells if this fetcher is used by default (when a context doesn\'t have fetchers specified). A default fetcher is only used if it is active.')
+    type = models.CharField(max_length=20, choices=FETCHER_TYPE)
+    path = models.FilePathField(path=fetchers_path, recursive=True, match='fetcher_*')
+    # TODO: Ideally there's another field here: supported datatypes. Some fetchers (e.g.: bing image) don't make sense fetching some data types (e.g.: sounds). Since we are only supporting image data type for now, we can leave it like this
+
+    def __str__(self):
+        return self.name
 
 
 def post_processors_path():
@@ -201,7 +192,6 @@ class PostProcessor(models.Model):
     ]
 
     name = models.CharField(max_length=50)
-    # Some fetchers may be incompatible with others. For example, to restrict API calls, we may only allow to use one of the bing/bing images/google
     is_active = models.BooleanField(default=True)
     type = models.CharField(max_length=20, choices=POST_PROCESSOR_TYPE)
     data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
@@ -211,3 +201,38 @@ class PostProcessor(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def filters_path():
+    return os.path.join(settings.BASE_DIR, 'filters')
+
+
+class Filter(models.Model):
+    PYTHON_SCRIPT = 'Python'
+    FILTER_TYPE = [
+        (PYTHON_SCRIPT, 'Python script'),
+    ]
+
+    name = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+    is_builtin = models.BooleanField(default=False)
+    type = models.CharField(max_length=20, choices=FILTER_TYPE)
+    data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
+    path = models.FilePathField(path=filters_path, recursive=True)
+
+
+# Data objects
+class Data(models.Model):
+    metadata = models.JSONField(encoder=DjangoJSONEncoder, null=True)
+    data = models.NOT_PROVIDED  # overriden in subclass
+    context = models.ForeignKey(to=SearchContext, on_delete=models.CASCADE)
+    add_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
+class ImageData(Data):
+    data = models.FilePathField(max_length=200)
+    data_thumb = models.FilePathField(max_length=200)
+    data_thumb_media = models.FilePathField(max_length=200)
