@@ -68,6 +68,8 @@ jobs:
                   python manage.py migrate
             - name: Run celery worker for tests
               run: celery -A maestro worker -l info --detach
+            - name: Collect static files
+              run: python manage.py collectstatic --no-input
             - name: Run Tests
               env:
                   DATABASE_NAME: maestro_db
