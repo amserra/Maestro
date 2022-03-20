@@ -76,4 +76,5 @@ jobs:
                   DATABASE_HOST: localhost
                   DATABASE_PORT: 5432
                   SECRET_KEY: 1234 # not relevant for testing
+                  TEST: True
               run: python manage.py test

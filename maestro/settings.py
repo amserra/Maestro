@@ -16,6 +16,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default_unsecure_secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 
+TEST = (os.getenv('TEST', 'False') == 'True')
+
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
@@ -50,7 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware' if TEST else '',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,8 +62,9 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-# Compression and caching with whitenoise. In development will still use Django default static file handling
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if TEST:
+    # Compression and caching with whitenoise. In development will still use Django default static file handling
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'maestro.urls'
 
