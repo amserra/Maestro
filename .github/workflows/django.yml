@@ -55,7 +55,7 @@ jobs:
                   !~/cache/exclude
                 key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
             - name: Install requirements
-              run: pip install -r requirements.txt
+              run: pip install -r requirements/test.txt
             - name: Run Migrations
               env:
                   DATABASE_NAME: maestro_db
@@ -68,15 +68,6 @@ jobs:
                   python manage.py migrate
             - name: Run celery worker for tests
               run: celery -A maestro worker -l info --detach
-            - name: Use Node.js 16
-              uses: actions/setup-node@v2
-              with:
-                node-version: 16
-                cache: 'npm'
-            - run: cd theme/static_src/ && npm i
-            - run: python manage.py tailwind build
-            - name: Collect static files
-              run: python manage.py collectstatic --no-input
             - name: Run Tests
               env:
                   DATABASE_NAME: maestro_db
