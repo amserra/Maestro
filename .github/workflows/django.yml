@@ -68,6 +68,13 @@ jobs:
                   python manage.py migrate
             - name: Run celery worker for tests
               run: celery -A maestro worker -l info --detach
+            - name: Use Node.js 16
+              uses: actions/setup-node@v2
+              with:
+                node-version: 16
+                cache: 'npm'
+            - run: cd theme/static_src/ && npm i
+            - run: python manage.py tailwind build
             - name: Collect static files
               run: python manage.py collectstatic --no-input
             - name: Run Tests
@@ -78,5 +85,4 @@ jobs:
                   DATABASE_HOST: localhost
                   DATABASE_PORT: 5432
                   SECRET_KEY: 1234 # not relevant for testing
-                  DEBUG: 'True'
               run: python manage.py test
