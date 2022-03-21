@@ -15,9 +15,10 @@
                     <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
                     <p class="subtitle">Number of images: <span class="font-normal">{{ context.datastream.count }}</span></p>
                 </div>
-                <div>
+                <div class="flex gap-x-2">
                     {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
-                        <a onclick="handleSaveChanges()" class="btn-primary">Save changes</a>
+                        <a href="{% url 'contexts-review-complete' context.code %}" class="btn-primary">Complete review</a>
+                        <a onclick="handleSaveChanges()" class="btn-secondary">Save changes</a>
                         <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>
                     {% endif %}
                     <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>

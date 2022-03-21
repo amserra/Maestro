@@ -17,7 +17,7 @@ from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, AdvancedConfigurationForm, EssentialConfigurationForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration, AdvancedConfiguration, Filter
-from .tasks import delete_context_folder, create_context_folder, fetch_urls, run_default_gatherer
+from .tasks import delete_context_folder, create_context_folder, fetch_urls, run_default_gatherer, run_post_processors, run_filters
 from django.contrib import messages
 from celery import chain
 from django.conf import settings
@@ -187,9 +187,6 @@ def search_context_start(request, code):
     if context.status != SearchContext.READY:
         return HttpResponseBadRequest()
 
-    context.status = SearchContext.FETCHING_URLS
-    context.save()
-
     chain(fetch_urls.s(context.id), run_default_gatherer.s(context.id)).apply_async()
     messages.success(request, 'Search context execution started successfully.')
 
@@ -213,7 +210,8 @@ class SearchContextStatusView(LoginRequiredMixin, UserHasAccess, DetailView):
         if 'status' in request.GET:
             return JsonResponse({'status': context_status})
 
-        if context_status != SearchContext.FETCHING_URLS and context_status != SearchContext.GATHERING_DATA:
+        forbidden_states = [SearchContext.NOT_CONFIGURED, SearchContext.READY]
+        if context_status in forbidden_states:
             return redirect('contexts-detail', code=self.get_object().code)
 
         # Normal get request for template
@@ -258,7 +256,7 @@ def save_images_review(request, code):
     if not request.method == 'POST':
         return HttpResponseBadRequest()
 
-    context = SearchContext.objects.get(code=code)
+    context = get_object_or_404(SearchContext, code=code)
 
     if context.status != SearchContext.WAITING_DATA_REVISION:
         return HttpResponseBadRequest()
@@ -278,4 +276,18 @@ def save_images_review(request, code):
         os.remove(os.path.join(original_folder, file))
 
     messages.success(request, 'Alterations made successfully.')
-    return redirect('contexts-review', code=context)
+    return redirect('contexts-review', code=context.code)
+
+
+@login_required
+@user_can_edit
+def complete_review(request, code):
+    """Complete review and continue process"""
+    context = get_object_or_404(SearchContext, code=code)
+
+    if context.status != SearchContext.WAITING_DATA_REVISION:
+        return HttpResponseBadRequest()
+
+    chain(run_post_processors.s(context.id), run_filters.s(context.id)).apply_async()
+    messages.success(request, 'Process underway.')
+    return redirect('contexts-detail', code=context.code)

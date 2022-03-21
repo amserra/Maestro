@@ -81,17 +81,49 @@ class Configuration(models.Model):
 
 
 class SearchContext(models.Model):
+    FAILED = 'FAILED'
     NOT_CONFIGURED = 'NOT CONFIGURED'
     READY = 'READY'
+    # Fetching
     FETCHING_URLS = 'FETCHING'
+    FAILED_FETCHING_URLS = 'FAILED FETCHING'
+    FINISHED_FETCHING_URLS = 'FINISHED FETCHING'
+    # Gathering
     GATHERING_DATA = 'GATHERING'
+    FAILED_GATHERING_DATA = 'FAILED GATHERING'
+    FINISHED_GATHERING_DATA = 'FINISHED GATHERING'
+    # Waiting
     WAITING_DATA_REVISION = 'WAITING'
+    # Post-processing
+    POST_PROCESSING = 'POST PROCESSING'
+    FAILED_POST_PROCESSING = 'FAILED POST PROCESSING'
+    FINISHED_POST_PROCESSING = 'FINISHED POST PROCESSING'
+    # Filtering
+    FILTERING = 'FILTERING'
+    FAILED_FILTERING = 'FAILED FILTERING'
+    FINISHED_FILTERING = 'FINISHED FILTERING'
     STATUS_CHOICES = [
+        (FAILED, 'Failed'),
         (NOT_CONFIGURED, 'Not configured'),
         (READY, 'Ready'),
+        # Fetching
         (FETCHING_URLS, 'Fetching urls'),
+        (FAILED_FETCHING_URLS, 'Failed fetching urls'),
+        (FINISHED_FETCHING_URLS, 'Finished fetching urls'),
+        # Gathering
         (GATHERING_DATA, 'Gathering data'),
+        (FAILED_GATHERING_DATA, 'Failed gathering data'),
+        (FINISHED_GATHERING_DATA, 'Finished gathering data'),
+        # Waiting
         (WAITING_DATA_REVISION, 'Waiting data revision'),
+        # Post-processing
+        (POST_PROCESSING, 'Post processing'),
+        (FAILED_POST_PROCESSING, 'Failed post processing'),
+        (FINISHED_POST_PROCESSING, 'Finished post processing'),
+        # Filtering
+        (FILTERING, 'Filtering'),
+        (FAILED_FILTERING, 'Failed filtering'),
+        (FINISHED_FILTERING, 'Finished filtering'),
     ]
 
     # Meta configurations

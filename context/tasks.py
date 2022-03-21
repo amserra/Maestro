@@ -46,6 +46,9 @@ def fetch_urls(self, context_id):
     list_of_urls = []
 
     context = SearchContext.objects.get(id=context_id)
+    context.status = SearchContext.FETCHING_URLS
+    context.save()
+
     configuration = context.configuration
     advanced_configuration = context.configuration.advanced_configuration
 
@@ -81,6 +84,8 @@ def fetch_urls(self, context_id):
     with open(f'{context.context_folder}/urls.txt', 'w') as f:
         f.write(str(list_of_urls))
 
+    context.status = SearchContext.FINISHED_FETCHING_URLS
+    context.save()
     return list_of_urls
 
 
@@ -143,8 +148,15 @@ def run_default_gatherer(self, urls: list[str], context_id):
                 ))
             ImageData.objects.bulk_create(objs)
 
-    context.status = SearchContext.WAITING_DATA_REVISION
+    context.status = SearchContext.FINISHED_GATHERING_DATA
     context.save()
+
+    if context.configuration.advanced_configuration and context.configuration.advanced_configuration.yield_after_gathering_data:
+        context.status = SearchContext.WAITING_DATA_REVISION
+        context.save()
+    else:
+        # TODO: CONTINUE PROCESS
+        pass
 
     return True
 
@@ -157,6 +169,9 @@ def run_post_processors(self, context_id):
     advanced_configuration = context.configuration.advanced_configuration
     if not datastream.exists():
         return False
+
+    context.status = SearchContext.POST_PROCESSING
+    context.save()
 
     post_processors = advanced_configuration.post_processors.filter(is_active=True)
 
@@ -184,6 +199,9 @@ def run_post_processors(self, context_id):
             except Exception as ex:
                 print(f"Post-processor {post_processor} failed:\n{ex}")
 
+    context.status = SearchContext.FINISHED_POST_PROCESSING
+    context.save()
+
     return True
 
 
@@ -197,13 +215,19 @@ def get_used_builtin_filters(config: AdvancedConfiguration):
 
 
 @app.task(bind=True)
-def run_filters(self, context_id):
+def run_filters(self, post_processors_result, context_id):
+    if not post_processors_result:  # something went wrong on the post-processors stage
+        return False
+
     context = SearchContext.objects.get(id=context_id)
     datastream = context.datastream
-    # post processors only used if context has advanced configuration
     advanced_configuration = context.configuration.advanced_configuration
+
     if not datastream.exists():
         return False
+
+    context.status = SearchContext.FILTERING
+    context.save()
 
     custom_selected_filters = set(advanced_configuration.filters.filter(is_active=True, is_builtin=False))
     builtin_filters = get_used_builtin_filters(advanced_configuration)
@@ -220,8 +244,6 @@ def run_filters(self, context_id):
             try:
                 for data in datastream:
                     result = filter_script.main(data.data, data.metadata, filterable_data)
-                    print(data)
-                    print(result)
                     if (result is None and advanced_configuration.strict_filtering is True) or (result is False):
                         # Mark the data object as filtered
                         data.filtered = True
@@ -232,6 +254,9 @@ def run_filters(self, context_id):
 
             except Exception as ex:
                 print(f"Filter {_filter} failed:\n{ex}")
+
+    context.status = SearchContext.FINISHED_FILTERING
+    context.save()
 
     return True
 
