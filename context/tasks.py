@@ -90,7 +90,7 @@ def fetch_urls(self, context_id):
 
 
 @app.task(bind=True)
-def run_default_gatherer(self, urls: list[str], context_id):
+def run_default_gatherer(self, urls, context_id):
     # The result of the first task (fetch_urls) will be the first argument of this task (they form a chain)
     context = SearchContext.objects.get(id=context_id)
     context.status = SearchContext.GATHERING_DATA
