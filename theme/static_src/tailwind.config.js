@@ -56,6 +56,10 @@ module.exports = {
         },
         extend: {},
     },
+    daisyui: {
+        themes: false,
+        base: false,
+    },
     plugins: [
         /**
          * '@tailwindcss/forms' is the forms plugin that provides a minimal styling

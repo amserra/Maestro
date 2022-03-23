@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 
 register = template.Library()
 
@@ -27,3 +28,8 @@ def addstr(arg1, arg2):
 @register.filter
 def get_type(value):
     return value.__class__.__name__
+
+
+@register.simple_tag
+def get_mapbox_key():
+    return settings.MAPBOX_KEY

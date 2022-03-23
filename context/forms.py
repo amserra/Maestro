@@ -59,6 +59,10 @@ class EssentialConfigurationForm(forms.ModelForm):
         fields = ['search_string', 'keywords', 'data_type']
 
 
+class TextInputWithMap(forms.TextInput):
+    template_name = 'common/input_map.html'
+
+
 class AdvancedConfigurationForm(forms.ModelForm):
     country_of_search = forms.ChoiceField(choices=COUNTRY_CHOICES)
     fetchers = forms.ModelMultipleChoiceField(queryset=Fetcher.objects.filter(is_active=True), required=False)
@@ -66,11 +70,24 @@ class AdvancedConfigurationForm(forms.ModelForm):
     seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
     start_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
     end_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
+    location = forms.CharField(widget=TextInputWithMap(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Put coordinates in intial if they exist in the DB
+        if self.instance and self.instance.location:
+            lat, long = self.instance.location.split(',')
+            self.fields['location'].initial = f'{lat},{long},{self.instance.radius}'
 
     error_messages = {
         'incompatibility': 'The use of the fetcher %s is incompatible with the use of the fetcher %s.',
         'date_greater_than_now': 'The selected dates must be past dates.',
-        'invalid_date_range': 'The start date must be before the end date.',
+        'date_invalid_range': 'The start date must be before the end date.',
+        # These exceptions should not occur in "normal users", who select values in the map UI.
+        'location_bad_format': 'The provided location format cannot be accepted.',
+        'latitude_invalid': 'Invalid latitude value.',
+        'longitude_invalid': 'Invalid longitude value.',
+        'radius_invalid': 'Invalid radius value.',
     }
 
     def clean_fetchers(self):
@@ -82,6 +99,29 @@ class AdvancedConfigurationForm(forms.ModelForm):
                 if incompatible_fetcher in fetchers:
                     raise ValidationError(self.error_messages['incompatibility'], params=(fetcher, incompatible_fetcher), code='incompatibility')
         return fetchers
+
+    def clean_location(self):
+        location = self.cleaned_data['location']
+        if location != '' and location is not None:
+            splitted = location.split(',')
+            if len(splitted) != 3:
+                raise ValidationError(self.error_messages['location_bad_format'], code='location_bad_format')
+            else:
+                lat, long, radius = splitted
+                try:
+                    lat = float(lat)
+                    long = float(long)
+                    radius = float(radius)
+                except ValueError:
+                    raise ValidationError(self.error_messages['location_bad_format'], code='location_bad_format')
+
+                if not (-90 <= lat <= 90):
+                    raise ValidationError(self.error_messages['latitude_invalid'], code='latitude_invalid')
+                elif not (-180 <= long <= 180):
+                    raise ValidationError(self.error_messages['longitude_invalid'], code='longitude_invalid')
+                elif not (radius >= 0):
+                    raise ValidationError(self.error_messages['radius_invalid'], code='radius_invalid')
+        return location
 
     def clean(self):
         start_date = self.cleaned_data['start_date']
@@ -98,7 +138,7 @@ class AdvancedConfigurationForm(forms.ModelForm):
 
         if start_date is not None and end_date is not None:
             if start_date > end_date:  # same condition happens if end_date < start_date
-                raise ValidationError(self.error_messages['invalid_date_range'], code='invalid_date_range')
+                raise ValidationError(self.error_messages['date_invalid_range'], code='date_invalid_range')
 
     class Meta:
         model = AdvancedConfiguration

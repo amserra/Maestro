@@ -1,0 +1,103 @@
+{% load my_filters %}
+
+<input  class="hidden"
+        type="{{ widget.type }}"
+        name="{{ widget.name }}"
+        {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
+        {% include "django/forms/widgets/attrs.html" %}>
+
+<div id="map" class="h-[180px]">
+    <div class="leaflet-top leaflet-right flex flex-col bg-white border-2 border-gray-300 w-24" style="z-index: 700; pointer-events: auto;">
+        <p class="text-gray-600 text-center">Radius size</p>
+        <div class="flex">
+            <button type="button" id="btn-radius-increase" class="p-2 border-r-2 border-t-2 hover:bg-gray-100 w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            </button>
+            <button type="button" id="btn-radius-decrease" class="p-2 border-t-2 hover:bg-gray-100 w-full">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            </button>
+        </div>
+        <input id="input-radius" type="number" class="border-gray-300 border-b-0 border-r-0 border-l-0">
+    </div>
+</div>
+
+<script>
+    // Default radius and lat lang
+    var radius = 500;
+    var latlng = [38.738101, -9.132872];
+    const radiusIncrement = 200;
+    const zoomLevel = 14;
+    const inputRadius = document.getElementById('input-radius');
+    const formInput = document.getElementById('id_location');
+    inputRadius.value = radius;
+
+    var map = L.map('map').setView(latlng, zoomLevel);
+    const accessToken = "{% get_mapbox_key %}";
+    L.tileLayer(`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${accessToken}`, {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken: 'your.mapbox.access.token'
+    }).addTo(map);
+
+    var marker = L.marker();
+    var circle = L.circle([], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: radius
+    });
+
+    function onMapClick(e) {
+        latlng = e.latlng
+        marker.setLatLng(latlng).addTo(map);
+        circle.setLatLng(latlng).addTo(map);
+    }
+
+    map.on('click', onMapClick);
+    map.doubleClickZoom.disable();
+
+    document.getElementById('btn-radius-increase').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        radius += radiusIncrement
+        circle.setRadius(radius);
+        inputRadius.value = radius;
+    });
+
+    document.getElementById('btn-radius-decrease').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if(radius >= radiusIncrement) radius -= radiusIncrement
+        circle.setRadius(radius);
+        inputRadius.value = radius;
+    });
+
+    inputRadius.addEventListener('keyup', (ev) => {
+        ev.stopPropagation();
+        value = ev.target.value;
+        if (value >= 0) circle.setRadius(value);
+    });
+
+    document.getElementsByTagName('form')[0].addEventListener('submit', (ev) => {
+        const {lat, lng} = latlng;
+        formInput.value = `${lat},${lng},${radius}`;
+    });
+
+    // If is editing
+    function init() {
+        if(formInput.value !== '' && formInput.value !== undefined) {
+            let splitted = formInput.value.split(',');
+            if(splitted.length === 3) {
+                latlng = [parseFloat(splitted[0]), parseFloat(splitted[1])];
+                radius = parseInt(radius);
+                marker.setLatLng(latlng).addTo(map);
+                circle.setLatLng(latlng).addTo(map);
+                circle.setRadius(radius);
+                map.setView(latlng, zoomLevel);
+            }
+        }
+    }
+    init();
+
+</script>

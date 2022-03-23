@@ -205,3 +205,5 @@ BING_SUBSCRIPTION_KEY = os.getenv('BING_SUBSCRIPTION_KEY', '')
 CONTEXTS_DATA_DIR = os.path.join(BASE_DIR, 'contexts_data')
 
 LOGS_PATH = os.path.join(BASE_DIR, 'logs')
+
+MAPBOX_KEY = os.getenv('MAPBOX_KEY', '')

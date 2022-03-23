@@ -33,9 +33,13 @@ class AdvancedConfiguration(models.Model):
     yield_after_gathering_data = models.BooleanField(default=True, help_text='Whether to stop or not after data is gathered. This is recommended to be on, because it will potentially allow for better results.')
 
     # Built-in filters
-    strict_filtering = models.BooleanField(default=False, help_text='Whether to discard objects that don\'t match the filter criteria even if the evaluation is inconclusive.')
+    strict_filtering = models.BooleanField(default=False, help_text='Data objects that don\'t match the filtering criteria will always be discarded.')
+    # Date filter
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
+    # Location filter
+    location = models.CharField(max_length=100, null=True)
+    radius = models.IntegerField(null=True)
 
     # Data-type-specific configurations
     # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this

@@ -146,7 +146,8 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
         return context
 
     def form_valid(self, form):
-        configuration = form.save()
+        configuration: Configuration | AdvancedConfiguration = form.save()
+
         if type(form).__name__ == EssentialConfigurationForm.__name__:
             essential_configuration: Configuration = configuration
             self.context.configuration = essential_configuration
@@ -154,6 +155,13 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
             self.context.save()
         else:
             advanced_configuration: AdvancedConfiguration = configuration
+            # Save coordinates
+            if form.cleaned_data['location']:
+                lat, long, radius = form.cleaned_data['location'].split(',')
+                advanced_configuration.location = f'{lat},{long}'
+                advanced_configuration.radius = float(radius)
+                advanced_configuration.save()
+
             if self.context.configuration is None:
                 advanced_configuration.save()
                 context_conf = Configuration(advanced_configuration=advanced_configuration)
