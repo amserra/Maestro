@@ -33,7 +33,7 @@ class AdvancedConfiguration(models.Model):
     yield_after_gathering_data = models.BooleanField(default=True, help_text='Whether to stop or not after data is gathered. This is recommended to be on, because it will potentially allow for better results.')
 
     # Built-in filters
-    strict_filtering = models.BooleanField(default=False, help_text='Data objects that don\'t match the filtering criteria will always be discarded.')
+    strict_filtering = models.BooleanField(default=False, help_text='Data objects that don\'t match the filtering criteria will be discarded even if the filtering criteria doesn\'t apply to them.')
     # Date filter
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -53,7 +53,9 @@ class AdvancedConfiguration(models.Model):
         """The data returned here will be passed to the filters. It is a set of columns of the advanced configuration that might be used by filters."""
         return {
             'start_date': self.start_date,
-            'end_date': self.end_date
+            'end_date': self.end_date,
+            'location': self.location,
+            'radius': self.radius
         }
 
     def __str__(self):
@@ -259,10 +261,18 @@ class Filter(models.Model):
         (PYTHON_SCRIPT, 'Python script'),
     ]
 
+    DATA = 'DATA'
+    METADATA = 'METADATA'
+    FILTER_KIND = [
+        (DATA, 'Data'),
+        (METADATA, 'Metadata')
+    ]
+
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
     is_builtin = models.BooleanField(default=False)
     type = models.CharField(max_length=20, choices=FILTER_TYPE)
+    kind = models.CharField(max_length=20, choices=FILTER_KIND)
     data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
     path = models.FilePathField(path=filters_path, recursive=True)
 

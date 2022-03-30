@@ -140,12 +140,14 @@ def run_default_gatherer(self, urls, context_id):
                 file_path_in_thumb_media_folder = os.path.join(thumbs_folder, file)
                 shutil.copy2(file_path_in_thumb_media_folder, thumbs_media_folder)
                 # Add entries to DB
-                objs.append(ImageData(
-                    context=context,
-                    data=os.path.join(original_folder, file),
-                    data_thumb=os.path.join(thumbs_folder, file),
-                    data_thumb_media=file_path_in_thumb_media_folder
-                ))
+                obj = ImageData.objects.filter(context=context, data=os.path.join(original_folder, file))
+                if not obj.exists():
+                    objs.append(ImageData(
+                        context=context,
+                        data=os.path.join(original_folder, file),
+                        data_thumb=os.path.join(thumbs_folder, file),
+                        data_thumb_media=file_path_in_thumb_media_folder
+                    ))
             ImageData.objects.bulk_create(objs)
 
     context.status = SearchContext.FINISHED_GATHERING_DATA
@@ -210,6 +212,8 @@ def get_used_builtin_filters(config: AdvancedConfiguration):
     filter_list = set()
     if config.start_date is not None or config.end_date is not None:
         filter_list.add(Filter.objects.get(name='Date filter'))
+    if config.location is not None and config.radius is not None:
+        filter_list.add(Filter.objects.get(name='Geolocation filter'))
     # Add other builtin filters here
     return filter_list
 
