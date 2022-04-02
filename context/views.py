@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,7 +19,7 @@ from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, AdvancedConfigurationForm, EssentialConfigurationForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration, AdvancedConfiguration, Filter
-from .tasks import delete_context_folder, create_context_folder, fetch_urls, run_default_gatherer, run_post_processors, run_filters
+from .tasks import delete_context_folder, create_context_folder, fetch_urls, run_default_gatherer, run_post_processors, run_filters, run_classifiers
 from django.contrib import messages
 from celery import chain
 from django.conf import settings
@@ -296,6 +298,6 @@ def complete_review(request, code):
     if context.status != SearchContext.WAITING_DATA_REVISION:
         return HttpResponseBadRequest()
 
-    chain(run_post_processors.s(context.id), run_filters.s(context.id)).apply_async()
+    chain(run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id)).apply_async()
     messages.success(request, 'Process underway.')
     return redirect('contexts-detail', code=context.code)

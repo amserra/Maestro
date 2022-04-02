@@ -1,5 +1,5 @@
 from django.contrib import admin
-from context.models import Fetcher, PostProcessor, Filter
+from context.models import Fetcher, PostProcessor, Filter, Classifier
 
 
 @admin.register(Fetcher)
@@ -14,4 +14,9 @@ class PostProcessors(admin.ModelAdmin):
 
 @admin.register(Filter)
 class Filters(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Classifier)
+class Classifiers(admin.ModelAdmin):
     pass

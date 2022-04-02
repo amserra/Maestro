@@ -30,6 +30,7 @@ class AdvancedConfiguration(models.Model):
     fetchers = models.ManyToManyField(to='Fetcher', blank=True)
     post_processors = models.ManyToManyField(to='PostProcessor', blank=True)
     filters = models.ManyToManyField(to='Filter', blank=True)
+    classifiers = models.ManyToManyField(to='Classifier', blank=True)
     yield_after_gathering_data = models.BooleanField(default=True, help_text='Whether to stop or not after data is gathered. This is recommended to be on, because it will potentially allow for better results.')
 
     # Built-in filters
@@ -69,11 +70,14 @@ class Configuration(models.Model):
         (IMAGES, 'Images'),
         (AGNOSTIC, 'Agnostic')
     ]
+    SELECTABLE_DATA_TYPE_CHOICES = [
+        (IMAGES, 'Images'),
+    ]
 
     # Essential configuration
     search_string = models.CharField(max_length=50, help_text='This field should be similar to what you would input on a search engine.')  # Perhaps more than one search string allowed?
     keywords = TaggableManager(help_text='A comma-separated list of words. Think of them as hashtags.')
-    data_type = models.CharField(max_length=10, choices=DATA_TYPE_CHOICES, help_text='Data type that will be gathered.')
+    data_type = models.CharField(max_length=10, choices=SELECTABLE_DATA_TYPE_CHOICES, help_text='Data type that will be gathered.')
 
     # Advanced configuration FK
     advanced_configuration = models.ForeignKey(to=AdvancedConfiguration, on_delete=models.SET_NULL, null=True)
@@ -108,6 +112,10 @@ class SearchContext(models.Model):
     FILTERING = 'FILTERING'
     FAILED_FILTERING = 'FAILED FILTERING'
     FINISHED_FILTERING = 'FINISHED FILTERING'
+    # Classifying
+    CLASSIFYING = 'CLASSIFYING'
+    FAILED_CLASSIFYING = 'FAILED CLASSIFYING'
+    FINISHED_CLASSIFYING = 'FINISHED CLASSIFYING'
     STATUS_CHOICES = [
         (FAILED, 'Failed'),
         (NOT_CONFIGURED, 'Not configured'),
@@ -130,6 +138,10 @@ class SearchContext(models.Model):
         (FILTERING, 'Filtering'),
         (FAILED_FILTERING, 'Failed filtering'),
         (FINISHED_FILTERING, 'Finished filtering'),
+        # Classifying
+        (CLASSIFYING, 'Classifying'),
+        (FAILED_CLASSIFYING, 'Failed classifying'),
+        (FINISHED_CLASSIFYING, 'Finished classifying'),
     ]
 
     # Meta configurations
@@ -280,6 +292,26 @@ class Filter(models.Model):
         return self.name
 
 
+def classifiers_path():
+    return os.path.join(settings.BASE_DIR, 'classifiers')
+
+
+class Classifier(models.Model):
+    PYTHON_SCRIPT = 'Python'
+    CLASSIFIER_TYPE = [
+        (PYTHON_SCRIPT, 'Python script'),
+    ]
+
+    name = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+    type = models.CharField(max_length=20, choices=CLASSIFIER_TYPE)
+    data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
+    path = models.FilePathField(path=classifiers_path, recursive=True)
+
+    def __str__(self):
+        return self.name
+
+
 # Data objects
 class Data(models.Model):
     metadata = models.JSONField(encoder=DjangoJSONEncoder, null=True)
@@ -287,6 +319,7 @@ class Data(models.Model):
     context = models.ForeignKey(to=SearchContext, on_delete=models.CASCADE)
     add_date = models.DateTimeField(auto_now_add=True)
     filtered = models.BooleanField(default=False)  # tells if the data object was filtered by a filter, so it is not considered in the next stages
+    classification_result = models.JSONField(encoder=DjangoJSONEncoder, null=True)
 
     class Meta:
         abstract = True

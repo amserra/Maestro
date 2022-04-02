@@ -34,7 +34,7 @@ alias dumpdata=dumpDataFunc;
 # Other aliases
 alias startRabbitmq="brew services start rabbitmq";
 alias stopRabbitmq="brew services stop rabbitmq";
-alias startCelery="celery -A maestro worker -l INFO";
+alias runCelery="celery -A maestro worker -l INFO";
 
 # Docs: start sphinx live server
 alias sphinxLive="sphinx-reload docs/";
