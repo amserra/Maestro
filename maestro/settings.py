@@ -207,3 +207,5 @@ CONTEXTS_DATA_DIR = os.path.join(BASE_DIR, 'contexts_data')
 LOGS_PATH = os.path.join(BASE_DIR, 'logs')
 
 MAPBOX_KEY = os.getenv('MAPBOX_KEY', '')
+
+ARCGIS_KEY = os.getenv('ARCGIS_KEY', '')

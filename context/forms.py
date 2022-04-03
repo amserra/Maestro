@@ -103,6 +103,7 @@ class AdvancedConfigurationForm(forms.ModelForm):
 
     def clean_location(self):
         location = self.cleaned_data['location']
+        print(location)
         if location != '' and location is not None:
             splitted = location.split(',')
             if len(splitted) != 3:

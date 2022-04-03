@@ -33,3 +33,8 @@ def get_type(value):
 @register.simple_tag
 def get_mapbox_key():
     return settings.MAPBOX_KEY
+
+
+@register.simple_tag
+def get_arcgis_key():
+    return settings.ARCGIS_KEY
