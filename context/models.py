@@ -330,5 +330,9 @@ class ImageData(Data):
     data_thumb = models.FilePathField(max_length=200)
     data_thumb_media = models.FilePathField(max_length=200)
 
+    @property
+    def identifier(self):
+        return os.path.basename(self.data)
+
     def __str__(self):
         return f'Image data of context {self.context.code}: {os.path.basename(self.data)}'

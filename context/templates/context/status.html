@@ -19,13 +19,13 @@
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Fetch URLs</p>
-                    <a href="#" class="text-blue-700 hover:underline">Details</a>
+                    <a href="{% url 'task-status' context.code 'fetch' %}" class="text-blue-700 hover:underline">Details</a>
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Gather data</p>
-                    <a href="#" class="text-blue-700 hover:underline invisible">Details</a>
+                    <a href="{% url 'task-status' context.code 'gather' %}" class="text-blue-700 hover:underline invisible">Details</a>
                 </div>
             </li>
             <li data-content="" class="step">
@@ -37,25 +37,25 @@
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Post-process</p>
-                    <a href="#" class="text-blue-700 hover:underline invisible">Details</a>
+                    <a href="{% url 'task-status' context.code 'post_process' %}" class="text-blue-700 hover:underline invisible">Details</a>
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Filter</p>
-                    <a href="#" class="text-blue-700 hover:underline invisible">Details</a>
+                    <a href="{% url 'task-status' context.code 'filter' %}" class="text-blue-700 hover:underline invisible">Details</a>
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Classify</p>
-                    <a href="#" class="text-blue-700 hover:underline invisible">Details</a>
+                    <a href="{% url 'task-status' context.code 'classify' %}" class="text-blue-700 hover:underline invisible">Details</a>
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Provide</p>
-                    <a href="#" class="text-blue-700 hover:underline invisible">Details</a>
+                    <a href="{% url 'task-status' context.code 'provide' %}" class="text-blue-700 hover:underline invisible">Details</a>
                 </div>
             </li>
         </ul>

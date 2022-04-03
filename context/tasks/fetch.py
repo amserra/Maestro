@@ -5,6 +5,8 @@ from datetime import datetime
 from context.models import APIResults, Configuration, AdvancedConfiguration, SearchContext, Fetcher
 import ast
 from collections import OrderedDict
+
+from context.tasks.helpers import change_status, write_log
 from maestro.celery import app
 
 
@@ -40,12 +42,12 @@ def fetcher_parameters(configuration: Configuration, advanced_configuration: Adv
 
 
 @app.task(bind=True)
-def fetch_urls(self, context_id):
+def run_fetchers(self, context_id):
+    stage = 'fetch'
     list_of_urls = []
 
     context = SearchContext.objects.get(id=context_id)
-    context.status = SearchContext.FETCHING_URLS
-    context.save()
+    change_status(SearchContext.FETCHING_URLS, context, stage, 'Started fetching URLs', True)
 
     configuration = context.configuration
     advanced_configuration = context.configuration.advanced_configuration
@@ -55,7 +57,10 @@ def fetch_urls(self, context_id):
     else:
         fetchers = list(Fetcher.objects.filter(is_active=True, is_default=True))
 
+    write_log(context, stage, f'Will use these fetchers: {fetchers}')
+
     for fetcher in fetchers:
+        write_log(context, stage, f'Using fetcher \'{fetcher}\'')
         if fetcher.type == Fetcher.PYTHON_SCRIPT:
             spec = importlib.util.spec_from_file_location(fetcher.name, fetcher.path)
             fetcher_script = importlib.util.module_from_spec(spec)
@@ -65,23 +70,27 @@ def fetch_urls(self, context_id):
             cached_urls = cached_fetcher_urls(fetcher, fetcher_params)
 
             if cached_urls is not None:
-                print("Using cached URLS")
+                write_log(context, stage, f'Another context has already made the same query: using {len(cached_urls)} cached URLs')
                 list_of_urls.extend(cached_urls)
             else:
                 try:
                     result = fetcher_script.main(fetcher_params)
+                    write_log(context, stage, f'Fetched {len(result)} new URLs')
                     list_of_urls.extend(result)
+                    write_log(context, stage, f'Current total number of URLs: {list_of_urls}')
                     save_api_result_to_cache(fetcher, fetcher_params, result)
                 except Exception as ex:
-                    print(f"Fetcher {fetcher} failed:\n{ex}")
+                    print(f"Fetcher {fetcher} failed:\n{ex}")  # later, log this to a system log
+                    write_log(context, stage, f'[ERROR] Fetcher \'{fetchers}\' failed. Continuing...')
 
     if advanced_configuration and advanced_configuration.seed_urls != []:
         list_of_urls.extend(advanced_configuration.seed_urls)
+        write_log(context, stage, f'The user provided \'{len(advanced_configuration.seed_urls)}\' additional seed URLs')
 
     # Save urls to context folder
     with open(f'{context.context_folder}/urls.txt', 'w') as f:
         f.write(str(list_of_urls))
 
-    context.status = SearchContext.FINISHED_FETCHING_URLS
-    context.save()
+    write_log(context, stage, f'The final number of URLs is: {len(list_of_urls)}')
+    change_status(SearchContext.FINISHED_FETCHING_URLS, context, stage, 'Finished fetching URLs. Will now gather')
     return list_of_urls

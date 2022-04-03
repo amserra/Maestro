@@ -1,0 +1,29 @@
+{% extends 'context/configuration_detail_base.html' %}
+{% load my_filters %}
+
+{% block title %}
+    Maestro | Search context '{{ context.code }}' fetch status
+{% endblock %}
+
+{% block breadcrumb %}
+    {% include 'common/breadcrumb.html' with nav_links='Search_contexts '|addstr:context.code|addstr:' Status '|addstr:task.title %}
+{% endblock breadcrumb %}
+
+{% block back-button %}
+    <a href="{% url 'contexts-status' context.code %}" class="btn-cancel">Back</a>
+{% endblock back-button %}
+
+{% block detail %}
+    <div class="bg-gray-800 font-code rounded text-white w-full min-h-40rem mt-8 p-4">
+        {% for line in content %}
+            {% with line|split_log as line_split %}
+                <p>> <span class="text-indigo-500">{{ line_split.0 }}</span> {{ line_split.1 }}</p>
+            {% endwith %}
+        {% empty %}
+            <p>> No log entry</p>
+        {% endfor %}
+    </div>
+{% endblock detail %}
+
+{% block buttons %}
+{% endblock buttons %}

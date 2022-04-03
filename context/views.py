@@ -9,7 +9,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedire
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import resolve
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, FormView
+from django.views.generic import CreateView, DetailView, FormView, TemplateView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 from common.decorators import PaginatedFilterView
@@ -19,11 +19,13 @@ from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, AdvancedConfigurationForm, EssentialConfigurationForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration, AdvancedConfiguration, Filter
-from .tasks import delete_context_folder, create_context_folder, fetch_urls, run_default_gatherer, run_post_processors, run_filters, run_classifiers
+from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers
 from django.contrib import messages
 from celery import chain
 from django.conf import settings
 import json
+
+from .tasks.helpers import read_log
 
 
 class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFilterView, FilterView):
@@ -197,7 +199,7 @@ def search_context_start(request, code):
     if context.status != SearchContext.READY:
         return HttpResponseBadRequest()
 
-    chain(fetch_urls.s(context.id), run_default_gatherer.s(context.id)).apply_async()
+    chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id)).apply_async()
     messages.success(request, 'Search context execution started successfully.')
 
     if request.META['HTTP_REFERER']:
@@ -301,3 +303,18 @@ def complete_review(request, code):
     chain(run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id)).apply_async()
     messages.success(request, 'Process underway.')
     return redirect('contexts-detail', code=context.code)
+
+
+class PipelineProcessDetail(LoginRequiredMixin, UserHasAccess, DetailView):
+    template_name = 'context/task_info.html'
+    model = SearchContext
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
+    context_object_name = 'context'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['task'] = self.kwargs['task']
+        lines = read_log(self.get_object(), self.kwargs['task'])
+        context['content'] = lines
+        return context

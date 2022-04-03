@@ -47,6 +47,9 @@ module.exports = {
         "./node_modules/flowbite/**/*.js",
     ],
     theme: {
+        fontFamily: {
+          'code': ["Fira Code", "serif"]
+        },
         minHeight: {
             '10rem': '10rem',
             '40rem': '40rem',

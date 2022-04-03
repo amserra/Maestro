@@ -4,15 +4,21 @@ from context.models import SearchContext, THUMB_SIZE, Configuration, ImageData
 from datetime import datetime
 from scrapy.crawler import CrawlerProcess
 from django.conf import settings
+
+from context.tasks.helpers import change_status, write_log
 from maestro.celery import app
 
 
 @app.task(bind=True)
 def run_default_gatherer(self, urls, context_id):
-    # The result of the first task (fetch_urls) will be the first argument of this task (they form a chain)
+    stage = 'gather'
     context = SearchContext.objects.get(id=context_id)
-    context.status = SearchContext.GATHERING_DATA
-    context.save()
+
+    if len(urls) == 0:
+        change_status(SearchContext.FAILED_GATHERING_DATA, context, stage, '[ERROR] No URLs returned from the fetching stage', True)
+        return False
+
+    change_status(SearchContext.GATHERING_DATA, context, stage, f'Started gathering data from {len(urls)} urls', True)
 
     # Create data store folder if not exists
     context_data_path = os.path.join(context.context_folder, 'data')
@@ -21,6 +27,8 @@ def run_default_gatherer(self, urls, context_id):
     # Create log folder if not exists
     context_log_path = os.path.join(context.context_folder, 'logs')
     os.makedirs(context_log_path, exist_ok=True)
+
+    write_log(context, stage, f'Folders to support data persistance created')
 
     log_file = os.path.join(context_log_path, f'{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}_gatherer.txt')
     crawler_settings = {
@@ -52,6 +60,8 @@ def run_default_gatherer(self, urls, context_id):
         if os.path.isdir(thumbs_folder):
             os.makedirs(thumbs_media_folder, exist_ok=True)
             files = os.listdir(thumbs_folder)
+            write_log(context, stage, f'Downloaded {len(files)} images')
+            write_log(context, stage, f'Preparing and storing images on database')
 
             objs = []
             for file in files:
@@ -68,14 +78,11 @@ def run_default_gatherer(self, urls, context_id):
                     ))
             ImageData.objects.bulk_create(objs)
 
-    context.status = SearchContext.FINISHED_GATHERING_DATA
-    context.save()
+    change_status(SearchContext.FINISHED_GATHERING_DATA, context, stage, f'Finished gathering data')
 
     if context.configuration.advanced_configuration and context.configuration.advanced_configuration.yield_after_gathering_data:
-        context.status = SearchContext.WAITING_DATA_REVISION
-        context.save()
+        change_status(SearchContext.WAITING_DATA_REVISION, context, stage, f'The user should now review the obtained dataset')
+        return False
     else:
-        # TODO: CONTINUE PROCESS
-        pass
-
-    return True
+        write_log(context, stage, 'Continuing process. Following stage is post-processing')
+        return True
