@@ -10,7 +10,6 @@ def run_classifiers(self, filter_result, context_id):
     context = SearchContext.objects.get(id=context_id)
 
     if filter_result is not True:
-        change_status(SearchContext.FAILED_CLASSIFYING, context, stage, f'[ERROR] Classification failed because there was a problem with the filtering stage', True)
         return False
 
     datastream = context.datastream.filter(filtered=False)  # only use non filtered data objects

@@ -165,7 +165,7 @@
 {% block content %}
 {% endblock content %}
 
-<div class="fixed inset-x-0 bottom-0">
+<div class="fixed inset-x-0 bottom-0" style="z-index: 1000">
     {% for message in messages %}
         {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
             <div id="alert-border-3" x-data="{ show: true }" x-init="setTimeout(() => show = false, 10000)" x-bind:class="show ? '' : 'opacity-0'" class="flex p-4 bg-green-100 border-t-4 border-green-500 w-full transition-opacity duration-1000 ease-in-out" role="alert">

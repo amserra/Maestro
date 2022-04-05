@@ -17,9 +17,25 @@
                             <a href="{% url 'contexts-configuration-update' context.code %}?form=essential&from={{ request.GET.from }}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg {% if currentForm == 'essential' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Essential</a>
                         </li>
                         <li class="mr-2">
-                            <a href="{% url 'contexts-configuration-update' context.code %}?form=advanced&from={{ request.GET.from }}" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg {% if currentForm == 'advanced' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Advanced</a>
+                            <a href="{% url 'contexts-configuration-update' context.code %}?form=fetch&from={{ request.GET.from }}" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg {% if currentForm == 'advanced' or currentForm == 'fetch' or currentForm == 'post-process' or currentForm == 'filter' or currentForm == 'classify' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Advanced</a>
                         </li>
                     </ul>
+                    {% if currentForm == 'advanced' or currentForm == 'fetch' or currentForm == 'post-process' or currentForm == 'filter' or currentForm == 'classify' %}
+                        <ul class="flex flex-wrap border-t border-gray-200">
+                            <li class="mr-2">
+                                <a href="{% url 'contexts-configuration-update' context.code %}?form=fetch&from={{ request.GET.from }}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-b-lg {% if currentForm == 'advanced' or currentForm == 'fetch' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Fetch</a>
+                            </li>
+                            <li class="mr-2">
+                                <a href="{% url 'contexts-configuration-update' context.code %}?form=post-process&from={{ request.GET.from }}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-b-lg {% if currentForm == 'post-process' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Post-Process</a>
+                            </li>
+                            <li class="mr-2">
+                                <a href="{% url 'contexts-configuration-update' context.code %}?form=filter&from={{ request.GET.from }}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-b-lg {% if currentForm == 'filter' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Filter</a>
+                            </li>
+                            <li class="mr-2">
+                                <a href="{% url 'contexts-configuration-update' context.code %}?form=classify&from={{ request.GET.from }}" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-b-lg {% if currentForm == 'classify' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Classify</a>
+                            </li>
+                        </ul>
+                    {% endif %}
                 </div>
             {% endif %}
             <form method="post" class="w-full mt-8">

@@ -65,12 +65,39 @@
                     </ul>
                 </div>
             {% endif %}
+            <div class="mt-6">
+                    <p class="text-2xl text-blue-700">Yield after gathering data</p>
+                    <label for="toggle-example-disabled" class="flex relative items-center mb-4 mt-2 cursor-not-allowed">
+                        <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if configuration.yield_after_gathering_data %}checked{% endif %} disabled>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
+                    </label>
+                </div>
             {% if configuration.post_processors.all %}
                 <div class="mt-6">
                     <p class="text-2xl text-blue-700">Post-processors</p>
                     <ul class="flex flex-col mt-2 list-disc list-inside">
                         {% for post_processor in configuration.post_processors.all %}
                             <li class="font-light text-gray-600">{{ post_processor }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if configuration.filters.all %}
+                <div class="mt-6">
+                    <p class="text-2xl text-blue-700">Filters</p>
+                    <ul class="flex flex-col mt-2 list-disc list-inside">
+                        {% for filter in configuration.filters.all %}
+                            <li class="font-light text-gray-600">{{ filter }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if configuration.classifiers.all %}
+                <div class="mt-6">
+                    <p class="text-2xl text-blue-700">Classifiers</p>
+                    <ul class="flex flex-col mt-2 list-disc list-inside">
+                        {% for classifier in configuration.classifiers.all %}
+                            <li class="font-light text-gray-600">{{ classifier }}</li>
                         {% endfor %}
                     </ul>
                 </div>

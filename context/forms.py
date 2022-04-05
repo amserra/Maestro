@@ -3,13 +3,11 @@ import datetime
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
-
+from easy_select2 import Select2Multiple
 from common.forms import DynamicArrayField
 from .models import SearchContext, Configuration, Fetcher, Filter, AdvancedConfiguration, COUNTRY_CHOICES, PostProcessor, Classifier
 import re
 from django.utils import timezone
-from django.contrib.postgres.forms import DateTimeRangeField, BaseRangeField
-from django.contrib.postgres.forms import RangeWidget
 
 
 class SearchContextCreateForm(forms.ModelForm):
@@ -63,33 +61,13 @@ class TextInputWithMap(forms.TextInput):
     template_name = 'common/input_map.html'
 
 
-class AdvancedConfigurationForm(forms.ModelForm):
+class FetchingAndGatheringConfigurationForm(forms.ModelForm):
     country_of_search = forms.ChoiceField(choices=COUNTRY_CHOICES)
-    fetchers = forms.ModelMultipleChoiceField(queryset=Fetcher.objects.filter(is_active=True), required=False)
-    post_processors = forms.ModelMultipleChoiceField(queryset=PostProcessor.objects.filter(is_active=True), required=False)
-    filters = forms.ModelMultipleChoiceField(queryset=Filter.objects.filter(is_active=True, is_builtin=False), required=False)
-    classifiers = forms.ModelMultipleChoiceField(queryset=Classifier.objects.filter(is_active=True), required=False)
     seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
-    start_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
-    end_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
-    location = forms.CharField(widget=TextInputWithMap(), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Put coordinates in intial if they exist in the DB
-        if self.instance and self.instance.location:
-            lat, long = self.instance.location.split(',')
-            self.fields['location'].initial = f'{lat},{long},{self.instance.radius}'
+    fetchers = forms.ModelMultipleChoiceField(widget=Select2Multiple, queryset=Fetcher.objects.filter(is_active=True), required=False)
 
     error_messages = {
         'incompatibility': 'The use of the fetcher %s is incompatible with the use of the fetcher %s.',
-        'date_greater_than_now': 'The selected dates must be past dates.',
-        'date_invalid_range': 'The start date must be before the end date.',
-        # These exceptions should not occur in "normal users", who select values in the map UI.
-        'location_bad_format': 'The provided location format cannot be accepted.',
-        'latitude_invalid': 'Invalid latitude value.',
-        'longitude_invalid': 'Invalid longitude value.',
-        'radius_invalid': 'Invalid radius value.',
     }
 
     def clean_fetchers(self):
@@ -102,9 +80,44 @@ class AdvancedConfigurationForm(forms.ModelForm):
                     raise ValidationError(self.error_messages['incompatibility'], params=(fetcher, incompatible_fetcher), code='incompatibility')
         return fetchers
 
+    class Meta:
+        model = AdvancedConfiguration
+        fields = ['country_of_search', 'seed_urls', 'fetchers', 'yield_after_gathering_data']
+
+
+class PostProcessingConfigurationForm(forms.ModelForm):
+    post_processors = forms.ModelMultipleChoiceField(queryset=PostProcessor.objects.filter(is_active=True), required=False)
+
+    class Meta:
+        model = AdvancedConfiguration
+        fields = ['post_processors']
+
+
+class FilteringConfigurationForm(forms.ModelForm):
+    filters = forms.ModelMultipleChoiceField(queryset=Filter.objects.filter(is_active=True, is_builtin=False), required=False)
+    start_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
+    end_date = forms.DateTimeField(widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M:%S', attrs={'type': 'datetime-local'}), required=False)
+    location = forms.CharField(widget=TextInputWithMap(), required=False)
+
+    error_messages = {
+        'date_greater_than_now': 'The selected dates must be past dates.',
+        'date_invalid_range': 'The start date must be before the end date.',
+        # These exceptions should not occur in "normal users", who select values in the map UI.
+        'location_bad_format': 'The provided location format cannot be accepted.',
+        'latitude_invalid': 'Invalid latitude value.',
+        'longitude_invalid': 'Invalid longitude value.',
+        'radius_invalid': 'Invalid radius value.',
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Put coordinates in intial if they exist in the DB
+        if self.instance and self.instance.location:
+            lat, long = self.instance.location.split(',')
+            self.fields['location'].initial = f'{lat},{long},{self.instance.radius}'
+
     def clean_location(self):
         location = self.cleaned_data['location']
-        print(location)
         if location != '' and location is not None:
             splitted = location.split(',')
             if len(splitted) != 3:
@@ -145,4 +158,12 @@ class AdvancedConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = AdvancedConfiguration
-        fields = ['country_of_search', 'seed_urls', 'fetchers', 'post_processors', 'filters', 'classifiers', 'yield_after_gathering_data', 'strict_filtering', 'start_date', 'end_date']
+        fields = ['filters', 'strict_filtering', 'start_date', 'end_date']
+
+
+class ClassificationConfigurationForm(forms.ModelForm):
+    classifiers = forms.ModelMultipleChoiceField(queryset=Classifier.objects.filter(is_active=True), required=False)
+
+    class Meta:
+        model = AdvancedConfiguration
+        fields = ['classifiers']

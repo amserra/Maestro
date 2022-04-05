@@ -16,7 +16,7 @@ from common.decorators import PaginatedFilterView
 from common.mixins import SafePaginationMixin
 from .authorization import UserHasAccess, UserCanEdit, user_can_edit
 from .filters import SearchContextFilter
-from .forms import SearchContextCreateForm, AdvancedConfigurationForm, EssentialConfigurationForm
+from .forms import SearchContextCreateForm, EssentialConfigurationForm, FetchingAndGatheringConfigurationForm, PostProcessingConfigurationForm, FilteringConfigurationForm, ClassificationConfigurationForm
 from .helpers import get_user_search_contexts
 from .models import SearchContext, Configuration, AdvancedConfiguration, Filter
 from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers
@@ -119,7 +119,7 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
         self.from_url = self.request.GET.get('from', None)
         self.form = self.request.GET.get('form', None)
 
-        if self.form == 'advanced' and self.context.configuration and self.context.configuration.advanced_configuration:
+        if (self.form == 'advanced' or self.form == 'fetch' or self.form == 'post-process' or self.form == 'filter' or self.form == 'classify') and self.context.configuration and self.context.configuration.advanced_configuration:
             self.object = self.context.configuration.advanced_configuration
         elif (self.form == 'essential' or self.form is None) and self.context.configuration:
             self.object = self.context.configuration
@@ -127,18 +127,24 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
             self.object = None
 
     def get_success_url(self):
-        if self.from_url:
-            resolved_url = resolve(self.from_url.split('?', 1)[0])  # resolve only works if no query params are in the url
-            if self.form:
-                return f"{reverse_lazy(resolved_url.url_name, args=[resolved_url.kwargs['code']])}?page={self.form}"
+        print("from url:", self.from_url)
+        if self.from_url and self.form:
+            if self.form == 'essential':
+                return reverse_lazy('contexts-configuration-detail', args=[self.context.code])
             else:
-                return reverse_lazy(resolved_url.url_name, args=[resolved_url.kwargs['code']])
+                return f"{reverse_lazy('contexts-configuration-detail', args=[self.context.code])}?page=advanced"
         else:
             return reverse_lazy('contexts-detail', args=[self.context.code])
 
     def get_form(self, form_class=None):
-        if self.form and self.form == 'advanced':
-            form_class = AdvancedConfigurationForm
+        if self.form and (self.form == 'fetch' or self.form == 'advanced'):
+            form_class = FetchingAndGatheringConfigurationForm
+        elif self.form and self.form == 'post-process':
+            form_class = PostProcessingConfigurationForm
+        elif self.form and self.form == 'filter':
+            form_class = FilteringConfigurationForm
+        elif self.form and self.form == 'classify':
+            form_class = ClassificationConfigurationForm
         else:
             form_class = EssentialConfigurationForm
 
@@ -155,16 +161,19 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
         if type(form).__name__ == EssentialConfigurationForm.__name__:
             essential_configuration: Configuration = configuration
             self.context.configuration = essential_configuration
-            self.context.status = SearchContext.READY
+            if self.object is None:
+                self.context.status = SearchContext.READY
             self.context.save()
         else:
             advanced_configuration: AdvancedConfiguration = configuration
+
             # Save coordinates
-            if form.cleaned_data['location']:
-                lat, long, radius = form.cleaned_data['location'].split(',')
-                advanced_configuration.location = f'{lat},{long}'
-                advanced_configuration.radius = float(radius)
-                advanced_configuration.save()
+            if type(form).__name__ == FilteringConfigurationForm.__name__:
+                if form.cleaned_data['location']:
+                    lat, long, radius = form.cleaned_data['location'].split(',')
+                    advanced_configuration.location = f'{lat},{long}'
+                    advanced_configuration.radius = float(radius)
+                    advanced_configuration.save()
 
             if self.context.configuration is None:
                 advanced_configuration.save()

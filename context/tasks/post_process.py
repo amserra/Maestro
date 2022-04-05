@@ -10,7 +10,6 @@ def run_post_processors(self, gather_result, context_id):
     context = SearchContext.objects.get(id=context_id)
 
     if gather_result is not True:
-        change_status(SearchContext.FAILED_POST_PROCESSING, context, stage, f'[ERROR] Post-processing failed because there was a problem with the gathering stage', True)
         return False
 
     datastream = context.datastream

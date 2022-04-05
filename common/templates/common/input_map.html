@@ -27,15 +27,18 @@
 
 <script>
     // Default radius and lat lang
-    var radius = 500;
-    var latlng = {lat: 38.736875, lng: -9.138220};
+    const defaultLatLng = {lat: 38.736875, lng: -9.138220};
+    const defaultRadius = 500;
+
+    var radius = defaultRadius;
+    var latlng = {lat: null, lng: null};
     const radiusIncrement = 200;
     const zoomLevel = 14;
     const inputRadius = document.getElementById('input-radius');
     const formInput = document.getElementById('id_location');
     inputRadius.value = radius;
 
-    var map = L.map('map').setView(latlng, zoomLevel);
+    var map = L.map('map').setView(defaultLatLng, zoomLevel);
     const accessToken = "{% get_mapbox_key %}";
     L.tileLayer(`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${accessToken}`, {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -51,7 +54,7 @@
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.5,
-        radius: radius
+        radius: defaultRadius
     });
 
     function onMapClick(e) {
@@ -85,16 +88,21 @@
 
     document.getElementsByTagName('form')[0].addEventListener('submit', (ev) => {
         const {lat, lng} = latlng;
-        formInput.value = `${lat},${lng},${radius}`;
+        if(lat == null || lng == null || radius == null)
+            formInput.value = '';
+        else
+            formInput.value = `${lat},${lng},${radius}`;
     });
 
     // If is editing
     function init() {
         if(formInput.value !== '' && formInput.value !== undefined) {
+            console.log(formInput)
             let splitted = formInput.value.split(',');
             if(splitted.length === 3) {
                 latlng = {lat: parseFloat(splitted[0]), lng: parseFloat(splitted[1])};
-                radius = parseInt(radius);
+                radius = parseInt(splitted[2]);
+                inputRadius.value = splitted[2];
                 marker.setLatLng(latlng).addTo(map);
                 circle.setLatLng(latlng).addTo(map);
                 circle.setRadius(radius);

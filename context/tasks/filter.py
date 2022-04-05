@@ -21,7 +21,6 @@ def run_filters(self, post_process_result, context_id):
     context = SearchContext.objects.get(id=context_id)
 
     if post_process_result is not True:  # something went wrong on the post-processors stage
-        change_status(SearchContext.FAILED_FILTERING, context, stage, f'[ERROR] Filtering failed because there was a problem with the post-processing stage', True)
         return False
 
     datastream = context.datastream
