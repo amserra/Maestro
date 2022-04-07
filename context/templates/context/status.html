@@ -31,7 +31,7 @@
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Review data</p>
-                    <a href="#" class="text-blue-700 hover:underline invisible">Details</a>
+                    <a href="{% url 'contexts-review' context.code %}" class="text-blue-700 hover:underline invisible">Details</a>
                 </div>
             </li>
             <li data-content="" class="step">
@@ -97,6 +97,7 @@
             else if(status.includes('POST PROCESSING')) size = 4;
             else if(status.includes('FILTERING')) size = 5;
             else if(status.includes('CLASSIFYING')) size = 6;
+            else if(status.includes('PROVIDING')) size = 7;
 
             for (let i = 0; i < size; i++) {
                 if(size === 3) {
@@ -107,21 +108,23 @@
                 if(i === size - 1) {
                     if(finished) {
                         states[i].setAttribute('data-content', '✓');
-                        states[i].classList.add('step-success');
+                        addClassIfNotExists(states[i], 'step-success');
                         removeClassIfExits(states[i].firstElementChild.lastElementChild, 'invisible');
                     }
                     else if(failed) {
                         states[i].setAttribute('data-content', '✕');
-                        states[i].classList.add('step-error');
+                        addClassIfNotExists(states[i], 'step-error');
                     }
                     else {
                         states[i].setAttribute('data-content', '●');
-                        states[i].classList.add('step-warning');
+                        addClassIfNotExists(states[i], 'step-warning');
                         removeClassIfExits(states[i].firstElementChild.lastElementChild, 'invisible');
                     }
                 } else {
                     states[i].setAttribute('data-content', '✓');
-                    states[i].classList.add('step-success');
+                    removeClassIfExits(states[i], 'step-warning');
+                    removeClassIfExits(states[i], 'step-error');
+                    addClassIfNotExists(states[i], 'step-success');
                     removeClassIfExits(states[i].firstElementChild.lastElementChild, 'invisible');
                 }
             }
@@ -132,6 +135,6 @@
             fetch(`${window.location.href}?status=`).then(response => response.json().then((json) => updateStatus(json.status)));
         }, 2000);
         // For the initial load
-        fetch(`${window.location.href}?status=`).then(response => response.json().then((json) => updateStatus(json.status)));
+        window.addEventListener('DOMContentLoaded', () => fetch(`${window.location.href}?status=`).then(response => response.json().then((json) => updateStatus(json.status))));
     </script>
 {% endblock scripts %}

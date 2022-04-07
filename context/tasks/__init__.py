@@ -5,6 +5,7 @@ from .gather import run_default_gatherer
 from .post_process import run_post_processors
 from .filter import run_filters
 from .classify import run_classifiers
+from .provide import run_provider
 
 __all__ = [
     'create_context_folder',
@@ -14,4 +15,5 @@ __all__ = [
     'run_post_processors',
     'run_filters',
     'run_classifiers',
+    'run_provider'
 ]

@@ -42,6 +42,9 @@ class AdvancedConfiguration(models.Model):
     location = models.CharField(max_length=100, null=True)
     radius = models.IntegerField(null=True)
 
+    # Providing
+    webhook = models.URLField(null=True, blank=True)
+
     # Data-type-specific configurations
     # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
     images_configuration = models.ForeignKey(to=ImageConfiguration, on_delete=models.SET_NULL, null=True)
@@ -116,6 +119,10 @@ class SearchContext(models.Model):
     CLASSIFYING = 'CLASSIFYING'
     FAILED_CLASSIFYING = 'FAILED CLASSIFYING'
     FINISHED_CLASSIFYING = 'FINISHED CLASSIFYING'
+    # Providing
+    PROVIDING = 'PROVIDING'
+    FAILED_PROVIDING = 'FAILED PROVIDING'
+    FINISHED_PROVIDING = 'FINISHED PROVIDING'
     STATUS_CHOICES = [
         (FAILED, 'Failed'),
         (NOT_CONFIGURED, 'Not configured'),
@@ -142,6 +149,10 @@ class SearchContext(models.Model):
         (CLASSIFYING, 'Classifying'),
         (FAILED_CLASSIFYING, 'Failed classifying'),
         (FINISHED_CLASSIFYING, 'Finished classifying'),
+        # Providing
+        (PROVIDING, 'Providing'),
+        (FAILED_PROVIDING, 'Failed providing'),
+        (FINISHED_PROVIDING, 'Finished providing'),
     ]
 
     # Meta configurations

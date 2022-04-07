@@ -11,3 +11,16 @@ def get_user_search_contexts(user) -> QuerySet[SearchContext]:
         organization__membership__has_accepted=True
     )
     return (contexts_user | contexts_user_organizations).distinct()
+
+
+def compare_status(status1, status2):
+    """Given two status, returns if status1 is further more in the pipeline than status2 (relies on the order they are declared in the models)"""
+    choices = SearchContext.STATUS_CHOICES
+    choices_name = [choice[0] for choice in choices]
+    index1 = choices_name.index(status1)
+    index2 = choices_name.index(status2)
+
+    if index1 >= index2:
+        return True
+    else:
+        return False

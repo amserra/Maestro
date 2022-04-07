@@ -16,22 +16,30 @@
                     <p class="subtitle">Number of images: <span class="font-normal">{{ context.datastream.count }}</span></p>
                 </div>
                 <div class="flex gap-x-2">
-                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
-                        <a href="{% url 'contexts-review-complete' context.code %}" class="btn-primary">Complete review</a>
-                        <a onclick="handleSaveChanges()" class="btn-secondary">Save changes</a>
-                        <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>
+                    {% if context.status == 'WAITING' %}
+                        {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                            <a href="{% url 'contexts-review-complete' context.code %}" class="btn-primary">Complete review</a>
+                            <a onclick="handleSaveChanges()" class="btn-secondary">Save changes</a>
+                            <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>
+                        {% endif %}
                     {% endif %}
-                    <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
+                    {% if request.META.HTTP_REFERER %}
+                        <a href="{{ request.META.HTTP_REFERER }}" class="btn-cancel">Back</a>
+                    {% else %}
+                        <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
+                    {% endif %}
                 </div>
             </div>
-            <div class="mt-10 grid grid-cols-5 gap-4">
+            <div class="mt-10 grid grid-cols-3 xl:grid-cols-5 gap-4">
                 {% csrf_token %}
                 {% for file in files %}
                     <div class="w-40 p-2 border-2 border-gray-300 rounded-md bg-gray-200 shadow">
                         <div class="w-36 h-36 flex content-start gap-2">
                             <img class="object-fill overflow-hidden object-left-bottom w-36 h-36" src="{{media_prefix}}{{ context.owner_code }}/{{ context.code }}/{{ file }}">
-                            {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
-                                <input onclick="handleCheckboxClick(this)" type="checkbox" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2" checked>
+                            {% if context.status == 'WAITING' %}
+                                {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                                    <input onclick="handleCheckboxClick(this)" type="checkbox" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2" checked>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -45,6 +53,7 @@
         {% endif %}
     </div>
 
+    {% if context.status == 'WAITING' %}
     <script>
         function handleSaveChanges() {
             const files = [];
@@ -86,4 +95,6 @@
             }
         }
     </script>
+    {% endif %}
+
 {% endblock %}

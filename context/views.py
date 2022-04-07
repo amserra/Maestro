@@ -14,18 +14,19 @@ from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 from common.decorators import PaginatedFilterView
 from common.mixins import SafePaginationMixin
-from .authorization import UserHasAccess, UserCanEdit, user_can_edit
+from .authorization import UserHasAccess, UserCanEdit, user_can_edit, user_has_access
 from .filters import SearchContextFilter
-from .forms import SearchContextCreateForm, EssentialConfigurationForm, FetchingAndGatheringConfigurationForm, PostProcessingConfigurationForm, FilteringConfigurationForm, ClassificationConfigurationForm
-from .helpers import get_user_search_contexts
+from .forms import SearchContextCreateForm, EssentialConfigurationForm, FetchingAndGatheringConfigurationForm, PostProcessingConfigurationForm, FilteringConfigurationForm, ClassificationConfigurationForm, ProvidingConfigurationForm
+from .helpers import get_user_search_contexts, compare_status
 from .models import SearchContext, Configuration, AdvancedConfiguration, Filter
-from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers
+from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers, run_provider
 from django.contrib import messages
 from celery import chain
 from django.conf import settings
 import json
 
 from .tasks.helpers import read_log
+from .tasks.provide import generate_json
 
 
 class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFilterView, FilterView):
@@ -119,7 +120,7 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
         self.from_url = self.request.GET.get('from', None)
         self.form = self.request.GET.get('form', None)
 
-        if (self.form == 'advanced' or self.form == 'fetch' or self.form == 'post-process' or self.form == 'filter' or self.form == 'classify') and self.context.configuration and self.context.configuration.advanced_configuration:
+        if (self.form == 'advanced' or self.form == 'fetch' or self.form == 'post-process' or self.form == 'filter' or self.form == 'classify' or self.form == 'provide') and self.context.configuration and self.context.configuration.advanced_configuration:
             self.object = self.context.configuration.advanced_configuration
         elif (self.form == 'essential' or self.form is None) and self.context.configuration:
             self.object = self.context.configuration
@@ -145,6 +146,8 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
             form_class = FilteringConfigurationForm
         elif self.form and self.form == 'classify':
             form_class = ClassificationConfigurationForm
+        elif self.form and self.form == 'provide':
+            form_class = ProvidingConfigurationForm
         else:
             form_class = EssentialConfigurationForm
 
@@ -208,7 +211,7 @@ def search_context_start(request, code):
     if context.status != SearchContext.READY:
         return HttpResponseBadRequest()
 
-    chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id)).apply_async()
+    chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
     messages.success(request, 'Search context execution started successfully.')
 
     if request.META['HTTP_REFERER']:
@@ -244,6 +247,13 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
     slug_field = 'code'
     slug_url_kwarg = 'code'
     context_object_name = 'context'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        allowed_status = compare_status(self.context.status, SearchContext.WAITING_DATA_REVISION)
+        if not allowed_status:
+            return redirect(to='/')
 
     def get_template_names(self):
         search_context = self.get_object()
@@ -309,7 +319,7 @@ def complete_review(request, code):
     if context.status != SearchContext.WAITING_DATA_REVISION:
         return HttpResponseBadRequest()
 
-    chain(run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id)).apply_async()
+    chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
     messages.success(request, 'Process underway.')
     return redirect('contexts-detail', code=context.code)
 
@@ -327,3 +337,25 @@ class PipelineProcessDetail(LoginRequiredMixin, UserHasAccess, DetailView):
         lines = read_log(self.get_object(), self.kwargs['task'])
         context['content'] = lines
         return context
+
+
+@login_required
+@user_has_access
+def download_results(request, code):
+    context = get_object_or_404(SearchContext, code=code)
+
+    if context.status != SearchContext.FINISHED_PROVIDING:
+        return HttpResponseBadRequest()
+
+    if not context.configuration.advanced_configuration or not context.configuration.advanced_configuration.classifiers:
+        return HttpResponseBadRequest()
+
+    classifiers = context.configuration.advanced_configuration.classifiers.filter(is_active=True)
+
+    json_data = generate_json(classifiers, context.datastream)
+    json_obj = json.dumps(json_data, indent=4)
+
+    return HttpResponse(json_obj, headers={
+        'Content-Type': 'application/json',
+        'Content-Disposition': 'attachment; filename="results.json"'
+    })

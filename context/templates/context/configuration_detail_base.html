@@ -33,6 +33,8 @@
                     {% else %}
                         {% if context.status == 'WAITING' %}
                             <a href="{% url 'contexts-review' context.code %}" class="btn-secondary">Review data</a>
+                        {% elif context.status == 'FINISHED PROVIDING' %}
+                            <a href="{% url 'contexts-download-results' context.code %}" class="btn-success">Download results</a>
                         {% endif %}
                         <a href="{% url 'contexts-status' context.code %}" class="btn-secondary">Progress</a>
                     {% endif %}

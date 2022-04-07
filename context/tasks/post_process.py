@@ -40,15 +40,16 @@ def run_post_processors(self, gather_result, context_id):
             post_processor_script = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(post_processor_script)
 
+            datastream_size = datastream.count()
             failures = 0
             failure_tolerance = 10  # if more than 10 failures occur, probably this post-processor is not doing something right
-            for data in datastream:
+            for index, data in enumerate(datastream):
                 if failures > failure_tolerance:
                     write_log(context, stage, f'[ERROR] Post-processor {post_processor} raised too many exceptions. Aborting its execution')
                     break
 
                 try:
-                    write_log(context, stage, f'Post-processing {data.identifier}')
+                    write_log(context, stage, f'Post-processing {data.identifier} ({index+1}/{datastream_size})')
                     result = post_processor_script.main(data.data)
                     write_log(context, stage, f'Post-processing {data.identifier} result: {result}')
                     if result is not None:

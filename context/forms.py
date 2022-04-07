@@ -167,3 +167,9 @@ class ClassificationConfigurationForm(forms.ModelForm):
     class Meta:
         model = AdvancedConfiguration
         fields = ['classifiers']
+
+
+class ProvidingConfigurationForm(forms.ModelForm):
+    class Meta:
+        model = AdvancedConfiguration
+        fields = ['webhook']

@@ -35,15 +35,16 @@ def run_classifiers(self, filter_result, context_id):
             classifier_script = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(classifier_script)
 
+            datastream_size = datastream.count()
             failures = 0
             failure_tolerance = 10  # if more than 10 failures occur, probably this classifier is not doing something right
-            for data in datastream:
+            for index, data in enumerate(datastream):
                 if failures > failure_tolerance:
                     write_log(context, stage, f'[ERROR] Classifier {classifier} raised too many exceptions. Aborting its execution')
                     break
 
                 try:
-                    write_log(context, stage, f'Classifying {data.identifier}')
+                    write_log(context, stage, f'Classifying {data.identifier} ({index+1}/{datastream_size})')
                     result = classifier_script.main(data.data)
                     write_log(context, stage, f'Classification {data.identifier} result: {result}')
                     classified_count += 1

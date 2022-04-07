@@ -14,7 +14,7 @@
 {% endblock back-button %}
 
 {% block detail %}
-    <div class="bg-gray-800 font-code rounded text-white w-full min-h-40rem mt-8 p-4">
+    <div class="bg-gray-800 font-code rounded text-white w-full h-[40rem] mt-8 p-4 overflow-y-auto">
         {% for line in content %}
             {% with line|split_log as line_split %}
                 <p>> <span class="text-indigo-500">{{ line_split.0 }}</span> {% if 'ERROR' in line_split.1 %}<span class="text-red-500">{{ line_split.1 }} {{ line_split.2 }}</span>{% else %}{{ line_split.1 }}{% endif %}</p>

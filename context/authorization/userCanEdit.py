@@ -1,7 +1,5 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseForbidden
-
-from context.helpers import get_user_search_contexts
 from context.models import SearchContext
 from django.core.exceptions import ObjectDoesNotExist
 from functools import wraps
