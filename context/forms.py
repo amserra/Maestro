@@ -3,7 +3,6 @@ import datetime
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
-from easy_select2 import Select2Multiple
 from common.forms import DynamicArrayField
 from .models import SearchContext, Configuration, Fetcher, Filter, AdvancedConfiguration, COUNTRY_CHOICES, PostProcessor, Classifier
 import re
@@ -64,7 +63,7 @@ class TextInputWithMap(forms.TextInput):
 class FetchingAndGatheringConfigurationForm(forms.ModelForm):
     country_of_search = forms.ChoiceField(choices=COUNTRY_CHOICES)
     seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
-    fetchers = forms.ModelMultipleChoiceField(widget=Select2Multiple, queryset=Fetcher.objects.filter(is_active=True), required=False)
+    fetchers = forms.ModelMultipleChoiceField(queryset=Fetcher.objects.filter(is_active=True), required=False)
 
     error_messages = {
         'incompatibility': 'The use of the fetcher %s is incompatible with the use of the fetcher %s.',

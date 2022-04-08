@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_results',
     'debug_toolbar',
-    'easy_select2',
     'common',
     'account',
     'organization',
