@@ -20,7 +20,7 @@ html {
 }
 
 .page-container {
-    @apply bg-white m-8 lg:mx-auto px-20 py-10 rounded-lg shadow-md;
+    @apply bg-white m-8 xl:mx-auto px-20 py-10 rounded-lg shadow-md;
 }
 
 .title {

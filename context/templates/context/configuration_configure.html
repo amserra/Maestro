@@ -7,7 +7,7 @@
 
 {% block content %}
     {% with currentForm=request.GET.form|default:"essential" %}
-        <div class="page-container lg:w-1/2 min-h-40rem">
+        <div class="page-container xl:w-1/2 min-h-40rem">
             <p class="title">Configure search context</p>
             <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
             {% if context.configuration %}
