@@ -1,15 +1,13 @@
 from __future__ import annotations
-
 import os
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import resolve
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, FormView, TemplateView
+from django.views.generic import CreateView, DetailView, FormView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 from common.decorators import PaginatedFilterView
@@ -17,14 +15,14 @@ from common.mixins import SafePaginationMixin
 from .authorization import UserHasAccess, UserCanEdit, user_can_edit, user_has_access
 from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, EssentialConfigurationForm, FetchingAndGatheringConfigurationForm, PostProcessingConfigurationForm, FilteringConfigurationForm, ClassificationConfigurationForm, ProvidingConfigurationForm
-from .helpers import get_user_search_contexts, compare_status
-from .models import SearchContext, Configuration, AdvancedConfiguration, Filter
+from .helpers import get_user_search_contexts, compare_status, compare_status_leq
+from .models import SearchContext, Configuration, AdvancedConfiguration
 from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers, run_provider
 from django.contrib import messages
 from celery import chain
 from django.conf import settings
 import json
-
+import ast
 from .tasks.helpers import read_log
 from .tasks.provide import generate_json
 
@@ -68,6 +66,7 @@ class SearchContextCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateVie
 
         context.owner = owner_object
         context.code = form.cleaned_data['name'].replace(' ', '-').lower()
+        context.creator = self.request.user
         context.status = SearchContext.NOT_CONFIGURED
         context.save()
         create_context_folder.delay(context.owner_code, context.code)
@@ -112,7 +111,7 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
 class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEdit, SuccessMessageMixin, ModelFormMixin, FormView):
     http_method_names = ['get', 'post']
     template_name = 'context/configuration_configure.html'
-    success_message = 'The search context was configured successfully.'
+    success_message = 'The search context was updated successfully.'
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -128,7 +127,10 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
             self.object = None
 
     def get_success_url(self):
-        print("from url:", self.from_url)
+        # Button "update and continue"
+        if 'update_continue' in self.request.POST:
+            return f"{reverse_lazy('contexts-configuration-update', args=[self.context.code])}?form={self.form}"
+
         if self.from_url and self.form:
             if self.form == 'essential':
                 return reverse_lazy('contexts-configuration-detail', args=[self.context.code])
@@ -221,6 +223,7 @@ def search_context_start(request, code):
 
 
 class SearchContextStatusView(LoginRequiredMixin, UserHasAccess, DetailView):
+    """View requested used both to render the context/status.html page, and to respond to status requests"""
     template_name = 'context/status.html'
     model = SearchContext
     slug_field = 'code'
@@ -352,10 +355,45 @@ def download_results(request, code):
 
     classifiers = context.configuration.advanced_configuration.classifiers.filter(is_active=True)
 
-    json_data = generate_json(classifiers, context.datastream)
+    json_data = generate_json(classifiers, context.datastream, context.configuration.advanced_configuration.keep_null)
     json_obj = json.dumps(json_data, indent=4)
 
     return HttpResponse(json_obj, headers={
         'Content-Type': 'application/json',
         'Content-Disposition': 'attachment; filename="results.json"'
     })
+
+
+@login_required
+@user_can_edit
+def rerun_from_stage(request, code):
+    context = get_object_or_404(SearchContext, code=code)
+    current_status = context.status
+
+    stage = request.GET.get('stage', None)
+    if stage is None or current_status == SearchContext.NOT_CONFIGURED or current_status == SearchContext.READY:
+        return HttpResponseBadRequest()
+
+    if stage == 'fetch' and compare_status_leq(current_status, SearchContext.FINISHED_FETCHING_URLS):
+        chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+    elif stage == 'gather' and compare_status_leq(current_status, SearchContext.FINISHED_GATHERING_DATA):
+        try:
+            with open(f'{context.context_folder}/urls.txt', 'r') as f:
+                urls_list_str = f.read()
+            urls_list = ast.literal_eval(urls_list_str)
+            chain(run_default_gatherer.s(urls_list, context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+        except:
+            chain(run_default_gatherer.s([], context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+    elif stage == 'post-process' and compare_status_leq(current_status, SearchContext.FINISHED_POST_PROCESSING):
+        chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+    elif stage == 'filter' and compare_status_leq(current_status, SearchContext.FINISHED_FILTERING):
+        chain(run_filters.s(True, context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+    elif stage == 'classify' and compare_status_leq(current_status, SearchContext.FINISHED_CLASSIFYING):
+        chain(run_classifiers.s(True, context.id), run_provider(context.id)).apply_async()
+    elif stage == 'provide' and compare_status_leq(current_status, SearchContext.FINISHED_PROVIDING):
+        run_provider.delay(True, context.id)
+    else:
+        return HttpResponseBadRequest()
+
+    messages.success(request, f'Starting execution from {stage} stage.')
+    return HttpResponse(status=200)

@@ -35,93 +35,221 @@
 {% endblock tabs %}
 
 {% block detail %}
-    <div class="mt-10">
+    <div class="mt-10 mb-10">
         {% if configuration %}
-            {% if configuration.country_of_search %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Country of search</p>
-                    <div class="flex flex-col mt-2">
-                        <p class="font-light text-gray-600">{{ configuration.get_country_of_search_display }}</p>
+
+            <div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white text-gray-900" data-inactive-classes="text-gray-500">
+
+                {#Fetching and gathering#}
+                <h2 id="accordion-flush-heading-1">
+                    <button type="button" class="flex justify-between items-center py-5 w-full font-medium text-left text-gray-500 border-b border-gray-200" data-accordion-target="#accordion-flush-body-1" aria-expanded="false" aria-controls="accordion-flush-body-1">
+                        <span>Fetching and gathering</span>
+                        <svg data-accordion-icon="" class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </h2>
+                <div id="accordion-flush-body-1" class="hidden" aria-labelledby="accordion-flush-heading-1">
+                    <div class="py-5 border-b border-gray-200">
+                        {% if configuration.country_of_search %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Country of search</p>
+                                <div class="flex flex-col mt-2">
+                                    <p class="font-light text-gray-600">{{ configuration.get_country_of_search_display }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if configuration.seed_urls %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Custom seed URLs</p>
+                                <ul class="flex flex-col mt-2 list-disc list-inside">
+                                    {% for url in configuration.seed_urls %}
+                                        <li class="font-light text-gray-600">{{ url }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        {% if configuration.fetchers.all %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Fetchers</p>
+                                <ul class="flex flex-col mt-2 list-disc list-inside">
+                                    {% for fetcher in configuration.fetchers.all %}
+                                        <li class="font-light text-gray-600">{{ fetcher }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <div class="mt-6">
+                            <div class="flex items-center">
+                                <p class="text-lg text-blue-700 mr-2">Yield after gathering data</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" data-tooltip-target="tooltip-animation-1" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="1.5" stroke="#808080" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="17" x2="12" y2="17.01"/><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4"/></svg>
+                            </div>
+                            <div id="tooltip-animation-1" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+                                Stops execution after gathering for a manual revision of the data
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            <label for="toggle-example-disabled" class="flex relative items-center mb-4 mt-2 cursor-not-allowed">
+                                <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if configuration.yield_after_gathering_data %}checked{% endif %} disabled>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            {% endif %}
-            {% if configuration.seed_urls %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Custom seed URLs</p>
-                    <ul class="flex flex-col mt-2 list-disc list-inside">
-                        {% for url in configuration.seed_urls %}
-                            <li class="font-light text-gray-600">{{ url }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% if configuration.fetchers.all %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Fetchers</p>
-                    <ul class="flex flex-col mt-2 list-disc list-inside">
-                        {% for fetcher in configuration.fetchers.all %}
-                            <li class="font-light text-gray-600">{{ fetcher }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Yield after gathering data</p>
-                    <label for="toggle-example-disabled" class="flex relative items-center mb-4 mt-2 cursor-not-allowed">
-                        <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if configuration.yield_after_gathering_data %}checked{% endif %} disabled>
-                        <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
-                    </label>
-                </div>
-            {% if configuration.post_processors.all %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Post-processors</p>
-                    <ul class="flex flex-col mt-2 list-disc list-inside">
-                        {% for post_processor in configuration.post_processors.all %}
-                            <li class="font-light text-gray-600">{{ post_processor }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% if configuration.filters.all %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Filters</p>
-                    <ul class="flex flex-col mt-2 list-disc list-inside">
-                        {% for filter in configuration.filters.all %}
-                            <li class="font-light text-gray-600">{{ filter }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% if configuration.classifiers.all %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Classifiers</p>
-                    <ul class="flex flex-col mt-2 list-disc list-inside">
-                        {% for classifier in configuration.classifiers.all %}
-                            <li class="font-light text-gray-600">{{ classifier }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% if configuration.start_date or configuration.end_date %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700">Date interval</p>
-                    <div class="flex flex-col mt-2">
-                        {% if configuration.start_date and not configuration.end_date %}
-                            <p class="font-light text-gray-600">Since {{ configuration.start_date|date:'G:i \o\f F jS, Y G:i' }}</p>
-                        {% elif not configuration.start_date and configuration.end_date %}
-                            <p class="font-light text-gray-600">Until {{ configuration.end_date|date:'G:i \o\f F jS, Y G:i' }}</p>
-                        {% else %}
-                            <p class="font-light text-gray-600">From {{ configuration.start_date|date:'G:i \o\f F jS, Y' }} until {{ configuration.end_date|date:'G:i \o\f F jS, Y' }}</p>
+
+                {# Post-processing #}
+                <h2 id="accordion-flush-heading-2">
+                    <button type="button" class="flex justify-between items-center py-5 w-full font-medium text-left text-gray-500 border-b border-gray-200" data-accordion-target="#accordion-flush-body-2" aria-expanded="false" aria-controls="accordion-flush-body-2">
+                        <span>Post-processing</span>
+                        <svg data-accordion-icon="" class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </h2>
+                <div id="accordion-flush-body-2" class="hidden" aria-labelledby="accordion-flush-heading-2">
+                    <div class="py-5 border-b border-gray-200">
+                        {% if configuration.post_processors.all %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Post-processors</p>
+                                <ul class="flex flex-col mt-2 list-disc list-inside">
+                                    {% for post_processor in configuration.post_processors.all %}
+                                        <li class="font-light text-gray-600">{{ post_processor }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        {% if not configuration.post_processors.all %}
+                            <p class="mb-2 text-gray-500">No post-processing configuration set.</p>
                         {% endif %}
                     </div>
                 </div>
-            {% endif %}
-            {% if configuration.location and configuration.radius %}
-                <div class="mt-6">
-                    <p class="text-2xl text-blue-700 mb-6">Location</p>
-                    <div id="map" class="h-[180px] mb-8"></div>
+
+                {# Filtering #}
+                <h2 id="accordion-flush-heading-3">
+                    <button type="button" class="flex justify-between items-center py-5 w-full font-medium text-left text-gray-500 border-b border-gray-200" data-accordion-target="#accordion-flush-body-3" aria-expanded="false" aria-controls="accordion-flush-body-3">
+                        <span>Filtering</span>
+                        <svg data-accordion-icon="" class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </h2>
+                <div id="accordion-flush-body-3" class="hidden" aria-labelledby="accordion-flush-heading-3">
+                    <div class="py-5 border-b border-gray-200">
+                        {% if configuration.filters.all %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Filters</p>
+                                <ul class="flex flex-col mt-2 list-disc list-inside">
+                                    {% for filter in configuration.filters.all %}
+                                        <li class="font-light text-gray-600">{{ filter }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        {% if configuration.start_date or configuration.end_date %}
+                            <div class="mt-6">
+                                <p class="text-2xl text-blue-700">Date interval</p>
+                                <div class="flex flex-col mt-2">
+                                    {% if configuration.start_date and not configuration.end_date %}
+                                        <p class="font-light text-gray-600">Since {{ configuration.start_date|date:'G:i \o\f F jS, Y G:i' }}</p>
+                                    {% elif not configuration.start_date and configuration.end_date %}
+                                        <p class="font-light text-gray-600">Until {{ configuration.end_date|date:'G:i \o\f F jS, Y G:i' }}</p>
+                                    {% else %}
+                                        <p class="font-light text-gray-600">From {{ configuration.start_date|date:'G:i \o\f F jS, Y' }} until {{ configuration.end_date|date:'G:i \o\f F jS, Y' }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if configuration.location and configuration.radius %}
+                            <div class="mt-6">
+                                <p class="text-2xl text-blue-700 mb-6">Location</p>
+                                <div id="map" class="h-[180px] mb-8"></div>
+                            </div>
+                        {% endif %}
+                        <div class="mt-6">
+                            <div class="flex items-center">
+                                <p class="text-lg text-blue-700 mr-2">Strict filtering</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" data-tooltip-target="tooltip-animation-2" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="1.5" stroke="#808080" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="17" x2="12" y2="17.01"/><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4"/></svg>
+                            </div>
+                            <div id="tooltip-animation-2" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+                                Whether to keep data objects that don't match the filter criteria
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            <label for="toggle-example-disabled" class="flex relative items-center mb-4 mt-2 cursor-not-allowed">
+                                <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if configuration.strict_filtering %}checked{% endif %} disabled>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
+
+                {# Classifying #}
+                <h2 id="accordion-flush-heading-4">
+                    <button type="button" class="flex justify-between items-center py-5 w-full font-medium text-left text-gray-500 border-b border-gray-200" data-accordion-target="#accordion-flush-body-4" aria-expanded="false" aria-controls="accordion-flush-body-4">
+                        <span>Classifying</span>
+                        <svg data-accordion-icon="" class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </h2>
+                <div id="accordion-flush-body-4" class="hidden" aria-labelledby="accordion-flush-heading-4">
+                    <div class="py-5 border-b border-gray-200">
+                        {% if configuration.classifiers.all %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Classifiers</p>
+                                <ul class="flex flex-col mt-2 list-disc list-inside">
+                                    {% for classifier in configuration.classifiers.all %}
+                                        <li class="font-light text-gray-600">{{ classifier }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Providing #}
+                <h2 id="accordion-flush-heading-5">
+                    <button type="button" class="flex justify-between items-center py-5 w-full font-medium text-left text-gray-500 border-b border-gray-200" data-accordion-target="#accordion-flush-body-5" aria-expanded="false" aria-controls="accordion-flush-body-5">
+                        <span>Providing</span>
+                        <svg data-accordion-icon="" class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </h2>
+                <div id="accordion-flush-body-5" class="hidden" aria-labelledby="accordion-flush-heading-5">
+                    <div class="py-5 border-b border-gray-200">
+                        {% if configuration.webhook %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Webhook</p>
+                                <div class="flex flex-col mt-2">
+                                    <p class="font-light text-gray-600">{{ configuration.webhook }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if configuration.minimum_objects %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Minimum number of objects</p>
+                                <div class="flex flex-col mt-2">
+                                    <p class="font-light text-gray-600">{{ configuration.minimum_objects }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="mt-6">
+                            <p class="text-lg text-blue-700">Send objects that weren't classified</p>
+                            <label for="toggle-example-disabled" class="flex relative items-center mb-4 mt-2 cursor-not-allowed">
+                                <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if configuration.keep_null %}checked{% endif %} disabled>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
+                            </label>
+                        </div>
+                        <div class="mt-6">
+                            <p class="text-lg text-blue-700">Notify the search context creator when finished</p>
+                            <label for="toggle-example-disabled" class="flex relative items-center mb-4 mt-2 cursor-not-allowed">
+                                <input type="checkbox" id="toggle-example-disabled" class="sr-only" {% if configuration.notify_creator %}checked{% endif %} disabled>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         {% else %}
             <p class="mr-10">This context doesn't have any advanced configurations. You can add them by clicking the <span class="text-blue-600">Configure</span> button below.</p>
         {% endif %}
@@ -129,7 +257,7 @@
 
     <script>
         const mapElement = document.getElementById('map');
-        if(mapElement) {
+        if (mapElement) {
             const latlng = "{{ configuration.location }}".split(',');
             const radius = "{{ configuration.radius }}";
             const zoomLevel = 14;

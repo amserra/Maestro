@@ -2,18 +2,27 @@ from context.models import SearchContext
 from context.tasks.helpers import change_status, write_log
 from maestro.celery import app
 import requests
+from django.core.mail import EmailMessage
 
 
-def generate_json(classifiers, datastream):
+def generate_json(classifiers, datastream, keep_null=True):
     json_data = {}
     for classifier in classifiers:
         classifier_name = classifier.name
         json_data[classifier_name] = {}
         for data in datastream:
             classification_result = data.classification_result
-            json_data[classifier_name][data.identifier] = classification_result[classifier_name]
+            if keep_null or (not keep_null and classification_result[classifier_name] is not None):
+                json_data[classifier_name][data.identifier] = classification_result[classifier_name]
 
     return json_data
+
+
+def send_notification_email(context):
+    mail_subject = 'Search context finished'
+    message = f'Hello. The search context \'{context.name}\' you created in Maestro has finished. The data has been sent to the remote server specified in the webhook configuration field.'
+    email = EmailMessage(mail_subject, message, to=[context.creator])
+    email.send()
 
 
 @app.task(bind=True)
@@ -31,12 +40,16 @@ def run_provider(self, classification_result, context_id):
         change_status(SearchContext.FINISHED_PROVIDING, context, stage, 'No providers used. You can either provide a webhook and rerun, or download the results directly from the download button.', True)
         return True
 
+    if advanced_configuration.minimum_objects is not None and datastream.count() < advanced_configuration.minimum_objects:
+        change_status(SearchContext.FINISHED_PROVIDING, context, stage, f'The number of gathered objects was {datastream.count()}, but according to this search context configuration {advanced_configuration.minimum_objects} are required to send the data to the webhook.', True)
+        return True
+
     webhook = advanced_configuration.webhook
     change_status(SearchContext.PROVIDING, context, stage, f'Will send the data to {webhook}', True)
 
     classifiers = advanced_configuration.classifiers.filter(is_active=True)
 
-    json_data = generate_json(classifiers, datastream)
+    json_data = generate_json(classifiers, datastream, advanced_configuration.keep_null)
 
     write_log(context, stage, f'Sending request...')
     try:
@@ -57,4 +70,5 @@ def run_provider(self, classification_result, context_id):
 
     change_status(SearchContext.FINISHED_PROVIDING, context, stage, 'The remote server responded with status 200')
     write_log(context, stage, f'Finished all the steps')
+    send_notification_email(context)
     return True

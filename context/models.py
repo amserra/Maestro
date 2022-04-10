@@ -43,7 +43,10 @@ class AdvancedConfiguration(models.Model):
     radius = models.IntegerField(null=True)
 
     # Providing
-    webhook = models.URLField(null=True, blank=True)
+    webhook = models.URLField(null=True, blank=True, help_text='HTTP REST endpoint to which data will be sent in JSON format as a POST request.')
+    minimum_objects = models.IntegerField(verbose_name='Minimum number of data objects', default=1, blank=True, null=True, help_text='Minimum number of data objects required in order for data to be sent to the receiver through the webhook.')
+    keep_null = models.BooleanField(verbose_name='Send objects that weren\'t classified', default=True, help_text='Whether to send the result of data objects that the classifier was unable to classify.')
+    notify_creator = models.BooleanField(default=True, help_text='Whether to notify the search context\'s creator (by email) at the end of a successful execution.')
 
     # Data-type-specific configurations
     # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
@@ -94,7 +97,6 @@ class Configuration(models.Model):
 
 
 class SearchContext(models.Model):
-    FAILED = 'FAILED'
     NOT_CONFIGURED = 'NOT CONFIGURED'
     READY = 'READY'
     # Fetching
@@ -124,7 +126,6 @@ class SearchContext(models.Model):
     FAILED_PROVIDING = 'FAILED PROVIDING'
     FINISHED_PROVIDING = 'FINISHED PROVIDING'
     STATUS_CHOICES = [
-        (FAILED, 'Failed'),
         (NOT_CONFIGURED, 'Not configured'),
         (READY, 'Ready'),
         # Fetching

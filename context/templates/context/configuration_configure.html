@@ -45,7 +45,10 @@
                 {% csrf_token %}
                 {{ form.as_ul }}
                 <div class="flex flex-col gap-3 mt-10">
-                    <input type="submit" value="Update search context configurations" role="button" class="btn-primary"/>
+                    <div class="flex gap-3">
+                        <input type="submit" name="update_continue" value="Update and continue editing" role="button" class="btn-primary"/>
+                        <input type="submit" name="update" value="Update" role="button" class="btn-secondary"/>
+                    </div>
                     {% if request.GET.from %}
                         <a href="{{ request.GET.from }}" class="btn-cancel">Cancel</a>
                     {% else %}

@@ -69,6 +69,11 @@ class FetchingAndGatheringConfigurationForm(forms.ModelForm):
         'incompatibility': 'The use of the fetcher %s is incompatible with the use of the fetcher %s.',
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['fetchers'].empty_label = 'Click here to change the used fetchers'
+        self.fields['fetchers'].widget.choices = self.fields['fetchers'].choices
+
     def clean_fetchers(self):
         # Check if there is an element of the fetchers that is in fetchers.incompatible_with. There probablly is a better way to do this
         fetchers: QuerySet[Fetcher] = self.cleaned_data["fetchers"]
@@ -86,6 +91,11 @@ class FetchingAndGatheringConfigurationForm(forms.ModelForm):
 
 class PostProcessingConfigurationForm(forms.ModelForm):
     post_processors = forms.ModelMultipleChoiceField(queryset=PostProcessor.objects.filter(is_active=True), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['post_processors'].empty_label = 'Click here to change the used post-processors'
+        self.fields['post_processors'].widget.choices = self.fields['post_processors'].choices
 
     class Meta:
         model = AdvancedConfiguration
@@ -110,6 +120,8 @@ class FilteringConfigurationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['filters'].empty_label = 'Click here to change the used filters'
+        self.fields['filters'].widget.choices = self.fields['filters'].choices
         # Put coordinates in intial if they exist in the DB
         if self.instance and self.instance.location:
             lat, long = self.instance.location.split(',')
@@ -163,6 +175,11 @@ class FilteringConfigurationForm(forms.ModelForm):
 class ClassificationConfigurationForm(forms.ModelForm):
     classifiers = forms.ModelMultipleChoiceField(queryset=Classifier.objects.filter(is_active=True), required=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['classifiers'].empty_label = 'Click here to change the used classifiers'
+        self.fields['classifiers'].widget.choices = self.fields['classifiers'].choices
+
     class Meta:
         model = AdvancedConfiguration
         fields = ['classifiers']
@@ -171,4 +188,4 @@ class ClassificationConfigurationForm(forms.ModelForm):
 class ProvidingConfigurationForm(forms.ModelForm):
     class Meta:
         model = AdvancedConfiguration
-        fields = ['webhook']
+        fields = ['webhook', 'minimum_objects', 'keep_null', 'notify_creator']

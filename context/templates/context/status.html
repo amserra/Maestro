@@ -20,42 +20,110 @@
                 <div class="mt-2 flex flex-col">
                     <p>Fetch URLs</p>
                     <a href="{% url 'task-status' context.code 'fetch' %}" class="text-blue-700 hover:underline">Details</a>
+                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                        <button
+                            onclick="
+                            openModal(
+                            'modal-rerun',
+                            acceptModalRerun,
+                            {title: 'Are you sure you want to re-run {{ context.code }} from the fetch stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
+                            {code: '{{ context.code }}', stage: 'fetch'}
+                            )" class="text-blue-700 hover:underline">Re-run</button>
+                    {% endif %}
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Gather data</p>
                     <a href="{% url 'task-status' context.code 'gather' %}" class="text-blue-700 hover:underline invisible">Details</a>
+                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                        <button
+                            onclick="
+                            openModal(
+                            'modal-rerun',
+                            acceptModalRerun,
+                            {title: 'Are you sure you want to re-run {{ context.code }} from the gather stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
+                            {code: '{{ context.code }}', stage: 'gather'}
+                            )" class="text-blue-700 hover:underline">Re-run</button>
+                    {% endif %}
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Review data</p>
                     <a href="{% url 'contexts-review' context.code %}" class="text-blue-700 hover:underline invisible">Details</a>
+                    <button
+                        onclick="
+                        openModal(
+                        'modal-rerun',
+                        acceptModalRerun,
+                        {title: 'Are you sure you want to re-run {{ context.code }} from the review stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
+                        {code: '{{ context.code }}', stage: 'review'}
+                        )" class="text-blue-700 hover:underline">Re-run</button>
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Post-process</p>
                     <a href="{% url 'task-status' context.code 'post_process' %}" class="text-blue-700 hover:underline invisible">Details</a>
+                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                        <button
+                        onclick="
+                        openModal(
+                        'modal-rerun',
+                        acceptModalRerun,
+                        {title: 'Are you sure you want to re-run {{ context.code }} from the post-process stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
+                        {code: '{{ context.code }}', stage: 'post-process'}
+                        )" class="text-blue-700 hover:underline">Re-run</button>
+                    {% endif %}
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Filter</p>
                     <a href="{% url 'task-status' context.code 'filter' %}" class="text-blue-700 hover:underline invisible">Details</a>
+                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                        <button
+                        onclick="
+                        openModal(
+                        'modal-rerun',
+                        acceptModalRerun,
+                        {title: 'Are you sure you want to re-run {{ context.code }} from the filter stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
+                        {code: '{{ context.code }}', stage: 'filter'}
+                        )" class="text-blue-700 hover:underline">Re-run</button>
+                    {% endif %}
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Classify</p>
                     <a href="{% url 'task-status' context.code 'classify' %}" class="text-blue-700 hover:underline invisible">Details</a>
+                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                        <button
+                        onclick="
+                        openModal(
+                        'modal-rerun',
+                        acceptModalRerun,
+                        {title: 'Are you sure you want to re-run {{ context.code }} from the classify stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
+                        {code: '{{ context.code }}', stage: 'classify'}
+                        )" class="text-blue-700 hover:underline">Re-run</button>
+                    {% endif %}
                 </div>
             </li>
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Provide</p>
                     <a href="{% url 'task-status' context.code 'provide' %}" class="text-blue-700 hover:underline invisible">Details</a>
+                    {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
+                        <button
+                        onclick="
+                        openModal(
+                        'modal-rerun',
+                        acceptModalRerun,
+                        {title: 'Are you sure you want to re-run {{ context.code }} from the provide stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
+                        {code: '{{ context.code }}', stage: 'provide'}
+                        )" class="text-blue-700 hover:underline">Re-run</button>
+                    {% endif %}
                 </div>
             </li>
         </ul>
@@ -65,21 +133,32 @@
             <p class="mt-6">Please click <a class="underline underline-offset-1 hover:text-yellow-700" href="{% url 'contexts-review' context.code %}">here</a> to review the data in order to continue the process.</p>
         </div>
     </div>
+{% include 'common/confirmation-modal.html' with id='modal-rerun' %}
 {% endblock detail %}
 
 {% block buttons %}
 {% endblock buttons %}
 
+
 {% block scripts %}
     <script>
+        function acceptModalRerun(modal) {
+            // 'contexts-rerun'
+            const stage = modal.getAttribute("stage");
+            const url = `{% url 'contexts-rerun' context.code %}?stage=${stage}`;
+            fetch(url).then(response => window.location.reload());
+        }
+
         const states = document.getElementById('progress-bar').getElementsByTagName('li');
         const reviewBlock = document.getElementById('review-block');
 
         function removeClassIfExits(el, cls) {
+            if(el === undefined) return
             if(el.classList.contains(cls)) el.classList.remove(cls);
         }
 
         function addClassIfNotExists(el, cls) {
+            if(el === undefined) return
             if(!el.classList.contains(cls)) el.classList.add(cls);
         }
 
@@ -106,10 +185,11 @@
                     addClassIfNotExists(reviewBlock, 'hidden');
                 }
                 if(i === size - 1) {
+                    removeClassIfExits(states[i].firstElementChild.children[1], 'invisible'); // <a>Details</a>
+                    removeClassIfExits(states[i].firstElementChild.children[2], 'invisible'); // <a>Re-run</a>
                     if(finished) {
                         states[i].setAttribute('data-content', '✓');
                         addClassIfNotExists(states[i], 'step-success');
-                        removeClassIfExits(states[i].firstElementChild.lastElementChild, 'invisible');
                     }
                     else if(failed) {
                         states[i].setAttribute('data-content', '✕');
@@ -118,14 +198,15 @@
                     else {
                         states[i].setAttribute('data-content', '●');
                         addClassIfNotExists(states[i], 'step-warning');
-                        removeClassIfExits(states[i].firstElementChild.lastElementChild, 'invisible');
+
                     }
                 } else {
                     states[i].setAttribute('data-content', '✓');
                     removeClassIfExits(states[i], 'step-warning');
                     removeClassIfExits(states[i], 'step-error');
                     addClassIfNotExists(states[i], 'step-success');
-                    removeClassIfExits(states[i].firstElementChild.lastElementChild, 'invisible');
+                    removeClassIfExits(states[i].firstElementChild.children[1], 'invisible'); // <a>Details</a>
+                    removeClassIfExits(states[i].firstElementChild.children[2], 'invisible'); // <a>Re-run</a>
                 }
             }
         }
