@@ -213,7 +213,7 @@ def search_context_start(request, code):
     if context.status != SearchContext.READY:
         return HttpResponseBadRequest()
 
-    chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+    chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     messages.success(request, 'Search context execution started successfully.')
 
     if request.META['HTTP_REFERER']:
@@ -322,7 +322,7 @@ def complete_review(request, code):
     if context.status != SearchContext.WAITING_DATA_REVISION:
         return HttpResponseBadRequest()
 
-    chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+    chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     messages.success(request, 'Process underway.')
     return redirect('contexts-detail', code=context.code)
 
@@ -375,21 +375,21 @@ def rerun_from_stage(request, code):
         return HttpResponseBadRequest()
 
     if stage == 'fetch' and compare_status_leq(current_status, SearchContext.FINISHED_FETCHING_URLS):
-        chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+        chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     elif stage == 'gather' and compare_status_leq(current_status, SearchContext.FINISHED_GATHERING_DATA):
         try:
             with open(f'{context.context_folder}/urls.txt', 'r') as f:
                 urls_list_str = f.read()
             urls_list = ast.literal_eval(urls_list_str)
-            chain(run_default_gatherer.s(urls_list, context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+            chain(run_default_gatherer.s(urls_list, context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
         except:
-            chain(run_default_gatherer.s([], context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+            chain(run_default_gatherer.s([], context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     elif stage == 'post-process' and compare_status_leq(current_status, SearchContext.FINISHED_POST_PROCESSING):
-        chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+        chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     elif stage == 'filter' and compare_status_leq(current_status, SearchContext.FINISHED_FILTERING):
-        chain(run_filters.s(True, context.id), run_classifiers.s(context.id), run_provider(context.id)).apply_async()
+        chain(run_filters.s(True, context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     elif stage == 'classify' and compare_status_leq(current_status, SearchContext.FINISHED_CLASSIFYING):
-        chain(run_classifiers.s(True, context.id), run_provider(context.id)).apply_async()
+        chain(run_classifiers.s(True, context.id), run_provider.s(context.id)).apply_async()
     elif stage == 'provide' and compare_status_leq(current_status, SearchContext.FINISHED_PROVIDING):
         run_provider.delay(True, context.id)
     else:

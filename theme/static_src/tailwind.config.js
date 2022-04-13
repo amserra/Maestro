@@ -57,7 +57,11 @@ module.exports = {
             '48rem': '48rem',
             '50rem': '50rem',
         },
-        extend: {},
+        extend: {
+            width: {
+                '30': '7.5rem',
+              }
+        },
     },
     daisyui: {
         themes: false,
