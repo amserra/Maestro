@@ -1,7 +1,7 @@
-import json
 import requests
 from django.conf import settings
-from datetime import datetime
+from operator import itemgetter
+
 
 def country_code_to_language(country_code):
     if country_code == 'US':
@@ -31,7 +31,7 @@ def build_accept_language(country_code: str, get_english_results: bool = True) -
 
 
 def main(data: dict):
-    query, country_code = data.values()  # unpack values of dict
+    query, country_code = itemgetter('search_string', 'country_code')(data)
 
     # Add your Bing Search V7 subscription key and endpoint to your environment variables.
     subscription_key = settings.BING_SUBSCRIPTION_KEY
@@ -48,7 +48,6 @@ def main(data: dict):
 
     # Call the API
     try:
-        response = None
         response = requests.get(endpoint, headers=headers, params=params)
         response.raise_for_status()
         response_json = response.json()
@@ -62,5 +61,6 @@ def main(data: dict):
         # pprint(response_json)
 
         return links
-    except requests.exceptions.HTTPError as ex:
+    except requests.exceptions.RequestException as ex:
+        print(ex.response.json())
         raise ex

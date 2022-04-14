@@ -201,6 +201,9 @@ SERPAPI_KEY = os.getenv('SERPAPI_KEY', '')
 # Bing API key
 BING_SUBSCRIPTION_KEY = os.getenv('BING_SUBSCRIPTION_KEY', '')
 
+# Twitter API key
+TWITTER_API_KEY = os.getenv('TWITTER_API_KEY', '')
+
 # Context's data directory
 CONTEXTS_DATA_DIR = os.path.join(BASE_DIR, 'contexts_data')
 

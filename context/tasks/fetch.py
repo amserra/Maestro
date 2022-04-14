@@ -5,7 +5,6 @@ from datetime import datetime
 from context.models import APIResults, Configuration, AdvancedConfiguration, SearchContext, Fetcher
 import ast
 from collections import OrderedDict
-
 from context.tasks.helpers import change_status, write_log
 from maestro.celery import app
 
@@ -33,10 +32,13 @@ def cached_fetcher_urls(fetcher, data):
 
 
 def fetcher_parameters(configuration: Configuration, advanced_configuration: AdvancedConfiguration):
-    search_string = configuration.search_string
+    keywords = [keyword.name for keyword in configuration.keywords.all()]
     country_code = advanced_configuration.country_of_search if advanced_configuration and advanced_configuration.country_of_search else AdvancedConfiguration.DEFAULT_COUNTRY_OF_SEARCH
     return OrderedDict({
-        'search_string': search_string,
+        'search_string': configuration.search_string,
+        'keywords': keywords,
+        'start_date': advanced_configuration.start_date if advanced_configuration and advanced_configuration.start_date else None,
+        'end_date': advanced_configuration.end_date if advanced_configuration and advanced_configuration.end_date else None,
         'country_code': country_code
     })
 

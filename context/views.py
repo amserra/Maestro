@@ -371,12 +371,14 @@ def rerun_from_stage(request, code):
     current_status = context.status
 
     stage = request.GET.get('stage', None)
+
     if stage is None or current_status == SearchContext.NOT_CONFIGURED or current_status == SearchContext.READY:
         return HttpResponseBadRequest()
 
-    if stage == 'fetch' and compare_status_leq(current_status, SearchContext.FINISHED_FETCHING_URLS):
+    # had like this: and compare_status_leq(SearchContext.FINISHED_FETCHING_URLS, current_status)
+    if stage == 'fetch':
         chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
-    elif stage == 'gather' and compare_status_leq(current_status, SearchContext.FINISHED_GATHERING_DATA):
+    elif stage == 'gather':
         try:
             with open(f'{context.context_folder}/urls.txt', 'r') as f:
                 urls_list_str = f.read()
@@ -384,13 +386,13 @@ def rerun_from_stage(request, code):
             chain(run_default_gatherer.s(urls_list, context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
         except:
             chain(run_default_gatherer.s([], context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
-    elif stage == 'post-process' and compare_status_leq(current_status, SearchContext.FINISHED_POST_PROCESSING):
+    elif stage == 'post-process':
         chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
-    elif stage == 'filter' and compare_status_leq(current_status, SearchContext.FINISHED_FILTERING):
+    elif stage == 'filter':
         chain(run_filters.s(True, context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
-    elif stage == 'classify' and compare_status_leq(current_status, SearchContext.FINISHED_CLASSIFYING):
+    elif stage == 'classify':
         chain(run_classifiers.s(True, context.id), run_provider.s(context.id)).apply_async()
-    elif stage == 'provide' and compare_status_leq(current_status, SearchContext.FINISHED_PROVIDING):
+    elif stage == 'provide':
         run_provider.delay(True, context.id)
     else:
         return HttpResponseBadRequest()

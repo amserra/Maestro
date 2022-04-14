@@ -28,7 +28,7 @@
                             acceptModalRerun,
                             {title: 'Are you sure you want to re-run {{ context.code }} from the fetch stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
                             {code: '{{ context.code }}', stage: 'fetch'}
-                            )" class="text-blue-700 hover:underline">Re-run</button>
+                            )" class="text-blue-700 hover:underline invisible">Re-run</button>
                     {% endif %}
                 </div>
             </li>
@@ -44,7 +44,7 @@
                             acceptModalRerun,
                             {title: 'Are you sure you want to re-run {{ context.code }} from the gather stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
                             {code: '{{ context.code }}', stage: 'gather'}
-                            )" class="text-blue-700 hover:underline">Re-run</button>
+                            )" class="text-blue-700 hover:underline invisible">Re-run</button>
                     {% endif %}
                 </div>
             </li>
@@ -59,7 +59,7 @@
                         acceptModalRerun,
                         {title: 'Are you sure you want to re-run {{ context.code }} from the review stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
                         {code: '{{ context.code }}', stage: 'review'}
-                        )" class="text-blue-700 hover:underline">Re-run</button>
+                        )" class="text-blue-700 hover:underline invisible">Re-run</button>
                 </div>
             </li>
             <li data-content="" class="step">
@@ -74,7 +74,7 @@
                         acceptModalRerun,
                         {title: 'Are you sure you want to re-run {{ context.code }} from the post-process stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
                         {code: '{{ context.code }}', stage: 'post-process'}
-                        )" class="text-blue-700 hover:underline">Re-run</button>
+                        )" class="text-blue-700 hover:underline invisible">Re-run</button>
                     {% endif %}
                 </div>
             </li>
@@ -90,7 +90,7 @@
                         acceptModalRerun,
                         {title: 'Are you sure you want to re-run {{ context.code }} from the filter stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
                         {code: '{{ context.code }}', stage: 'filter'}
-                        )" class="text-blue-700 hover:underline">Re-run</button>
+                        )" class="text-blue-700 hover:underline invisible">Re-run</button>
                     {% endif %}
                 </div>
             </li>
@@ -106,7 +106,7 @@
                         acceptModalRerun,
                         {title: 'Are you sure you want to re-run {{ context.code }} from the classify stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
                         {code: '{{ context.code }}', stage: 'classify'}
-                        )" class="text-blue-700 hover:underline">Re-run</button>
+                        )" class="text-blue-700 hover:underline invisible">Re-run</button>
                     {% endif %}
                 </div>
             </li>
@@ -122,7 +122,7 @@
                         acceptModalRerun,
                         {title: 'Are you sure you want to re-run {{ context.code }} from the provide stage?', subtitle: 'All the subsequent stages will also be re-runned.'},
                         {code: '{{ context.code }}', stage: 'provide'}
-                        )" class="text-blue-700 hover:underline">Re-run</button>
+                        )" class="text-blue-700 hover:underline invisible">Re-run</button>
                     {% endif %}
                 </div>
             </li>
@@ -184,6 +184,7 @@
                 } else {
                     addClassIfNotExists(reviewBlock, 'hidden');
                 }
+
                 if(i === size - 1) {
                     removeClassIfExits(states[i].firstElementChild.children[1], 'invisible'); // <a>Details</a>
                     removeClassIfExits(states[i].firstElementChild.children[2], 'invisible'); // <a>Re-run</a>
