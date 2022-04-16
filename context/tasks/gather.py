@@ -52,21 +52,21 @@ def run_default_gatherer(self, urls, context_id):
     process.start()
 
     if context.configuration.data_type == Configuration.IMAGES:
-        # Copy thumbnails to the media folder and add entries to DB
+        # Copy thumbnails to the static folder and add entries to DB
         thumbs_folder = os.path.join(context_data_path, 'thumbs')
         original_folder = os.path.join(context_data_path, 'full')
-        thumbs_media_folder = os.path.join(settings.MEDIA_ROOT, context.owner_code, context.code)
+        thumbs_static_folder = os.path.join(settings.STATIC_ROOT, context.owner_code, context.code)
 
         if os.path.isdir(thumbs_folder):
-            os.makedirs(thumbs_media_folder, exist_ok=True)
+            os.makedirs(thumbs_static_folder, exist_ok=True)
             files = os.listdir(thumbs_folder)
             write_log(context, stage, f'Downloaded {len(files)} images')
             write_log(context, stage, f'Preparing and storing images on database')
 
             objs = []
             for file in files:
-                file_path_in_thumb_media_folder = os.path.join(thumbs_folder, file)
-                shutil.copy2(file_path_in_thumb_media_folder, thumbs_media_folder)
+                file_path_in_thumb_static_folder = os.path.join(thumbs_folder, file)
+                shutil.copy2(file_path_in_thumb_static_folder, thumbs_static_folder)
                 # Add entries to DB
                 obj = ImageData.objects.filter(context=context, data=os.path.join(original_folder, file))
                 if not obj.exists():
@@ -74,7 +74,7 @@ def run_default_gatherer(self, urls, context_id):
                         context=context,
                         data=os.path.join(original_folder, file),
                         data_thumb=os.path.join(thumbs_folder, file),
-                        data_thumb_media=file_path_in_thumb_media_folder
+                        data_thumb_static=file_path_in_thumb_static_folder
                     ))
             ImageData.objects.bulk_create(objs)
 

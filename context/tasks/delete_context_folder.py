@@ -7,7 +7,7 @@ from maestro.celery import app
 def delete_context_folder(self, context_id):
     context = SearchContext.objects.get(id=context_id)
     context_folder = context.context_folder
-    context_folder_media = context.context_folder_media
+    context_folder_static = context.context_folder_static
 
     # Delete from DB
     if context.configuration:
@@ -18,7 +18,7 @@ def delete_context_folder(self, context_id):
 
     try:
         shutil.rmtree(context_folder)
-        shutil.rmtree(context_folder_media)
+        shutil.rmtree(context_folder_static)
         return True
     except Exception as e:
         print(e)

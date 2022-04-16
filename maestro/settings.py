@@ -212,3 +212,13 @@ LOGS_PATH = os.path.join(BASE_DIR, 'logs')
 MAPBOX_KEY = os.getenv('MAPBOX_KEY', '')
 
 ARCGIS_KEY = os.getenv('ARCGIS_KEY', '')
+
+if DEBUG:
+    STATICFILES_FINDERS = [
+        # Default
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        # Extra
+        # Allows to see images in the STATIC_ROOT folder when DEBUG=True
+        'common.static_root_finder.StaticRootFinder'
+    ]

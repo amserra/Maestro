@@ -267,8 +267,8 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
         context = super().get_context_data(**kwargs)
         search_context: SearchContext = self.get_object()
         if search_context.configuration.data_type == Configuration.IMAGES:
-            # Media folder where the thumbs are
-            folder = os.path.join(settings.MEDIA_ROOT, search_context.owner_code, search_context.code)
+            # Static folder where the thumbs are
+            folder = os.path.join(settings.STATIC_ROOT, search_context.owner_code, search_context.code)
             files = os.listdir(folder)
 
             # Pagination
@@ -301,11 +301,11 @@ def save_images_review(request, code):
 
     files = files.split(',')
 
-    media_folder = context.context_folder_media
+    static_folder = context.context_folder_static
     thumb_folder = os.path.join(context.context_folder, 'data', 'thumbs')
     original_folder = os.path.join(context.context_folder, 'data', 'full')
     for file in files:
-        os.remove(os.path.join(media_folder, file))
+        os.remove(os.path.join(static_folder, file))
         os.remove(os.path.join(thumb_folder, file))
         os.remove(os.path.join(original_folder, file))
 

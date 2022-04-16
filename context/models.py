@@ -184,8 +184,8 @@ class SearchContext(models.Model):
         return os.path.join(settings.CONTEXTS_DATA_DIR, self.owner_code, self.code)
 
     @property
-    def context_folder_media(self):
-        return os.path.join(settings.MEDIA_ROOT, self.owner_code, self.code)
+    def context_folder_static(self):
+        return os.path.join(settings.STATIC_ROOT, self.owner_code, self.code)
 
     @property
     def datastream(self):
@@ -340,7 +340,7 @@ class Data(models.Model):
 class ImageData(Data):
     data = models.FilePathField(max_length=200)
     data_thumb = models.FilePathField(max_length=200)
-    data_thumb_media = models.FilePathField(max_length=200)
+    data_thumb_static = models.FilePathField(max_length=200)
 
     @property
     def identifier(self):
