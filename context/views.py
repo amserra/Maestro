@@ -305,9 +305,21 @@ def save_images_review(request, code):
     thumb_folder = os.path.join(context.context_folder, 'data', 'thumbs')
     original_folder = os.path.join(context.context_folder, 'data', 'full')
     for file in files:
-        os.remove(os.path.join(static_folder, file))
-        os.remove(os.path.join(thumb_folder, file))
-        os.remove(os.path.join(original_folder, file))
+        original_folder_file_path = os.path.join(original_folder, file)
+        thumb_folder_file_path = os.path.join(thumb_folder, file)
+        static_folder_file_path = os.path.join(static_folder, file)
+
+        db_object = context.datastream.filter(data=original_folder_file_path)
+        if db_object.exists() and db_object.count() == 1:
+            db_object = db_object[0]
+            try:
+                os.remove(original_folder_file_path)
+                os.remove(thumb_folder_file_path)
+                os.remove(static_folder_file_path)
+                db_object.delete()
+            except Exception as ex:
+                print(ex)
+                messages.error(request, 'Something went wrong while saving. Please try again later.')
 
     messages.success(request, 'Alterations made successfully.')
     return redirect('contexts-review', code=context.code)

@@ -12,7 +12,8 @@ function acceptModal(el) {
     window[func](modal);
 }
 
-function openModal(modalId, acceptHandler, { title, subtitle, acceptButton, cancelButton }, arguments) {
+function openModal(modalId, acceptHandler, { title, subtitle, acceptButton, cancelButton, imageSrc }, arguments) {
+    console.log(imageSrc)
     const modal = document.getElementById(modalId);
     // Put dynamic parameters
     let titleElement = modal.querySelector("[name='title-text']");
@@ -23,6 +24,8 @@ function openModal(modalId, acceptHandler, { title, subtitle, acceptButton, canc
     if(acceptButtonElement && acceptButton) acceptButtonElement.innerHTML = acceptButton;
     let cancelButtonElement = modal.querySelector("[name='cancel-button-text']");
     if(cancelButtonElement && cancelButton) cancelButtonElement.innerHTML = cancelButton;
+    let imageElement = modal.querySelector("img");
+    if(imageElement) imageElement.src = imageSrc;
     // Append arguments to the modal
     Object.entries(arguments).forEach(
         ([key, value]) => modal.setAttribute(key, value)
