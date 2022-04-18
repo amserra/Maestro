@@ -10,10 +10,17 @@ def generate_json(classifiers, datastream, keep_null=True):
     for classifier in classifiers:
         classifier_name = classifier.name
         json_data[classifier_name] = {}
+        data_object_list = []
         for data in datastream:
             classification_result = data.classification_result
             if keep_null or (not keep_null and classification_result[classifier_name] is not None):
-                json_data[classifier_name][data.identifier] = classification_result[classifier_name]
+                json_data_object = {
+                    'name': data.identifier,
+                    'preview_url': data.thumb_url,
+                    'result': classification_result[classifier_name]
+                }
+                data_object_list.append(json_data_object)
+        json_data[classifier_name] = data_object_list
 
     return json_data
 

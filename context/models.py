@@ -346,5 +346,17 @@ class ImageData(Data):
     def identifier(self):
         return os.path.basename(self.data)
 
+    @property
+    def thumb_url(self):
+        rel_path = os.path.relpath(self.data_thumb_static, settings.BASE_DIR)
+        rel_path = rel_path.replace('data/thumbs/', '')
+        return f'{settings.DOMAIN}/{rel_path}'
+
+    @property
+    def thumb_url_base(self):  # thumb_url without the domain (use in templates)
+        rel_path = os.path.relpath(self.data_thumb_static, settings.BASE_DIR)
+        rel_path = rel_path.replace('data/thumbs/', '')
+        return f'/{rel_path}'
+
     def __str__(self):
         return f'Image data of context {self.context.code}: {os.path.basename(self.data)}'

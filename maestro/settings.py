@@ -19,8 +19,10 @@ DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 TEST = (os.getenv('TEST', 'False') == 'True')
 
 if DEBUG:
+    DOMAIN = 'localhost:8000'
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
+    DOMAIN = 'maestro-web.inesc-id.pt'
     ALLOWED_HOSTS = ['maestro-web.inesc-id.pt']
 
 ADMINS = [('Alexandre', os.getenv('ALEX_ADMIN_EMAIL'))]

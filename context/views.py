@@ -117,11 +117,11 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
         super().setup(request, *args, **kwargs)
         self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
         self.from_url = self.request.GET.get('from', None)
-        self.form = self.request.GET.get('form', None)
+        self.form = self.request.GET.get('form', 'essential')  # default is essential
 
         if (self.form == 'advanced' or self.form == 'fetch' or self.form == 'post-process' or self.form == 'filter' or self.form == 'classify' or self.form == 'provide') and self.context.configuration and self.context.configuration.advanced_configuration:
             self.object = self.context.configuration.advanced_configuration
-        elif (self.form == 'essential' or self.form is None) and self.context.configuration:
+        elif self.form == 'essential' and self.context.configuration:
             self.object = self.context.configuration
         else:
             self.object = None
@@ -267,9 +267,7 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
         context = super().get_context_data(**kwargs)
         search_context: SearchContext = self.get_object()
         if search_context.configuration.data_type == Configuration.IMAGES:
-            # Static folder where the thumbs are
-            folder = os.path.join(settings.STATIC_ROOT, search_context.owner_code, search_context.code)
-            files = os.listdir(folder)
+            files = [el.thumb_url_base for el in search_context.datastream.all()]
 
             # Pagination
             paginator = Paginator(files, 15)

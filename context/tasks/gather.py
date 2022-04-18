@@ -65,8 +65,8 @@ def run_default_gatherer(self, urls, context_id):
 
             objs = []
             for file in files:
-                file_path_in_thumb_static_folder = os.path.join(thumbs_folder, file)
-                shutil.copy2(file_path_in_thumb_static_folder, thumbs_static_folder)
+                file_path_in_thumb_folder = os.path.join(thumbs_folder, file)
+                shutil.copy2(file_path_in_thumb_folder, thumbs_static_folder)
                 # Add entries to DB
                 obj = ImageData.objects.filter(context=context, data=os.path.join(original_folder, file))
                 if not obj.exists():
@@ -74,7 +74,7 @@ def run_default_gatherer(self, urls, context_id):
                         context=context,
                         data=os.path.join(original_folder, file),
                         data_thumb=os.path.join(thumbs_folder, file),
-                        data_thumb_static=file_path_in_thumb_static_folder
+                        data_thumb_static=os.path.join(thumbs_static_folder, file)
                     ))
             ImageData.objects.bulk_create(objs)
 
