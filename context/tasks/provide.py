@@ -16,7 +16,7 @@ def generate_json(classifiers, datastream, keep_null=True):
             if keep_null or (not keep_null and classification_result[classifier_name] is not None):
                 json_data_object = {
                     'name': data.identifier,
-                    'preview_url': data.thumb_url,
+                    'preview_url': f'http://{data.thumb_url}',
                     'result': classification_result[classifier_name]
                 }
                 data_object_list.append(json_data_object)
@@ -27,7 +27,7 @@ def generate_json(classifiers, datastream, keep_null=True):
 
 def send_notification_email(context):
     mail_subject = 'Search context finished'
-    message = f'Hello. The search context \'{context.name}\' you created in Maestro has finished. The data has been sent to the remote server specified in the webhook configuration field.'
+    message = f'Hello. The search context \'{context.name}\' you created in Maestro has finished. The data has been sent to the remote server specified in the webhook configuration field. If you want to inspect this data manually, head to the Search Context details page and click \'Download results\''
     email = EmailMessage(mail_subject, message, to=[context.creator])
     email.send()
 

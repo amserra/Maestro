@@ -409,3 +409,71 @@ def rerun_from_stage(request, code):
 
     messages.success(request, f'Starting execution from {stage} stage.')
     return HttpResponse(status=200)
+
+
+class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView):
+    model = SearchContext
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
+    context_object_name = 'context'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        allowed_status = compare_status(self.context.status, SearchContext.FINISHED_PROVIDING)
+        if not allowed_status:
+            return redirect(to='/')
+
+    def get_template_names(self):
+        search_context = self.get_object()
+        if search_context.configuration.data_type == Configuration.IMAGES:
+            return ['context/results_detail_image.html']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        search_context: SearchContext = self.get_object()
+        if search_context.configuration.data_type == Configuration.IMAGES:
+            objects = search_context.datastream.all()
+
+            # Pagination
+            paginator = Paginator(objects, 10)
+            page_number = self.request.GET.get('page', None)
+            if page_number is not None:
+                page_obj = paginator.get_page(page_number)
+            else:
+                page_obj = paginator.get_page(1)
+
+            context['page_obj'] = page_obj
+            context['objects'] = page_obj.object_list
+        return context
+
+
+class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, DetailView):
+    model = SearchContext
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
+    context_object_name = 'context'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code', None))
+        self.obj = [el for el in self.context.datastream.all() if el.identifier == self.kwargs.get('objectId', None)]
+        if not self.obj:
+            return redirect(to='/')
+
+        self.obj = self.obj[0]
+
+        allowed_status = compare_status(self.context.status, SearchContext.FINISHED_PROVIDING)
+        if not allowed_status:
+            return redirect(to='/')
+
+    def get_template_names(self):
+        search_context = self.get_object()
+        if search_context.configuration.data_type == Configuration.IMAGES:
+            return ['context/object_detail_image.html']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['context'] = self.context
+        context['obj'] = self.obj
+        return context

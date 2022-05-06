@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Maestro | Results of '{{ context.code }}'
+{% endblock %}
+
+{% block content %}
+    {% get_static_prefix as static_prefix %}
+    <div class="page-container xl:w-3/4 min-h-45rem flex flex-col">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between items-center mb-10">
+                <div>
+                    <p class="title">Results</p>
+                    <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
+                    <p class="subtitle">Number of images: <span class="font-normal">{{ context.datastream.count }}</span></p>
+                </div>
+                <div class="flex gap-x-2">
+                    <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
+                    <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
+                </div>
+            </div>
+
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Image ID
+                        </th>
+                        {% for classifier in objects.0.classification_result %}
+                            <th scope="col" class="px-6 py-3">
+                                {{ classifier }}
+                            </th>
+                        {% endfor %}
+                        <th scope="col" class="px-6 py-3">
+                            <span class="sr-only">Preview</span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in objects %}
+                        <tr class="bg-white border-b hover:bg-gray-50">
+                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                <a href="{% url 'contexts-results-object' context.code obj.identifier %}" class="font-medium text-blue-500 hover:underline">{{ obj.identifier }}</a>
+                            </th>
+                            {% for classifier, result in obj.classification_result.items %}
+                                <td class="px-6 py-4">
+                                    {{ result }}
+                                </td>
+                            {% endfor %}
+                            <td class="px-6 py-4 text-right">
+                                <a target="_blank" href="http://{{ obj.thumb_url }}" class="font-medium text-cyan-700 hover:underline">Preview Image</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <div class="flex w-full justify-center mt-10">
+                {% include 'common/pagination.html' %}
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}

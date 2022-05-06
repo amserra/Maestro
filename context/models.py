@@ -24,7 +24,7 @@ class ImageConfiguration(models.Model):
 class AdvancedConfiguration(models.Model):
     DEFAULT_COUNTRY_OF_SEARCH = 'PT'
 
-    country_of_search = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default=DEFAULT_COUNTRY_OF_SEARCH, null=True)
+    country_of_search = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default=DEFAULT_COUNTRY_OF_SEARCH, null=True, blank=True)
     # freshness/date = ...
     seed_urls = ArrayField(models.URLField(), null=True)
     fetchers = models.ManyToManyField(to='Fetcher', blank=True)

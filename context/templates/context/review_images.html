@@ -20,7 +20,7 @@
                         {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
                             <a href="{% url 'contexts-review-complete' context.code %}" class="btn-success">Complete review</a>
                             <a onclick="handleSaveChanges()" class="btn-primary">Save changes</a>
-                            <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>
+{#                            <a href="{% url 'contexts-detail' context.code %}" class="btn-secondary">Get more data</a>#}
                         {% endif %}
                     {% endif %}
                     {% if request.META.HTTP_REFERER and not request.path in request.META.HTTP_REFERER %}

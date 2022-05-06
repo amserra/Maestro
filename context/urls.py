@@ -15,6 +15,8 @@ urlpatterns = [
     path('<str:code>/review/', views.SearchContextDataReviewView.as_view(), name='contexts-review'),
     path('<str:code>/review/save/', views.save_images_review, name='contexts-review-save'),
     path('<str:code>/review/complete/', views.complete_review, name='contexts-review-complete'),
+    path('<str:code>/results/', views.SearchContextDataReviewView.as_view(), name='contexts-results'),
+    path('<str:code>/results/<str:objectId>', views.SearchContextDataObjectReviewView.as_view(), name='contexts-results-object'),
     path('<str:code>/download-results/', views.download_results, name='contexts-download-results'),
     path('<str:code>/rerun/', views.rerun_from_stage, name='contexts-rerun'),
 ]
