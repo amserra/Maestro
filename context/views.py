@@ -17,7 +17,7 @@ from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, EssentialConfigurationForm, FetchingAndGatheringConfigurationForm, PostProcessingConfigurationForm, FilteringConfigurationForm, ClassificationConfigurationForm, ProvidingConfigurationForm
 from .helpers import get_user_search_contexts, compare_status, compare_status_leq
 from .models import SearchContext, Configuration, AdvancedConfiguration
-from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers, run_provider
+from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers, run_provider, handle_initial_datastream
 from django.contrib import messages
 from celery import chain
 from django.conf import settings
@@ -189,6 +189,18 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
             else:
                 self.context.configuration.advanced_configuration = advanced_configuration
                 self.context.configuration.save()
+
+            # Unzip file
+            if type(form).__name__ == FetchingAndGatheringConfigurationForm.__name__:
+                initial_datastream = self.context.configuration.advanced_configuration.initial_datastream
+                current_initial_datastream = None if initial_datastream is None or initial_datastream == '' else initial_datastream
+                new_initial_datastream = form.cleaned_data['initial_datastream']
+
+                if form.cleaned_data['initial_datastream'] and current_initial_datastream != new_initial_datastream:
+                    handle_initial_datastream.delay(self.context.id, self.context.configuration.advanced_configuration.initial_datastream.path)
+                elif form.cleaned_data['initial_datastream'] is None and current_initial_datastream is not None:
+                    # TODO: handle remove
+                    pass
         return super().form_valid(form)
 
 

@@ -21,9 +21,19 @@ class ImageConfiguration(models.Model):
     width = models.IntegerField(blank=True)
 
 
+def validate_file_extension(value):
+    import os
+    from django.core.exceptions import ValidationError
+    ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
+    valid_extensions = ['.zip']
+    if not ext.lower() in valid_extensions:
+        raise ValidationError('Unsupported file extension (please provide a zip).')
+
+
 class AdvancedConfiguration(models.Model):
     DEFAULT_COUNTRY_OF_SEARCH = 'PT'
 
+    initial_datastream = models.FileField(upload_to='initial_datastreams/', help_text='Only zips are accepted.', validators=[validate_file_extension], blank=True, null=True)
     country_of_search = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default=DEFAULT_COUNTRY_OF_SEARCH, null=True, blank=True)
     # freshness/date = ...
     seed_urls = ArrayField(models.URLField(), null=True)

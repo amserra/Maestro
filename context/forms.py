@@ -61,6 +61,7 @@ class TextInputWithMap(forms.TextInput):
 
 
 class FetchingAndGatheringConfigurationForm(forms.ModelForm):
+    initial_datastream = forms.FileField(required=False)
     country_of_search = forms.ChoiceField(choices=COUNTRY_CHOICES, required=False)
     seed_urls = DynamicArrayField(base_field=forms.URLField, required=False, help_text='The URLs you provide in this field will be crawled to find more results.', invalid_message='The element in the position %(nth)s has an invalid URL.')
     fetchers = forms.ModelMultipleChoiceField(queryset=Fetcher.objects.filter(is_active=True), required=False)
@@ -86,7 +87,7 @@ class FetchingAndGatheringConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = AdvancedConfiguration
-        fields = ['country_of_search', 'seed_urls', 'fetchers', 'yield_after_gathering_data']
+        fields = ['initial_datastream', 'country_of_search', 'seed_urls', 'fetchers', 'yield_after_gathering_data']
 
 
 class PostProcessingConfigurationForm(forms.ModelForm):

@@ -51,6 +51,14 @@
                 </h2>
                 <div id="accordion-flush-body-1" class="hidden" aria-labelledby="accordion-flush-heading-1">
                     <div class="py-5 border-b border-gray-200">
+                        {% if configuration.initial_datastream %}
+                            <div class="mt-6">
+                                <p class="text-lg text-blue-700">Initial datastream</p>
+                                <div class="flex flex-col mt-2">
+                                    <a href="{{ configuration.initial_datastream.url }}" class="font-light text-gray-600">{{ configuration.initial_datastream|filename }}</a>
+                                </div>
+                            </div>
+                        {% endif %}
                         {% if configuration.country_of_search %}
                             <div class="mt-6">
                                 <p class="text-lg text-blue-700">Country of search</p>

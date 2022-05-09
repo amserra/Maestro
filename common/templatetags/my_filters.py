@@ -1,3 +1,4 @@
+import os
 from django import template
 from django.conf import settings
 
@@ -52,3 +53,8 @@ def get_mapbox_key():
 @register.simple_tag
 def get_arcgis_key():
     return settings.ARCGIS_KEY
+
+
+@register.filter
+def filename(value):
+    return os.path.basename(value.file.name)

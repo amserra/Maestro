@@ -1,25 +1,42 @@
-<div class="relative w-20 h-20">
-    <input id="avatar-input" type="{{ widget.type }}" name="{{ widget.name }}" class="hidden" {% include "django/forms/widgets/attrs.html" %}>
-    <div id="avatar-div" class="h-full w-full rounded-full bg-cover bg-center bg-no-repeat absolute shadow flex items-center justify-center cursor-pointer transition-opacity duration-500 ease-out hover:opacity-60">
-        <img id="avatar-image" src="{{ widget.value.url }}" alt="" class="absolute z-0 h-full w-full object-cover rounded-full shadow top-0 left-0 bottom-0 right-0" />
-        <div class="absolute bg-black opacity-50 top-0 right-0 bottom-0 left-0 rounded-full z-0"></div>
-        <div class="flex flex-col justify-center items-center z-10 text-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.5" stroke="#F3F4F6" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
-            <p class="text-xs text-gray-100">Edit Picture</p>
+{% load my_filters %}
+
+{% if widget.name == 'avatar' %}
+    <div class="relative w-20 h-20">
+        <input id="avatar-input" type="{{ widget.type }}" name="{{ widget.name }}" class="hidden" {% include "django/forms/widgets/attrs.html" %}>
+        <div id="avatar-div" class="h-full w-full rounded-full bg-cover bg-center bg-no-repeat absolute shadow flex items-center justify-center cursor-pointer transition-opacity duration-500 ease-out hover:opacity-60">
+            <img id="avatar-image" src="{{ widget.value.url }}" alt="" class="absolute z-0 h-full w-full object-cover rounded-full shadow top-0 left-0 bottom-0 right-0" />
+            <div class="absolute bg-black opacity-50 top-0 right-0 bottom-0 left-0 rounded-full z-0"></div>
+            <div class="flex flex-col justify-center items-center z-10 text-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.5" stroke="#F3F4F6" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+                <p class="text-xs text-gray-100">Edit Picture</p>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const avatar_input = document.getElementById("avatar-input");
-    const avatar_image = document.getElementById("avatar-image");
-    const avatar_div = document.getElementById("avatar-div");
-    avatar_div.addEventListener("click", ev => avatar_input.click());
+    <script>
+        const avatar_input = document.getElementById("avatar-input");
+        const avatar_image = document.getElementById("avatar-image");
+        const avatar_div = document.getElementById("avatar-div");
+        avatar_div.addEventListener("click", ev => avatar_input.click());
 
-    avatar_input.addEventListener("change", ev => {
-        const m = new FileReader();
-        m.onload = (e) => avatar_image.src = e.target.result;
-        m.readAsDataURL(avatar_input.files[0]);
-        }
-    )
-</script>
+        avatar_input.addEventListener("change", ev => {
+            const m = new FileReader();
+            m.onload = (e) => avatar_image.src = e.target.result;
+            m.readAsDataURL(avatar_input.files[0]);
+            }
+        )
+    </script>
+{% else %}
+    {% if widget.is_initial %}
+        <p class="text-gray-900">Current: <a class="text-blue-700" href="{{ widget.value.url }}">{{ widget.value|filename }}</a></p>
+    {% endif %}
+    <div class="relative">
+        <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+        <div class="absolute right-2 top-2">
+            {% if not widget.required and widget.value %}
+                <input class="w-4 h-4 bg-gray-50 rounded border border-gray-300 focus:ring-blue-300 focus:ring-3 cursor-pointer" type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+                <label class="mb-2 text-sm font-medium text-gray-900" for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
