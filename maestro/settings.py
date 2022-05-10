@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'taggit',
     'django_filters',
     'django_celery_results',
-    'django_celery_beat',
     'debug_toolbar',
     'common',
     'account',
