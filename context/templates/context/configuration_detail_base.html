@@ -10,7 +10,9 @@
             </div>
             <div class="flex flex-row justify-between items-center">
                 <div class="mr-6">
-                    <p class="title">{{ context.name }}</p>
+                    {% block header %}
+                        <p class="title">{{ context.name }}</p>
+                    {% endblock header %}
                 </div>
                 <div>
                     {% block back-button %}

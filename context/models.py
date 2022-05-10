@@ -89,11 +89,15 @@ class Configuration(models.Model):
     SELECTABLE_DATA_TYPE_CHOICES = [
         (IMAGES, 'Images'),
     ]
+    REPEAT_UNITS = [('MIN', 'Minute(s)'), ('HOUR', 'Hour(s)'), ('DAY', 'Day(s)')]
 
     # Essential configuration
     search_string = models.CharField(max_length=50, help_text='This field should be similar to what you would input on a search engine.')  # Perhaps more than one search string allowed?
     keywords = TaggableManager(help_text='A comma-separated list of words. Think of them as hashtags.')
     data_type = models.CharField(max_length=10, choices=SELECTABLE_DATA_TYPE_CHOICES, help_text='Data type that will be gathered.')
+    # When to repeat
+    repeat_amount = models.IntegerField(null=True, blank=True, help_text='Amount of minutes/hours/days to iterate.')
+    repeat_unit = models.CharField(max_length=50, choices=REPEAT_UNITS, null=True, blank=True, help_text='Unit to iterate.')
 
     # Advanced configuration FK
     advanced_configuration = models.ForeignKey(to=AdvancedConfiguration, on_delete=models.SET_NULL, null=True)
@@ -135,6 +139,8 @@ class SearchContext(models.Model):
     PROVIDING = 'PROVIDING'
     FAILED_PROVIDING = 'FAILED PROVIDING'
     FINISHED_PROVIDING = 'FINISHED PROVIDING'
+    # Waiting iteration
+    WAITING_ITERATION = 'WAITING ITERATION'
     STATUS_CHOICES = [
         (NOT_CONFIGURED, 'Not configured'),
         (READY, 'Ready'),
@@ -164,6 +170,8 @@ class SearchContext(models.Model):
         (PROVIDING, 'Providing'),
         (FAILED_PROVIDING, 'Failed providing'),
         (FINISHED_PROVIDING, 'Finished providing'),
+        # Waiting iteration
+        (WAITING_ITERATION, 'Waiting for next iteration'),
     ]
 
     # Meta configurations
@@ -173,6 +181,7 @@ class SearchContext(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(to='account.User', on_delete=models.SET_NULL, null=True)
     status = models.CharField(max_length=30, choices=STATUS_CHOICES)
+    number_of_iterations = models.IntegerField(default=0)
 
     # Owner of search context (can be User or Organization)
     owner_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

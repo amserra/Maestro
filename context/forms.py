@@ -4,6 +4,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from common.forms import DynamicArrayField
+from .helpers import compare_status
 from .models import SearchContext, Configuration, Fetcher, Filter, AdvancedConfiguration, COUNTRY_CHOICES, PostProcessor, Classifier
 import re
 from django.utils import timezone
@@ -50,10 +51,28 @@ class SearchContextCreateForm(forms.ModelForm):
 
 
 class EssentialConfigurationForm(forms.ModelForm):
+    error_messages = {
+        'repeat_unit_required': 'Since you provided a repeat amount, you need to provide a repeat unit.',
+        'repeat_amount_required': 'Since you provided a repeat unit, you need to provide a repeat amount.',
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            if compare_status(self.instance.context.status, SearchContext.FETCHING_URLS):  # >= fetching urls
+                del self.fields['data_type']
+
+    def clean(self):
+        repeat_amount = self.cleaned_data['repeat_amount']
+        repeat_unit = self.cleaned_data['repeat_unit']
+        if repeat_amount is not None and repeat_unit is None:
+            self.add_error('repeat_unit', self.error_messages['repeat_unit_required'])
+        elif repeat_amount is None and repeat_unit is not None:
+            self.add_error('repeat_amount', self.error_messages['repeat_amount_required'])
 
     class Meta:
         model = Configuration
-        fields = ['search_string', 'keywords', 'data_type']
+        fields = ['search_string', 'keywords', 'data_type', 'repeat_amount', 'repeat_unit']
 
 
 class TextInputWithMap(forms.TextInput):

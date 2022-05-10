@@ -35,6 +35,7 @@ alias dumpdata=dumpDataFunc;
 alias startRabbitmq="brew services start rabbitmq";
 alias stopRabbitmq="brew services stop rabbitmq";
 alias runCelery="celery -A maestro worker -l INFO";
+alias runCeleryBeat="celery -A maestro beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler";
 
 # Docs: start sphinx live server
 alias sphinxLive="sphinx-reload docs/";

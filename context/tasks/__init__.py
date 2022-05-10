@@ -17,5 +17,5 @@ __all__ = [
     'run_filters',
     'run_classifiers',
     'run_provider',
-    'handle_initial_datastream'
+    'handle_initial_datastream',
 ]
