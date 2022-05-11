@@ -335,9 +335,12 @@ class Classifier(models.Model):
 
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
+    source_url = models.URLField()
     type = models.CharField(max_length=20, choices=CLASSIFIER_TYPE)
     data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
     path = models.FilePathField(path=classifiers_path, recursive=True)
+    return_type = models.CharField(max_length=20, choices=(('INT', 'Integer'), ('STR', 'String')))
+    return_choices = models.TextField()
 
     def __str__(self):
         return self.name

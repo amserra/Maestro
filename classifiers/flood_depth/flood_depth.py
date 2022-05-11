@@ -65,7 +65,7 @@ def pre_process_img(img):
 
 
 def main(image_path):
-    weights_path = "classifiers/flood_depth/weights.hdf5"
+    weights_path = os.path.join('classifiers', 'flood_depth', 'weights.hdf5')
     g_model = load_model_from_path(weights_path)
 
     predictions = g_model.predict(pre_process_img(image_path), batch_size=1)
