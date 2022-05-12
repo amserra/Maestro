@@ -2,24 +2,40 @@
 {% load static %}
 
 {% block title %}
-    Maestro | Results of '{{ context.code }}'
+    Maestro | {{ title }} of '{{ context.code }}'
 {% endblock %}
 
 {% block content %}
     {% get_static_prefix as static_prefix %}
     <div class="page-container xl:w-3/4 min-h-45rem flex flex-col">
         <div class="xl:w-full">
-            <div class="flex flex-row justify-between items-center mb-10">
+            <div class="flex flex-row justify-between items-center mb-6">
                 <div>
-                    <p class="title">Results</p>
+                    <p class="title">{{ title }}</p>
                     <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
                     <p class="subtitle">Number of images: <span class="font-normal">{{ context.datastream.count }}</span></p>
                 </div>
                 <div class="flex gap-x-2">
-                    <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
+                    {% if context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 0 %}
+                        <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
+                        <a href="{% url 'contexts-download-images' context.code %}" class="btn-secondary">Download images</a>
+                    {% endif %}
                     <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
                 </div>
             </div>
+
+            {% if context.status != 'WAITING' %}
+                <div class="mb-10">
+                    <ul class="flex flex-wrap border-b border-gray-200">
+                        <li class="mr-2">
+                            <a href="{% url 'contexts-results' context.code %}?view_type=grid" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg {% if view_type == 'grid' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Grid</a>
+                        </li>
+                        <li class="mr-2">
+                            <a href="{% url 'contexts-results' context.code %}?view_type=list" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg {% if view_type == 'list' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">List</a>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
 
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table class="w-full text-sm text-left text-gray-500">

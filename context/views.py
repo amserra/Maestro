@@ -1,5 +1,8 @@
 from __future__ import annotations
+
+import io
 import os
+from zipfile import ZipFile
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -266,23 +269,24 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
         self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        self.view_type = self.request.GET.get('type', 'grid')
         allowed_status = compare_status(self.context.status, SearchContext.WAITING_DATA_REVISION)
-        if not allowed_status:
+        if not allowed_status or self.context.number_of_iterations == 0:
             return redirect(to='/')
 
     def get_template_names(self):
         search_context = self.get_object()
         if search_context.configuration.data_type == Configuration.IMAGES:
-            return ['context/review_images.html']
+            return ['context/results_grid_image.html'] if self.view_type == 'grid' else ['context/results_list_image.html']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         search_context: SearchContext = self.get_object()
         if search_context.configuration.data_type == Configuration.IMAGES:
-            files = [el.thumb_url_base for el in search_context.datastream.all()]
+            objects = search_context.datastream.all()
 
             # Pagination
-            paginator = Paginator(files, 15)
+            paginator = Paginator(objects, 15)
             page_number = self.request.GET.get('page', None)
             if page_number is not None:
                 page_obj = paginator.get_page(page_number)
@@ -290,7 +294,9 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
                 page_obj = paginator.get_page(1)
 
             context['page_obj'] = page_obj
-            context['files'] = page_obj.object_list
+            context['objects'] = page_obj.object_list
+            context['title'] = 'Gathered data' if self.context.status == SearchContext.WAITING_DATA_REVISION else 'Results'
+            context['view_type'] = self.view_type
         return context
 
 
@@ -332,7 +338,7 @@ def save_images_review(request, code):
                 messages.error(request, 'Something went wrong while saving. Please try again later.')
 
     messages.success(request, 'Alterations made successfully.')
-    return redirect('contexts-review', code=context.code)
+    return redirect('contexts-results', code=context.code)
 
 
 @login_required
@@ -369,7 +375,7 @@ class PipelineProcessDetail(LoginRequiredMixin, UserHasAccess, DetailView):
 def download_results(request, code):
     context = get_object_or_404(SearchContext, code=code)
 
-    if context.status != SearchContext.FINISHED_PROVIDING:
+    if context.status != SearchContext.FINISHED_PROVIDING and context.number_of_iterations == 0:
         return HttpResponseBadRequest()
 
     if not context.configuration.advanced_configuration or not context.configuration.advanced_configuration.classifiers:
@@ -383,6 +389,31 @@ def download_results(request, code):
     return HttpResponse(json_obj, headers={
         'Content-Type': 'application/json',
         'Content-Disposition': 'attachment; filename="results.json"'
+    })
+
+
+@login_required
+@user_has_access
+def download_images(request, code):
+    context = get_object_or_404(SearchContext, code=code)
+
+    if context.status != SearchContext.FINISHED_PROVIDING and context.number_of_iterations == 0:
+        return HttpResponseBadRequest()
+
+    if not context.configuration.advanced_configuration or not context.configuration.advanced_configuration.classifiers:
+        return HttpResponseBadRequest()
+
+    filtered_datastream = context.datastream.filter(filtered=False)
+    images = [obj.data for obj in filtered_datastream]
+
+    zip_buffer = io.BytesIO()
+    with ZipFile(zip_buffer, 'w') as zip_file:
+        for file in images:
+            zip_file.write(filename=file, arcname=os.path.basename(file))
+
+    return HttpResponse(zip_buffer.getvalue(), headers={
+        'Content-Type': 'application/zip',
+        'Content-Disposition': 'attachment; filename=images.zip'
     })
 
 
@@ -423,43 +454,6 @@ def rerun_from_stage(request, code):
     return HttpResponse(status=200)
 
 
-class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView):
-    model = SearchContext
-    slug_field = 'code'
-    slug_url_kwarg = 'code'
-    context_object_name = 'context'
-
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
-        allowed_status = compare_status(self.context.status, SearchContext.FINISHED_PROVIDING)
-        if not allowed_status:
-            return redirect(to='/')
-
-    def get_template_names(self):
-        search_context = self.get_object()
-        if search_context.configuration.data_type == Configuration.IMAGES:
-            return ['context/results_detail_image.html']
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        search_context: SearchContext = self.get_object()
-        if search_context.configuration.data_type == Configuration.IMAGES:
-            objects = search_context.datastream.all()
-
-            # Pagination
-            paginator = Paginator(objects, 10)
-            page_number = self.request.GET.get('page', None)
-            if page_number is not None:
-                page_obj = paginator.get_page(page_number)
-            else:
-                page_obj = paginator.get_page(1)
-
-            context['page_obj'] = page_obj
-            context['objects'] = page_obj.object_list
-        return context
-
-
 class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, DetailView):
     model = SearchContext
     slug_field = 'code'
@@ -467,10 +461,11 @@ class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, Detai
     context_object_name = 'context'
 
     def setup(self, request, *args, **kwargs):
+        print("1")
         super().setup(request, *args, **kwargs)
         self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code', None))
         self.obj = [el for el in self.context.datastream.all() if el.identifier == self.kwargs.get('objectId', None)]
-        if not self.obj:
+        if not self.obj or len(self.obj) == 0 or self.context.number_of_iterations == 0:
             return redirect(to='/')
 
         self.obj = self.obj[0]

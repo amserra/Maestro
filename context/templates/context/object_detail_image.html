@@ -19,33 +19,40 @@
                 </div>
             </div>
             {# Details#}
-            <div>
-                <p class="text-2xl text-blue-700">Object ID</p>
-                <p class="text-xl font-light text-gray-600">{{ obj.identifier }}</p>
-            </div>
-            <div class="mt-6">
-                <p class="text-2xl text-blue-700">Added at</p>
-                <p class="text-xl font-light text-gray-600">{{ obj.add_date|date:'F jS, Y, G:i' }}</p>
-            </div>
-            <div class="mt-6">
-                <p class="text-2xl text-blue-700">Metadata</p>
-                {% for key, value in obj.metadata.items %}
-                    <p class="text-xl font-light text-gray-600"><span class="text-blue-600">{{ key }}: </span>{{ value }}</p>
-                {% empty %}
-                    <p class="text-xl font-light text-gray-600">No metadata extracted</p>
-                {% endfor %}
-            </div>
-            <div class="mt-6">
-                <p class="text-2xl text-blue-700">Was filtered</p>
-                <p class="text-xl font-light text-gray-600">{{ obj.filtered|yesno:"Yes,No" }}</p>
-            </div>
-            <div class="mt-6">
-                <p class="text-2xl text-blue-700">Classification results</p>
-                {% for key, value in obj.classification_result.items %}
-                    <p class="text-xl font-light text-gray-600"><span class="text-blue-600">{{ key }}: </span>{{ value }}</p>
-                {% empty %}
-                    <p class="text-xl font-light text-gray-600">No classification results</p>
-                {% endfor %}
+            <div class="flex flex-col lg:flex-row gap-10 lg:gap-24">
+                <div>
+                    <div>
+                        <p class="text-2xl text-blue-700">Object ID</p>
+                        <p class="text-xl font-light text-gray-600">{{ obj.identifier }}</p>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-2xl text-blue-700">Added at</p>
+                        <p class="text-xl font-light text-gray-600">{{ obj.add_date|date:'F jS, Y, G:i' }}</p>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-2xl text-blue-700">Metadata</p>
+                        {% for key, value in obj.metadata.items %}
+                            <p class="text-xl font-light text-gray-600"><span class="text-blue-600">{{ key }}: </span>{{ value }}</p>
+                        {% empty %}
+                            <p class="text-xl font-light text-gray-600">No metadata extracted</p>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-2xl text-blue-700">Was filtered</p>
+                        <p class="text-xl font-light text-gray-600">{{ obj.filtered|yesno:"Yes,No" }}</p>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-2xl text-blue-700">Classification results</p>
+                        {% for key, value in obj.classification_result.items %}
+                            <p class="text-xl font-light text-gray-600"><span class="text-blue-600">{{ key }}: </span>{{ value }}</p>
+                        {% empty %}
+                            <p class="text-xl font-light text-gray-600">No classification results</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="max-w-lg self-center">
+                    <img class="object-cover object-center rounded-sm" src="{{ obj.thumb_url_base }}">
+                </div>
             </div>
         </div>
 

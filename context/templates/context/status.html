@@ -57,7 +57,7 @@
             <li data-content="" class="step">
                 <div class="mt-2 flex flex-col">
                     <p>Review data</p>
-                    <a href="{% url 'contexts-review' context.code %}" class="text-blue-700 hover:underline invisible">Details</a>
+                    <a href="{% url 'contexts-results' context.code %}" class="text-blue-700 hover:underline invisible">Details</a>
                     <button
                         onclick="
                         openModal(
@@ -136,7 +136,7 @@
         {# Only display if in waiting stage #}
         <div class="mt-10 text-center bg-gray-200 rounded-lg p-6 hidden" id="review-block">
             <p class="text-yellow-400 font-bold text-lg">Attention necessary</p>
-            <p class="mt-6">Please click <a class="underline underline-offset-1 hover:text-yellow-700" href="{% url 'contexts-review' context.code %}">here</a> to review the data in order to continue the process.</p>
+            <p class="mt-6">Please click <a class="underline underline-offset-1 hover:text-yellow-700" href="{% url 'contexts-results' context.code %}">here</a> to review the data in order to continue the process.</p>
         </div>
     </div>
 {% include 'common/confirmation-modal.html' with id='modal-rerun' %}

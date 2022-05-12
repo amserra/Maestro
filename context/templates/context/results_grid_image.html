@@ -2,20 +2,23 @@
 {% load static %}
 
 {% block title %}
-    Maestro | Review '{{ context.code }}' images
+    Maestro | {{ title }} of '{{ context.code }}'
 {% endblock %}
 
 {% block content %}
-    {% get_static_prefix as static_prefix %}
     <div class="page-container xl:w-3/4 min-h-45rem flex flex-col">
         <div class="xl:w-full">
             <div class="flex flex-row justify-between items-center">
                 <div>
-                    <p class="title">Gathered data</p>
+                    <p class="title">{{ title }}</p>
                     <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
                     <p class="subtitle">Number of images: <span class="font-normal">{{ context.datastream.count }}</span></p>
                 </div>
                 <div class="flex gap-x-2">
+                    {% if context.status == 'FINISHED_PROVIDING' or context.number_of_iterations > 0 %}
+                        <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
+                        <a href="{% url 'contexts-download-images' context.code %}" class="btn-secondary">Download images</a>
+                    {% endif %}
                     {% if context.status == 'WAITING' %}
                         {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
                             <a href="{% url 'contexts-review-complete' context.code %}" class="btn-success">Complete review</a>
@@ -30,36 +33,44 @@
                     {% endif %}
                 </div>
             </div>
+
+            {% if context.status != 'WAITING' %}
+                <div class="mt-6 mb-10">
+                    <ul class="flex flex-wrap border-b border-gray-200">
+                        <li class="mr-2">
+                            <a href="{% url 'contexts-results' context.code %}?type=grid" aria-current="page" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg {% if view_type == 'grid' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">Grid</a>
+                        </li>
+                        <li class="mr-2">
+                            <a href="{% url 'contexts-results' context.code %}?type=list" class="inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg {% if view_type == 'list' %}text-blue-600 bg-gray-100 active{% else %}text-gray-500 hover:text-gray-600 hover:bg-gray-50{% endif %}">List</a>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+
             <div class="mt-10 grid grid-cols-3 xl:grid-cols-5 gap-4 justify-items-center">
                 {% csrf_token %}
-                {% for file in files %}
+                {% for file in objects %}
                     <div class="w-40 h-40 border-2 border-gray-300 rounded-md bg-gray-200 shadow relative">
-                        <div class="w-36 h-36 flex content-start gap-2 m-auto absolute top-0 left-0 right-0 bottom-0">
+                        <div class="w-36 h-36 flex {% if context.status != 'WAITING' %}flex-col{% endif %} content-start gap-2 m-auto absolute top-0 left-0 right-0 bottom-0">
                             {% if context.status == 'WAITING' %}
-                                <img class="object-cover object-center w-30 h-full rounded-sm" src="{{ file }}" alt="image">
+                                <img class="object-cover object-center w-30 h-full rounded-sm" src="{{ file.thumb_url_base }}" alt="image">
                                 <div class="opacity-0 hover:opacity-100 duration-300 absolute inset-0 z-10 flex justify-center items-center hover:cursor-pointer"
                                     onclick="openModal(
                                                 'modal-image',
                                                 ()=> {},
-                                                {imageSrc: '{{ file }}'},
+                                                {imageSrc: '{{ file.thumb_url_base }}'},
                                                 {}
                                                 )">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-1/2 h-1/2" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="7" y1="10" x2="13" y2="10" /><line x1="10" y1="7" x2="10" y2="13" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
                                 </div>
+                            {% else %}
+                                <img class="object-cover object-center w-full h-28 rounded-sm" src="{{ file.thumb_url_base }}" alt="image">
+                                <a href="{% url 'contexts-results-object' context.code file.identifier %}" class="inline-block text-center text-blue-600 hover:underline">More details</a>
+                            {% endif %}
+                            {% if context.status == 'WAITING' %}
                                 {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}
                                     <input onclick="handleCheckboxClick(this)" type="checkbox" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 z-20" checked>
                                 {% endif %}
-                            {% else %}
-                                <img class="object-cover object-center w-30 h-full rounded-sm" src="{{ file }}" alt="image">
-                                <div class="opacity-0 hover:opacity-100 duration-300 absolute inset-0 z-10 flex justify-center items-center hover:cursor-pointer"
-                                    onclick="openModal(
-                                                'modal-image',
-                                                ()=> {},
-                                                {imageSrc: '{{ file }}'},
-                                                {}
-                                                )">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-1/2 h-1/2" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="7" y1="10" x2="13" y2="10" /><line x1="10" y1="7" x2="10" y2="13" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
-                                </div>
                             {% endif %}
                         </div>
                     </div>
