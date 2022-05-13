@@ -9,6 +9,9 @@ def run_classifiers(self, filter_result, context_id):
     stage = 'classify'
     context = SearchContext.objects.get(id=context_id)
 
+    if context.is_stopped:
+        return False
+
     if filter_result is not True:
         return False
 

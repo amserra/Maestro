@@ -20,6 +20,9 @@ def run_filters(self, post_process_result, context_id):
     stage = 'filter'
     context = SearchContext.objects.get(id=context_id)
 
+    if context.is_stopped:
+        return False
+
     if post_process_result is not True:  # something went wrong on the post-processors stage
         return False
 

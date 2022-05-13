@@ -40,8 +40,13 @@
                         {% endif %}
                         <a href="{% url 'contexts-status' context.code %}" class="btn-secondary">Progress</a>
                     {% endif %}
+                    {% if not context.is_stopped and context.status != 'WAITING' %}
+                        <a href="{% url 'contexts-stop' context.code %}" class="btn-danger">Stop</a>
+                    {% endif %}
                 {% endif %}
-                <a href="{% url 'contexts-configuration-update' context.code %}?form={{ request.GET.page|default:'essential' }}&from={{ request.get_full_path }}" class="btn-primary">Configure</a>
+                {% if context.is_stopped %}
+                    <a href="{% url 'contexts-configuration-update' context.code %}?form={{ request.GET.page|default:'essential' }}&from={{ request.get_full_path }}" class="btn-primary">Configure</a>
+                {% endif %}
                 <a  href="#"
                     onclick="
                             openModal(

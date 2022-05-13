@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import io
 import os
 from zipfile import ZipFile
@@ -23,7 +22,6 @@ from .models import SearchContext, Configuration, AdvancedConfiguration
 from .tasks import delete_context_folder, create_context_folder, run_fetchers, run_default_gatherer, run_post_processors, run_filters, run_classifiers, run_provider, handle_initial_datastream
 from django.contrib import messages
 from celery import chain
-from django.conf import settings
 import json
 import ast
 from .tasks.helpers import read_log
@@ -228,6 +226,8 @@ def search_context_start(request, code):
     if context.status != SearchContext.READY:
         return HttpResponseBadRequest()
 
+    context.is_stopped = False
+    context.save()
     chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     messages.success(request, 'Search context execution started successfully.')
 
@@ -350,6 +350,8 @@ def complete_review(request, code):
     if context.status != SearchContext.WAITING_DATA_REVISION:
         return HttpResponseBadRequest()
 
+    context.is_stopped = False
+    context.save()
     chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
     messages.success(request, 'Process underway.')
     return redirect('contexts-detail', code=context.code)
@@ -450,6 +452,8 @@ def rerun_from_stage(request, code):
     else:
         return HttpResponseBadRequest()
 
+    context.is_stopped = False
+    context.save()
     messages.success(request, f'Starting execution from {stage} stage.')
     return HttpResponse(status=200)
 
@@ -461,7 +465,6 @@ class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, Detai
     context_object_name = 'context'
 
     def setup(self, request, *args, **kwargs):
-        print("1")
         super().setup(request, *args, **kwargs)
         self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code', None))
         self.obj = [el for el in self.context.datastream.all() if el.identifier == self.kwargs.get('objectId', None)]
@@ -484,3 +487,13 @@ class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, Detai
         context['context'] = self.context
         context['obj'] = self.obj
         return context
+
+
+@login_required
+@user_can_edit
+def stop_execution(request, code):
+    context = get_object_or_404(SearchContext, code=code)
+    context.is_stopped = True
+    context.save()
+
+    return redirect('contexts-detail', code=context.code)

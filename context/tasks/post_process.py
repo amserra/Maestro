@@ -9,6 +9,9 @@ def run_post_processors(self, gather_result, context_id):
     stage = 'post_process'
     context = SearchContext.objects.get(id=context_id)
 
+    if context.is_stopped:
+        return False
+
     if gather_result is not True:
         return False
 

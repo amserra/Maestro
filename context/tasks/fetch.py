@@ -49,6 +49,10 @@ def run_fetchers(self, context_id):
     list_of_urls = []
 
     context = SearchContext.objects.get(id=context_id)
+
+    if context.is_stopped:
+        return False
+
     change_status(SearchContext.FETCHING_URLS, context, stage, 'Started fetching URLs', True)
 
     configuration = context.configuration

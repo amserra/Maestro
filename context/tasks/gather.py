@@ -14,6 +14,9 @@ def run_default_gatherer(self, urls, context_id):
     stage = 'gather'
     context = SearchContext.objects.get(id=context_id)
 
+    if context.is_stopped:
+        return False
+
     if len(urls) == 0:
         change_status(SearchContext.FAILED_GATHERING_DATA, context, stage, '[ERROR] No URLs returned from the fetching stage', True)
         return False
@@ -82,6 +85,8 @@ def run_default_gatherer(self, urls, context_id):
 
     if context.configuration.advanced_configuration and context.configuration.advanced_configuration.yield_after_gathering_data:
         change_status(SearchContext.WAITING_DATA_REVISION, context, stage, f'The user should now review the obtained dataset')
+        context.is_stopped = True
+        context.save()
         return False
     else:
         write_log(context, stage, 'Continuing process. Following stage is post-processing')

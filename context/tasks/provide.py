@@ -37,6 +37,9 @@ def run_provider(self, classification_result, context_id):
     stage = 'provide'
     context = SearchContext.objects.get(id=context_id)
 
+    if context.is_stopped:
+        return False
+
     if classification_result is not True:  # something went wrong on the classification stage
         return False
 

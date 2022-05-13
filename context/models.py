@@ -181,6 +181,7 @@ class SearchContext(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(to='account.User', on_delete=models.SET_NULL, null=True)
     status = models.CharField(max_length=30, choices=STATUS_CHOICES)
+    is_stopped = models.BooleanField(default=True)
     number_of_iterations = models.IntegerField(default=0)
 
     # Owner of search context (can be User or Organization)
