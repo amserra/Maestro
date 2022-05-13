@@ -10,6 +10,7 @@ urlpatterns = [
     path('<str:code>/configuration/update/', views.SearchContextConfigurationCreateOrUpdateView.as_view(), name='contexts-configuration-update'),
     path('<str:code>/delete/', views.search_context_delete, name='contexts-delete'),
     path('<str:code>/start/', views.search_context_start, name='contexts-start'),
+    path('<str:code>/resume/', views.resume_execution, name='contexts-resume'),
     path('<str:code>/stop/', views.stop_execution, name='contexts-stop'),
     path('<str:code>/status/', views.SearchContextStatusView.as_view(), name='contexts-status'),
     path('<str:code>/status/task/<str:task>/', views.PipelineProcessDetail.as_view(), name='task-status'),

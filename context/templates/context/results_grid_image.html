@@ -50,8 +50,8 @@
             <div class="mt-10 grid grid-cols-3 xl:grid-cols-5 gap-4 justify-items-center">
                 {% csrf_token %}
                 {% for file in objects %}
-                    <div class="w-40 h-40 border-2 border-gray-300 rounded-md bg-gray-200 shadow relative">
-                        <div class="w-36 h-36 flex {% if context.status != 'WAITING' %}flex-col{% endif %} content-start gap-2 m-auto absolute top-0 left-0 right-0 bottom-0">
+                    <div class="w-40 h-52 border-2 border-gray-300 rounded-md bg-gray-200 shadow relative">
+                        <div class="w-36 h-48 flex {% if context.status != 'WAITING' %}flex-col{% endif %} content-start gap-2 m-auto absolute top-0 left-0 right-0 bottom-0">
                             {% if context.status == 'WAITING' %}
                                 <img class="object-cover object-center w-30 h-full rounded-sm" src="{{ file.thumb_url_base }}" alt="image">
                                 <div class="opacity-0 hover:opacity-100 duration-300 absolute inset-0 z-10 flex justify-center items-center hover:cursor-pointer"
@@ -65,7 +65,10 @@
                                 </div>
                             {% else %}
                                 <img class="object-cover object-center w-full h-28 rounded-sm" src="{{ file.thumb_url_base }}" alt="image">
-                                <a href="{% url 'contexts-results-object' context.code file.identifier %}" class="inline-block text-center text-blue-600 hover:underline">More details</a>
+                                <a href="{% url 'contexts-results-object' context.code file.identifier %}" class="inline-block text-center text-blue-600 hover:underline">Details</a>
+                                {% for classifier, value in file.classification_result.items %}
+                                    <p class="text-xs"><span class="text-green-600">{{ classifier }}</span>: {{ value }}</p>
+                                {% endfor %}
                             {% endif %}
                             {% if context.status == 'WAITING' %}
                                 {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}

@@ -42,6 +42,8 @@
                     {% endif %}
                     {% if not context.is_stopped and context.status != 'WAITING' %}
                         <a href="{% url 'contexts-stop' context.code %}" class="btn-danger">Stop</a>
+                    {% elif context.is_stopped and context.status != 'READY' and context.status != 'NOT CONFIGURED' %}
+                        <a href="{% url 'contexts-resume' context.code %}" class="btn-success">Resume</a>
                     {% endif %}
                 {% endif %}
                 {% if context.is_stopped %}

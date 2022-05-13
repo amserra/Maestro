@@ -496,4 +496,36 @@ def stop_execution(request, code):
     context.is_stopped = True
     context.save()
 
+    messages.info(request, 'The execution has been stopped')
+    return redirect('contexts-detail', code=context.code)
+
+
+@login_required
+@user_can_edit
+def resume_execution(request, code):
+    context = get_object_or_404(SearchContext, code=code)
+    context.is_stopped = False
+    context.save()
+
+    status = context.status
+    if SearchContext.FETCHING_URLS in status:
+        chain(run_fetchers.s(context.id), run_default_gatherer.s(context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
+    elif SearchContext.GATHERING_DATA in status:
+        try:
+            with open(f'{context.context_folder}/urls.txt', 'r') as f:
+                urls_list_str = f.read()
+            urls_list = ast.literal_eval(urls_list_str)
+            chain(run_default_gatherer.s(urls_list, context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
+        except:
+            chain(run_default_gatherer.s([], context.id), run_post_processors.s(context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
+    elif SearchContext.POST_PROCESSING in status:
+        chain(run_post_processors.s(True, context.id), run_filters.s(context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
+    elif SearchContext.FILTERING in status:
+        chain(run_filters.s(True, context.id), run_classifiers.s(context.id), run_provider.s(context.id)).apply_async()
+    elif SearchContext.CLASSIFYING in status:
+        chain(run_classifiers.s(True, context.id), run_provider.s(context.id)).apply_async()
+    elif SearchContext.PROVIDING in status:
+        run_provider.delay(True, context.id)
+
+    messages.success(request, 'The execution has been resumed')
     return redirect('contexts-detail', code=context.code)
