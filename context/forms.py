@@ -58,7 +58,8 @@ class EssentialConfigurationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance:
+
+        if self.instance and self.instance.context:
             if compare_status(self.instance.context.status, SearchContext.FETCHING_URLS):  # >= fetching urls
                 del self.fields['data_type']
 

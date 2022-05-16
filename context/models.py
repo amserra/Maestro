@@ -104,7 +104,7 @@ class Configuration(models.Model):
 
     @property
     def context(self):
-        return self.searchcontext_set.all()[0]
+        return self.searchcontext_set.first()
 
     def __str__(self):
         return f'{self.context}\'s configuration'

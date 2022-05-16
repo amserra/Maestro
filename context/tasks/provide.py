@@ -17,7 +17,8 @@ def generate_json(classifiers, datastream, keep_null=True):
                 json_data_object = {
                     'name': data.identifier,
                     'preview_url': f'http://{data.thumb_url}',
-                    'result': classification_result[classifier_name]
+                    'result': classification_result[classifier_name],
+                    'datetime': data.metadata.get('datetime', '') if data.metadata else ''
                 }
                 data_object_list.append(json_data_object)
         json_data[classifier_name] = data_object_list
@@ -43,7 +44,7 @@ def run_provider(self, classification_result, context_id):
     if classification_result is not True:  # something went wrong on the classification stage
         return False
 
-    datastream = context.datastream
+    datastream = context.datastream.filter(filtered=False)
     advanced_configuration = context.configuration.advanced_configuration
 
     if advanced_configuration is None or (advanced_configuration is not None and advanced_configuration.webhook is None):

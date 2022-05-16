@@ -9,12 +9,13 @@ from PIL import Image
 
 def generate_thumbnail(image_path, dest_folder):
     image_name = os.path.basename(image_path)
+    dest_image_path = os.path.join(dest_folder, image_name)
     try:
         image = Image.open(image_path)
         image.thumbnail(THUMB_SIZE)
-        image.save(os.path.join(dest_folder, image_name))
-    except IOError:
-        pass
+        image.save(dest_image_path)
+    except IOError as ex:
+        print(ex)
 
 
 @app.task(bind=True)
@@ -29,14 +30,16 @@ def handle_initial_datastream(self, context_id, initial_datastream):
     with zipfile.ZipFile(initial_datastream, 'r') as zip_ref:
         zip_ref.extractall(dest_folder)
 
-    # Generate thumbnails
+    # Generate thumbnails and put in static folder
     thumb_folder = os.path.join(context_folder, 'data', 'thumbs')
+    os.makedirs(thumb_folder, exist_ok=True)
+    os.makedirs(context_folder_static, exist_ok=True)
     for file_name in zip_files_names:
         file_path = os.path.join(dest_folder, file_name)
         thumb_path = os.path.join(thumb_folder, file_name)
         static_path = os.path.join(context_folder_static, file_name)
 
-        generate_thumbnail(os.path.join(dest_folder, file_name), thumb_folder)
+        generate_thumbnail(image_path=file_path, dest_folder=thumb_folder)
         # Copy to static folder
         shutil.copy(os.path.join(thumb_folder, file_name), context_folder_static)
         # Create data objects

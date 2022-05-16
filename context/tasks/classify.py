@@ -47,21 +47,20 @@ def run_classifiers(self, filter_result, context_id):
                     break
 
                 try:
-                    write_log(context, stage, f'Classifying {data.identifier} ({index+1}/{datastream_size})')
-                    result = classifier_script.main(data.data)
-                    write_log(context, stage, f'Classification {data.identifier} result: {result}')
-                    classified_count += 1
-
                     classification_result = data.classification_result
-                    if classification_result is None:
+                    write_log(context, stage, f'Classifying {data.identifier} ({index + 1}/{datastream_size})')
+
+                    if classification_result is None or classification_result[classifier.name] is None:
+                        result = classifier_script.main(data.data)
+                        write_log(context, stage, f'Classification {data.identifier} result: {result}')
+                        classified_count += 1
+
                         data.classification_result = {classifier.name: result}
                         data.save()
+                        write_log(context, stage, f'Saved classification of {data.identifier} result')
                     else:
-                        classification_result[classifier.name] = result
-                        data.classification_result = classification_result
-                        data.save()
+                        write_log(context, stage, f'Object {data.identifier} was already classified')
 
-                    write_log(context, stage, f'Saved classification of {data.identifier} result')
                 except Exception as ex:
                     failures += 1
                     write_log(context, stage, f'[ERROR] Classifier failed on {data.identifier}. Continuing...')

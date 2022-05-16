@@ -202,6 +202,7 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
                 elif form.cleaned_data['initial_datastream'] is None and current_initial_datastream is not None:
                     # TODO: handle remove
                     pass
+
         return super().form_valid(form)
 
 
