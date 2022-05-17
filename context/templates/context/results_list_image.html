@@ -18,7 +18,7 @@
                 <div class="flex gap-x-2">
                     {% if context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 0 %}
                         <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
-                        <a href="{% url 'contexts-download-images' context.code %}" class="btn-secondary">Download images</a>
+                        <a href="{% url 'contexts-download-files' context.code %}" class="btn-secondary">Download images</a>
                     {% endif %}
                     <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
                 </div>

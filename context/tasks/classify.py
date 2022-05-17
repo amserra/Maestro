@@ -63,6 +63,7 @@ def run_classifiers(self, filter_result, context_id):
 
                 except Exception as ex:
                     failures += 1
+
                     write_log(context, stage, f'[ERROR] Classifier failed on {data.identifier}. Continuing...')
                     print(f"Classifier {classifier} failed:\n{ex}")
 

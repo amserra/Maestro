@@ -17,7 +17,7 @@
                 <div class="flex gap-x-2">
                     {% if context.status == 'FINISHED_PROVIDING' or context.number_of_iterations > 0 %}
                         <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
-                        <a href="{% url 'contexts-download-images' context.code %}" class="btn-secondary">Download images</a>
+                        <a href="{% url 'contexts-download-files' context.code %}" class="btn-secondary">Download images</a>
                     {% endif %}
                     {% if context.status == 'WAITING' %}
                         {% if context.owner_type.name == 'user' or context.owner_type.name == 'organization' and context.owner.members_can_edit %}

@@ -1,9 +1,10 @@
 import os
 import shutil
-from context.models import SearchContext, THUMB_SIZE, Configuration, ImageData
+from context.models import SearchContext, THUMB_SIZE, Configuration, ImageData, SoundData
 from datetime import datetime
 from scrapy.crawler import CrawlerProcess
 from django.conf import settings
+import importlib.util
 
 from context.tasks.helpers import change_status, write_log
 from maestro.celery import app
@@ -33,28 +34,28 @@ def run_default_gatherer(self, urls, context_id):
 
     write_log(context, stage, f'Folders to support data persistance created')
 
-    log_file = os.path.join(context_log_path, f'{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}_gatherer.txt')
-    crawler_settings = {
-        'SPIDER_MODULES': 'gatherers.defaultImageGatherer.defaultImageGatherer.spiders',
-        'ITEM_PIPELINES': {
-            # 'scrapy.pipelines.images.ImagesPipeline': 1
-            'gatherers.defaultImageGatherer.defaultImageGatherer.pipelines.CustomImagesPipeline': 300
-        },
-        'IMAGES_STORE': context_data_path,
-        'IMAGES_MIN_HEIGHT': 110,
-        'IMAGES_MIN_WIDTH': 110,
-        'IMAGES_THUMBS': {
-            'big': THUMB_SIZE,
-        },
-        'LOG_FILE': log_file,
-        'TELNETCONSOLE_ENABLED': False
-    }
-
-    process = CrawlerProcess(crawler_settings)
-    process.crawl('defaultImageSpider', urls=urls)
-    process.start()
-
     if context.configuration.data_type == Configuration.IMAGES:
+        log_file = os.path.join(context_log_path, f'{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}_gatherer.txt')
+        crawler_settings = {
+            'SPIDER_MODULES': 'gatherers.defaultImageGatherer.defaultImageGatherer.spiders',
+            'ITEM_PIPELINES': {
+                # 'scrapy.pipelines.images.ImagesPipeline': 1
+                'gatherers.defaultImageGatherer.defaultImageGatherer.pipelines.CustomImagesPipeline': 300
+            },
+            'IMAGES_STORE': context_data_path,
+            'IMAGES_MIN_HEIGHT': 110,
+            'IMAGES_MIN_WIDTH': 110,
+            'IMAGES_THUMBS': {
+                'big': THUMB_SIZE,
+            },
+            'LOG_FILE': log_file,
+            'TELNETCONSOLE_ENABLED': False
+        }
+
+        process = CrawlerProcess(crawler_settings)
+        process.crawl('defaultImageSpider', urls=urls)
+        process.start()
+
         # Copy thumbnails to the static folder and add entries to DB
         thumbs_folder = os.path.join(context_data_path, 'thumbs')
         original_folder = os.path.join(context_data_path, 'full')
@@ -80,6 +81,34 @@ def run_default_gatherer(self, urls, context_id):
                         data_thumb_static=os.path.join(thumbs_static_folder, file)
                     ))
             ImageData.objects.bulk_create(objs)
+
+    elif context.configuration.data_type == Configuration.SOUNDS:
+        gatherer_path = os.path.join(settings.BASE_DIR, 'gatherers', 'defaultSoundGatherer.py')
+        spec = importlib.util.spec_from_file_location('defaultSoundGatherer', gatherer_path)
+        gatherer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gatherer)
+
+        objs = []
+        for url in urls:
+            dest_path = os.path.join(context.context_folder, 'data')
+            os.makedirs(dest_path, exist_ok=True)
+            os.makedirs(context.context_folder_static, exist_ok=True)
+            try:
+                sound_path = gatherer.main(url, dest_path)
+                if sound_path is not None:
+                    sound_static_path = shutil.copy2(sound_path, context.context_folder_static)
+                    obj = SoundData.objects.filter(context=context, data=sound_path, data_static=sound_static_path)
+                    if not obj.exists():
+                        objs.append(SoundData(
+                            context=context,
+                            data=sound_path,
+                            data_static=sound_static_path
+                        ))
+            except:
+                pass
+
+            # Add entries to DB
+        SoundData.objects.bulk_create(objs)
 
     change_status(SearchContext.FINISHED_GATHERING_DATA, context, stage, f'Finished gathering data')
 

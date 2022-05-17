@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Maestro | {{ title }} of '{{ context.code }}'
+{% endblock %}
+
+{% block content %}
+    <div class="page-container xl:w-3/4 min-h-45rem flex flex-col">
+        <div class="xl:w-full">
+            <div class="flex flex-row justify-between items-center mb-6">
+                <div>
+                    <p class="title">{{ title }}</p>
+                    <p class="subtitle">Seach context: <span class="font-normal">{{ context.code }}</span></p>
+                    <p class="subtitle">Number of sounds: <span class="font-normal">{{ context.datastream.count }}</span></p>
+                </div>
+                <div class="flex gap-x-2">
+                    {% if context.status == 'WAITING' %}
+                        <a href="{% url 'contexts-review-complete' context.code %}" class="btn-success">Complete review</a>
+                        <a onclick="handleSaveChanges()" class="btn-primary">Save changes</a>
+                    {% elif context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 0 %}
+                        <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
+                        <a href="{% url 'contexts-download-files' context.code %}" class="btn-secondary">Download sounds</a>
+                    {% endif %}
+                    <a href="{% url 'contexts-detail' context.code %}" class="btn-cancel">Back</a>
+                </div>
+            </div>
+
+
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="p-4">
+
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Sound ID
+                        </th>
+                        {% for classifier in objects.0.classification_result %}
+                            <th scope="col" class="px-6 py-3">
+                                {{ classifier }}
+                            </th>
+                        {% endfor %}
+                        <th scope="col" class="px-6 py-3 text-right">
+                            Preview
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% csrf_token %}
+                        {% for obj in objects %}
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="w-4 p-4">
+                                    {% if context.status == 'WAITING' %}
+                                        <div class="flex items-center">
+                                            <input id="checkbox-table-{{ obj.identifier }}" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" checked>
+                                            <label for="checkbox-table-{{ obj.identifier }}" class="sr-only">checkbox</label>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                    <a href="{% url 'contexts-results-object' context.code obj.identifier %}" class="font-medium text-blue-500 hover:underline">{{ obj.identifier }}</a>
+                                </th>
+                                {% for classifier, result in obj.classification_result.items %}
+                                    <td class="px-6 py-4">
+                                        {{ result }}
+                                    </td>
+                                {% endfor %}
+                                <td class="px-6 py-4 text-right">
+                                    <audio onended="end(this)" id="player-{{ obj.identifier }}" src="http://{{ obj.thumb_url }}">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    <button id="play-control-{{ obj.identifier }}" onclick="play(this)"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                                    <button id="pause-control-{{ obj.identifier }}" class="hidden" onclick="pause(this)"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <div class="flex w-full justify-center mt-10">
+                {% include 'common/pagination.html' %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        let onePlaying = false; // tells if there is one sound playing (can only play 1 at a time)
+
+        const end = (el) => {
+            onePlaying = false;
+            el.nextElementSibling.classList.remove('hidden');
+            el.nextElementSibling.nextElementSibling.classList.add('hidden');
+        }
+
+        const play = (el) => {
+            if (onePlaying) return;
+            el.previousElementSibling.play();
+            el.classList.add('hidden');
+            el.nextElementSibling.classList.remove('hidden');
+            onePlaying = true;
+        }
+
+        const pause = (el) => {
+            el.previousElementSibling.previousElementSibling.pause();
+            el.classList.add('hidden');
+            el.previousElementSibling.classList.remove('hidden');
+            onePlaying = false;
+        }
+
+        function handleSaveChanges() {
+            const files = [];
+            const csrfTokenValue = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            document.querySelectorAll('input[type=checkbox]:not(:checked)').forEach((el) => {
+                if(el.className !== '') {
+                    let fullPath = el.parentElement.parentElement.nextElementSibling.firstElementChild.href;
+                    let fileName = fullPath.replace(/^.*[\\\/]/, '');
+                    files.push(fileName);
+                }
+            });
+
+            let formData = new FormData();
+            formData.append('files', files);
+            fetch("{% url 'contexts-review-save' context.code %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfTokenValue
+                },
+                body: formData
+            }).then((res) => {
+                window.location.href = res.url;
+            });
+        }
+
+    </script>
+
+{% endblock %}

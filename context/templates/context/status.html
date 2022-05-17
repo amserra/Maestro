@@ -11,7 +11,9 @@
 
 {% block header %}
     <p class="title">{{ context.name }}</p>
-    <p class="subtitle">Current iteration: <span class="font-normal">{{ context.number_of_iterations }}</span></p>
+    {% if context.repeat_amount %}
+        <p class="subtitle">Current iteration: <span class="font-normal">{{ context.number_of_iterations }}</span></p>
+    {% endif %}
     <p class="subtitle">Status: <span class="font-normal">{{ context.get_status_display }}</span></p>
 {% endblock header %}
 

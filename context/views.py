@@ -106,6 +106,12 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['context'] = self.context
+        # If context.status == SearchContext.FINISHED_PROVIDING and context.
+        if self.context.status == SearchContext.FINISHED_PROVIDING:
+            context['canStop'] = True if self.context.configuration.repeat_amount else False
+        else:
+            context['canStop'] = True if self.context.status != SearchContext.WAITING_DATA_REVISION else False
+
         return context
 
 
@@ -279,11 +285,13 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
         search_context = self.get_object()
         if search_context.configuration.data_type == Configuration.IMAGES:
             return ['context/results_grid_image.html'] if self.view_type == 'grid' else ['context/results_list_image.html']
+        elif search_context.configuration.data_type == Configuration.SOUNDS:
+            return ['context/results_list_sound.html']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         search_context: SearchContext = self.get_object()
-        if search_context.configuration.data_type == Configuration.IMAGES:
+        if search_context.configuration.data_type == Configuration.IMAGES or search_context.configuration.data_type == Configuration.SOUNDS:
             objects = search_context.datastream.all()
 
             # Pagination
@@ -303,8 +311,8 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
 
 @login_required
 @user_can_edit
-def save_images_review(request, code):
-    if not request.method == 'POST':
+def save_data_review(request, code):
+    if request.method != 'POST':
         return HttpResponseBadRequest()
 
     context = get_object_or_404(SearchContext, code=code)
@@ -318,25 +326,44 @@ def save_images_review(request, code):
 
     files = files.split(',')
 
-    static_folder = context.context_folder_static
-    thumb_folder = os.path.join(context.context_folder, 'data', 'thumbs')
-    original_folder = os.path.join(context.context_folder, 'data', 'full')
-    for file in files:
-        original_folder_file_path = os.path.join(original_folder, file)
-        thumb_folder_file_path = os.path.join(thumb_folder, file)
-        static_folder_file_path = os.path.join(static_folder, file)
+    if context.configuration.data_type == Configuration.IMAGES:
+        static_folder = context.context_folder_static
+        thumb_folder = os.path.join(context.context_folder, 'data', 'thumbs')
+        original_folder = os.path.join(context.context_folder, 'data', 'full')
+        for file in files:
+            original_folder_file_path = os.path.join(original_folder, file)
+            thumb_folder_file_path = os.path.join(thumb_folder, file)
+            static_folder_file_path = os.path.join(static_folder, file)
 
-        db_object = context.datastream.filter(data=original_folder_file_path)
-        if db_object.exists() and db_object.count() == 1:
-            db_object = db_object[0]
-            try:
-                os.remove(original_folder_file_path)
-                os.remove(thumb_folder_file_path)
-                os.remove(static_folder_file_path)
-                db_object.delete()
-            except Exception as ex:
-                print(ex)
-                messages.error(request, 'Something went wrong while saving. Please try again later.')
+            db_object = context.datastream.filter(data=original_folder_file_path)
+            if db_object.exists() and db_object.count() == 1:
+                db_object = db_object[0]
+                try:
+                    os.remove(original_folder_file_path)
+                    os.remove(thumb_folder_file_path)
+                    os.remove(static_folder_file_path)
+                    db_object.delete()
+                except Exception as ex:
+                    print(ex)
+                    messages.error(request, 'Something went wrong while saving. Please try again later.')
+
+    elif context.configuration.data_type == Configuration.SOUNDS:
+        static_folder = context.context_folder_static
+        original_folder = os.path.join(context.context_folder, 'data')
+        for file in files:
+            original_folder_file_path = os.path.join(original_folder, file)
+            static_folder_file_path = os.path.join(static_folder, file)
+
+            db_object = context.datastream.filter(data=original_folder_file_path)
+            if db_object.exists() and db_object.count() == 1:
+                db_object = db_object[0]
+                try:
+                    os.remove(original_folder_file_path)
+                    os.remove(static_folder_file_path)
+                    db_object.delete()
+                except Exception as ex:
+                    print(ex)
+                    messages.error(request, 'Something went wrong while saving. Please try again later.')
 
     messages.success(request, 'Alterations made successfully.')
     return redirect('contexts-results', code=context.code)
@@ -397,7 +424,7 @@ def download_results(request, code):
 
 @login_required
 @user_has_access
-def download_images(request, code):
+def download_files(request, code):
     context = get_object_or_404(SearchContext, code=code)
 
     if context.status != SearchContext.FINISHED_PROVIDING and context.number_of_iterations == 0:
@@ -407,16 +434,16 @@ def download_images(request, code):
         return HttpResponseBadRequest()
 
     filtered_datastream = context.datastream.filter(filtered=False)
-    images = [obj.data for obj in filtered_datastream]
+    files = [obj.data for obj in filtered_datastream]
 
     zip_buffer = io.BytesIO()
     with ZipFile(zip_buffer, 'w') as zip_file:
-        for file in images:
+        for file in files:
             zip_file.write(filename=file, arcname=os.path.basename(file))
 
     return HttpResponse(zip_buffer.getvalue(), headers={
         'Content-Type': 'application/zip',
-        'Content-Disposition': 'attachment; filename=images.zip'
+        'Content-Disposition': 'attachment; filename=files.zip'
     })
 
 

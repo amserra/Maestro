@@ -53,6 +53,9 @@ def run_fetchers(self, context_id):
     if context.is_stopped:
         return False
 
+    context.number_of_iterations = context.number_of_iterations + 1
+    context.save()
+
     change_status(SearchContext.FETCHING_URLS, context, stage, 'Started fetching URLs', True)
 
     configuration = context.configuration

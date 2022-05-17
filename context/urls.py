@@ -15,10 +15,10 @@ urlpatterns = [
     path('<str:code>/status/', views.SearchContextStatusView.as_view(), name='contexts-status'),
     path('<str:code>/status/task/<str:task>/', views.PipelineProcessDetail.as_view(), name='task-status'),
     path('<str:code>/results/', views.SearchContextDataReviewView.as_view(), name='contexts-results'),
-    path('<str:code>/review/save/', views.save_images_review, name='contexts-review-save'),
+    path('<str:code>/review/save/', views.save_data_review, name='contexts-review-save'),
     path('<str:code>/review/complete/', views.complete_review, name='contexts-review-complete'),
     path('<str:code>/results/<str:objectId>', views.SearchContextDataObjectReviewView.as_view(), name='contexts-results-object'),
     path('<str:code>/download-results/', views.download_results, name='contexts-download-results'),
-    path('<str:code>/download-images/', views.download_images, name='contexts-download-images'),
+    path('<str:code>/download-files/', views.download_files, name='contexts-download-files'),
     path('<str:code>/rerun/', views.rerun_from_stage, name='contexts-rerun'),
 ]

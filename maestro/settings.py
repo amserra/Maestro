@@ -215,6 +215,8 @@ MAPBOX_KEY = os.getenv('MAPBOX_KEY', '')
 
 ARCGIS_KEY = os.getenv('ARCGIS_KEY', '')
 
+FREESOUND_KEY = os.getenv('FREESOUND_KEY', '')
+
 if DEBUG:
     STATICFILES_FINDERS = [
         # Default

@@ -23,7 +23,6 @@ def schedule_start(sender, **kwargs):
         return
 
     if instance.configuration and instance.configuration.repeat_amount is not None and instance.configuration.repeat_unit is not None:
-        instance.number_of_iterations = instance.number_of_iterations + 1
         countdown = get_amount_seconds(instance.configuration.repeat_amount, instance.configuration.repeat_unit)
         instance.status = SearchContext.WAITING_ITERATION
         instance.save()

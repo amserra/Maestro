@@ -59,8 +59,8 @@ class AdvancedConfiguration(models.Model):
     notify_creator = models.BooleanField(default=True, help_text='Whether to notify the search context\'s creator (by email) at the end of a successful execution.')
 
     # Data-type-specific configurations
-    # TODO: Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
-    images_configuration = models.ForeignKey(to=ImageConfiguration, on_delete=models.SET_NULL, null=True)
+    # Ideally, this would be a generic foreign key to ImagesConfiguration, AudioConfiguration, etc. (a data-type specific configuration). Since we are only using images for now, we can leave it like this
+    # images_configuration = models.ForeignKey(to=ImageConfiguration, on_delete=models.SET_NULL, null=True)
 
     @property
     def context(self):
@@ -81,13 +81,16 @@ class AdvancedConfiguration(models.Model):
 
 class Configuration(models.Model):
     IMAGES = 'IMAGES'
+    SOUNDS = 'SOUNDS'
     AGNOSTIC = 'AGNOSTIC'
     DATA_TYPE_CHOICES = [
         (IMAGES, 'Images'),
+        (SOUNDS, 'Sounds'),
         (AGNOSTIC, 'Agnostic')
     ]
     SELECTABLE_DATA_TYPE_CHOICES = [
         (IMAGES, 'Images'),
+        (SOUNDS, 'Sounds'),
     ]
     REPEAT_UNITS = [('MIN', 'Minute(s)'), ('HOUR', 'Hour(s)'), ('DAY', 'Day(s)')]
 
@@ -211,6 +214,8 @@ class SearchContext(models.Model):
     def datastream(self):
         if self.imagedata_set.exists():
             return self.imagedata_set.all()
+        elif self.sounddata_set.exists():
+            return self.sounddata_set.all()
         # Other datatype cases
         else:
             return None
@@ -341,7 +346,7 @@ class Classifier(models.Model):
     data_type = models.CharField(max_length=20, choices=Configuration.DATA_TYPE_CHOICES)
     path = models.FilePathField(path=classifiers_path, recursive=True)
     return_type = models.CharField(max_length=20, choices=(('INT', 'Integer'), ('STR', 'String')))
-    return_choices = models.TextField()
+    return_choices = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
@@ -358,6 +363,24 @@ class Data(models.Model):
 
     class Meta:
         abstract = True
+
+
+class SoundData(Data):
+    data = models.FilePathField(max_length=200)
+    data_static = models.FilePathField(max_length=200)
+
+    @property
+    def identifier(self):
+        return os.path.basename(self.data)
+
+    @property
+    def thumb_url(self):
+        rel_path = os.path.relpath(self.data_static, settings.BASE_DIR)
+        rel_path = rel_path.replace('data/', '')
+        return f'{settings.DOMAIN}/{rel_path}'
+
+    def __str__(self):
+        return f'Sound data of context {self.context.code}: {os.path.basename(self.data)}'
 
 
 class ImageData(Data):
