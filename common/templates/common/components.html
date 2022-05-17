@@ -7,7 +7,7 @@
 {% block content %}
 
     <div class="grid grid-cols-3 mt-20 mx-20 gap-4">
-        <div class="bg-white px-6 py-6 rounded-lg shadow-md bg-white min-h-10rem">
+        <div class="bg-white p-6 rounded-lg shadow-md bg-white min-h-10rem">
             <p class="subtitle">Fetchers</p>
             <ul class="list-disc list-inside">
                 <li>Bing web</li>
@@ -15,27 +15,27 @@
                 <li>Twitter</li>
             </ul>
         </div>
-        <div class="bg-white px-6 py-6 rounded-lg shadow-md bg-white min-h-10rem">
+        <div class="bg-white p-6 rounded-lg shadow-md bg-white min-h-10rem">
             <p class="subtitle">Gatherers</p>
             <ul class="list-disc list-inside">
                 <li>Default image gatherer</li>
                 <li>Default sound gatherer</li>
             </ul>
         </div>
-        <div class="bg-white px-6 py-6 rounded-lg shadow-md bg-white min-h-10rem">
+        <div class="bg-white p-6 rounded-lg shadow-md bg-white min-h-10rem">
             <p class="subtitle">Post-Processors</p>
             <ul class="list-disc list-inside">
                 <li>Image exif retriever</li>
             </ul>
         </div>
-        <div class="bg-white px-6 py-6 rounded-lg shadow-md bg-white min-h-10rem">
+        <div class="bg-white p-6 rounded-lg shadow-md bg-white min-h-10rem">
             <p class="subtitle">Filters</p>
             <ul class="list-disc list-inside">
                 <li>Date filter</li>
                 <li>Geolocation filter</li>
             </ul>
         </div>
-        <div class="bg-white px-6 py-6 rounded-lg shadow-md bg-white min-h-10rem">
+        <div class="bg-white p-6 rounded-lg shadow-md bg-white min-h-10rem">
             <p class="subtitle">Classifiers</p>
             <ul class="list-disc list-inside">
                 <li>Speech to text (sound)</li>
@@ -45,10 +45,19 @@
                 <li>Flood depth (image)</li>
             </ul>
         </div>
-        <div class="bg-white px-6 py-6 rounded-lg shadow-md bg-white min-h-10rem">
+        <div class="bg-white p-6 rounded-lg shadow-md bg-white min-h-10rem">
             <p class="subtitle">Provider</p>
             <p>Data provided via HTTP</p>
         </div>
+    </div>
+
+    <div class="bg-white p-6 mx-20 my-20 rounded-lg shadow-md">
+        <p class="subtitle text-center">Submit your plugin</p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <input type="submit" value="Submit" role="button" class="btn-primary"/>
+        </form>
     </div>
 
 {% endblock content %}

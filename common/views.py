@@ -1,4 +1,9 @@
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render
+from django.urls import reverse_lazy
+
+from common.models import SubmitPlugin
+from django.views.generic import CreateView
 
 
 def home(request):
@@ -13,8 +18,12 @@ def about(request):
     return render(request, 'common/about.html')
 
 
-def components(request):
-    return render(request, 'common/components.html')
+class ComponentsView(SuccessMessageMixin, CreateView):
+    model = SubmitPlugin
+    fields = ['submitter_name', 'submitter_email', 'plugin_name', 'file', 'kind']
+    template_name = 'common/components.html'
+    success_url = reverse_lazy('components')
+    success_message = 'Plugin submitted. You will be contacted when the plugin is reviewed.'
 
 
 # Error views
