@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_results',
     'debug_toolbar',
+    'docs',
     'common',
     'account',
     'organization',
@@ -226,3 +227,6 @@ if DEBUG:
         # Allows to see images in the STATIC_ROOT folder when DEBUG=True
         'common.static_root_finder.StaticRootFinder'
     ]
+
+DOCS_ROOT = os.path.join(BASE_DIR, 'docs', '_build', 'html')
+DOCS_ACCESS = 'public'

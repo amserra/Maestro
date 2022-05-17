@@ -41,7 +41,6 @@ def main(data: dict):
         response.raise_for_status()
         response_json = response.json()
 
-        # print(json.dumps(response_json, indent=4))
         links = [value['url'] for value in response_json['includes']['media']]
 
         return links

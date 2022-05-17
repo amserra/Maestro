@@ -4,8 +4,8 @@ from django.core.exceptions import ValidationError
 
 def validate_file_type(value):
     ext = value.name.split('.')[-1]
-    if ext != 'py':
-        raise ValidationError('Please input a python (.py) file.')
+    if ext != 'py' and ext != 'zip':
+        raise ValidationError('Please input a python (.py) or a zip (.zip) file.')
 
 
 class SubmitPlugin(models.Model):
