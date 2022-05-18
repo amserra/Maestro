@@ -20,7 +20,7 @@ def about(request):
 
 class ComponentsView(SuccessMessageMixin, CreateView):
     model = SubmitPlugin
-    fields = ['submitter_name', 'submitter_email', 'plugin_name', 'file', 'kind']
+    fields = ['submitter_name', 'submitter_email', 'plugin_name', 'kind', 'file']
     template_name = 'common/components.html'
     success_url = reverse_lazy('components')
     success_message = 'Plugin submitted. You will be contacted when the plugin is reviewed.'

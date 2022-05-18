@@ -42,7 +42,7 @@
                                 {{ classifier }}
                             </th>
                         {% endfor %}
-                        <th scope="col" class="px-6 py-3 text-right">
+                        <th scope="col" class="px-6 py-3">
                             Preview
                         </th>
                     </tr>
@@ -63,16 +63,14 @@
                                     <a href="{% url 'contexts-results-object' context.code obj.identifier %}" class="font-medium text-blue-500 hover:underline">{{ obj.identifier }}</a>
                                 </th>
                                 {% for classifier, result in obj.classification_result.items %}
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 truncate max-w-lg">
                                         {{ result }}
                                     </td>
                                 {% endfor %}
                                 <td class="px-6 py-4 text-right">
-                                    <audio onended="end(this)" id="player-{{ obj.identifier }}" src="http://{{ obj.thumb_url }}">
+                                    <audio class="h-8" controls src="http://{{ obj.thumb_url }}">
                                         Your browser does not support the audio element.
                                     </audio>
-                                    <button id="play-control-{{ obj.identifier }}" onclick="play(this)"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
-                                    <button id="pause-control-{{ obj.identifier }}" class="hidden" onclick="pause(this)"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -90,29 +88,6 @@
     </div>
 
     <script>
-        let onePlaying = false; // tells if there is one sound playing (can only play 1 at a time)
-
-        const end = (el) => {
-            onePlaying = false;
-            el.nextElementSibling.classList.remove('hidden');
-            el.nextElementSibling.nextElementSibling.classList.add('hidden');
-        }
-
-        const play = (el) => {
-            if (onePlaying) return;
-            el.previousElementSibling.play();
-            el.classList.add('hidden');
-            el.nextElementSibling.classList.remove('hidden');
-            onePlaying = true;
-        }
-
-        const pause = (el) => {
-            el.previousElementSibling.previousElementSibling.pause();
-            el.classList.add('hidden');
-            el.previousElementSibling.classList.remove('hidden');
-            onePlaying = false;
-        }
-
         function handleSaveChanges() {
             const files = [];
             const csrfTokenValue = document.getElementsByName('csrfmiddlewaretoken')[0].value;

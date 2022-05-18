@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, FormView
@@ -497,18 +497,20 @@ class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, Detai
         self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code', None))
         self.obj = [el for el in self.context.datastream.all() if el.identifier == self.kwargs.get('objectId', None)]
         if not self.obj or len(self.obj) == 0 or self.context.number_of_iterations == 0:
-            return redirect(to='/')
+            raise Http404
 
         self.obj = self.obj[0]
 
         allowed_status = compare_status(self.context.status, SearchContext.FINISHED_PROVIDING)
         if not allowed_status:
-            return redirect(to='/')
+            raise Http404
 
     def get_template_names(self):
         search_context = self.get_object()
         if search_context.configuration.data_type == Configuration.IMAGES:
             return ['context/object_detail_image.html']
+        elif search_context.configuration.data_type == Configuration.SOUNDS:
+            return ['context/object_detail_sound.html']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
