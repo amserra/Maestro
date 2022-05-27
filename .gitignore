@@ -136,4 +136,5 @@ static/**
 # Project-specific
 contexts_data/**
 logs/**
-*.hdf5
+*.hdf5!/ansible-playbooks/vars.yml
+**/vars.yml

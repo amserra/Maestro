@@ -1,0 +1,97 @@
+---
+- hosts: web
+  become: yes
+  become_method: sudo
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Download app from repo
+      git:
+        repo: 'https://oauth2:{{github_access_token}}@github.com/amserra/Maestro.git'
+        dest: /root/app
+        clone: yes
+        update: yes
+
+    - name: Copy production env file
+      copy:
+        src: '../.env'
+        dest: '/root/app/'
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Install requirements
+      pip:
+        requirements: /root/app/requirements.txt
+        extra_args: '--no-cache-dir'
+
+    - name: Install npm packages for TailwindCSS
+      npm:
+        path: /root/app/theme/static_src
+
+    - name: Make the migrations
+      django_manage:
+        command: "makemigrations account organization common context"
+        project_path: '{{ project_path }}'
+
+    - name: Migrate
+      django_manage:
+        command: migrate
+        project_path: '{{ project_path }}'
+
+    - name: Build tailwind styles
+      django_manage:
+        command: "tailwind build"
+        project_path: '{{ project_path }}'
+
+    - name: Collect static
+      django_manage:
+        command: collectstatic
+        project_path: '{{ project_path }}'
+
+#    - name: Create an initial superuser
+#      django_manage:
+#        command: "createsuperuser --noinput --email=almateser@gmail.com"
+#        project_path: "{{ django_dir }}"
+
+    - name: Create gunicorn folders (1/2)
+      file:
+        path: /var/log/gunicorn
+        state: directory
+        mode: '0755'
+
+    - name: Create gunicorn folders (2/2)
+      file:
+        path: /var/run/gunicorn
+        state: directory
+        mode: '0755'
+
+    - name: Copy gunicorn service socket file
+      copy:
+        src: ./templates/gunicorn.socket
+        dest: /etc/systemd/system/gunicorn.socket
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Copy maestro gunicorn service file
+      copy:
+        src: ./templates/gunicorn.service
+        dest: /etc/systemd/system/gunicorn.service
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Start gunicorn service
+      systemd:
+        name: gunicorn
+        state: started
+
+
+
+  handlers:
+    - name: restart postgres
+      service: name=postgresql state=restarted

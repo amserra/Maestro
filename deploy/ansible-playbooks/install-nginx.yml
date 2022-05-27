@@ -1,0 +1,18 @@
+---
+- hosts: web
+  become: yes
+  become_method: sudo
+  gather_facts: false
+
+  tasks:
+
+    - name: Copy maestro config to sites-available
+      copy:
+        src: './templates/maestro'
+        dest: '/etc/nginx/sites-available'
+
+    - name: Make link from sites-available/maestro to sites-enabled
+      file:
+        src: '/etc/nginx/sites-available/maestro'
+        dest: '/etc/nginx/sites-enabled/maestro'
+        state: link

@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn instance to serve maestro
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/root/app
+ExecStart=gunicorn -c deploy/gunicorn/dev.py
+
+[Install]
+WantedBy=multi-user.target
