@@ -188,9 +188,6 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 LOGGED_IN_HOME = '/'
 LOGIN_URL = 'login'
 
-if not DEBUG:
-    NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'
-
 # Celery configurations
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_ACCEPT_CONTENT = ['json', 'pickle']
