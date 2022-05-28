@@ -2,6 +2,11 @@ server {
     server_name maestro.ml;
     location = /favicon.ico { access_log off; log_not_found off; }
 
+    location /media {
+        autoindex on;
+        alias /root/app/media/;
+    }
+
     location / {
         include proxy_params;
         proxy_pass http://unix:/run/gunicorn/gunicorn.sock;
