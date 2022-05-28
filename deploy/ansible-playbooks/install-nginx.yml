@@ -16,3 +16,7 @@
         src: '/etc/nginx/sites-available/maestro'
         dest: '/etc/nginx/sites-enabled/maestro'
         state: link
+      notify: restart nginx
+
+    - name: restart nginx
+      service: name=nginx state=restarted

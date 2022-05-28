@@ -1,0 +1,25 @@
+---
+- hosts: web
+  become: yes
+  become_method: sudo
+  gather_facts: false
+
+  tasks:
+
+    #https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
+
+    - name: Install certbot
+      snap:
+        name: certbot
+        classic: yes
+        state: present
+
+    - name: Prepare certbot command
+      file:
+        src: '/snap/bin/certbot'
+        dest: '/usr/bin/certbot'
+        state: link
+
+# Do this manually!
+#    - name: Get and install certificates
+#      command: 'certbot --nginx'

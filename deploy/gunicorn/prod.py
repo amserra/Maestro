@@ -1,4 +1,4 @@
-"""Gunicorn *development* config file"""
+"""Gunicorn *production* config file"""
 
 # Django WSGI application path in pattern MODULE_NAME:VARIABLE_NAME
 wsgi_app = "maestro.wsgi:application"
@@ -8,13 +8,9 @@ loglevel = "debug"
 workers = 2
 # The socket to bind
 bind = "unix:/run/gunicorn/gunicorn.sock"
-# Restart workers when code changes (development only!)
-reload = True
 # Write access and error info to /var/log
-accesslog = errorlog = "/var/log/gunicorn/dev.log"
+accesslog = errorlog = "/var/log/gunicorn/prod.log"
 # Redirect stdout/stderr to log file
 capture_output = True
 # PID file so you can easily fetch process ID
-pidfile = "/var/run/gunicorn/dev.pid"
-# Daemonize the Gunicorn process (detach & enter background)
-# daemon = True
+pidfile = "/var/run/gunicorn/prod.pid"

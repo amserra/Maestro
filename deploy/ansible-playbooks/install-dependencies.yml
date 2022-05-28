@@ -18,6 +18,8 @@
           - nginx
           - curl
           - python-is-python3
+          - erlang
+          - rabbitmq-server
         state: present
 
     - name: Install the gpg key for nodejs LTS

@@ -1,12 +1,12 @@
 [Unit]
-Description=Gunicorn instance to serve maestro
+Description=Celery Service
 After=network.target
 
 [Service]
 User=root
 Group=www-data
 WorkingDirectory=/root/app
-ExecStart=gunicorn -c deploy/gunicorn/prod.py
+ExecStart=celery -A maestro worker -l INFO
 
 [Install]
 WantedBy=multi-user.target
