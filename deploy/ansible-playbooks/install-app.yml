@@ -11,26 +11,27 @@
     - name: Download app from repo
       git:
         repo: 'https://oauth2:{{github_access_token}}@github.com/amserra/Maestro.git'
-        dest: /root/app
+        dest: '{{ project_path }}'
         clone: yes
         update: yes
+        force: yes
 
     - name: Copy production env file
       copy:
         src: '../.env'
-        dest: '/root/app/'
+        dest: '{{ project_path }}'
         owner: root
         group: root
         mode: '0600'
 
     - name: Install requirements
       pip:
-        requirements: /root/app/requirements.txt
+        requirements: '{{ project_path }}/requirements.txt'
         extra_args: '--no-cache-dir'
 
     - name: Install npm packages for TailwindCSS
       npm:
-        path: /root/app/theme/static_src
+        path: '{{ project_path }}/theme/static_src'
         state: present
 
     - name: Make the migrations
@@ -79,8 +80,8 @@
         mode: '0600'
 
     - name: Copy maestro gunicorn service file
-      copy:
-        src: ./templates/gunicorn.service
+      template:
+        src: ./templates/gunicorn.service.j2
         dest: /etc/systemd/system/gunicorn.service
         owner: root
         group: root
@@ -92,8 +93,8 @@
         state: started
 
     - name: Copy celery service file
-      copy:
-        src: ./templates/celery.service
+      template:
+        src: ./templates/celery.service.j2
         dest: /etc/systemd/system/celery.service
         owner: root
         group: root

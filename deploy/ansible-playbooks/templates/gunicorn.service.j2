@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=root
 Group=www-data
-WorkingDirectory=/root/app
+WorkingDirectory={{project_path}}/
 ExecStart=gunicorn -c deploy/gunicorn/prod.py
 
 [Install]

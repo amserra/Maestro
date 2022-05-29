@@ -4,8 +4,10 @@ After=network.target
 
 [Service]
 User=root
+# Celery doesnt work with pickle in superuser permissions without this flag
+Environment="C_FORCE_ROOT=true"
 Group=www-data
-WorkingDirectory=/root/app
+WorkingDirectory={{project_path}}/
 ExecStart=celery -A maestro worker -l INFO
 
 [Install]

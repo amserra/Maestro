@@ -8,6 +8,10 @@
     - vars.yml
 
   tasks:
+    - name: Install psycopg2
+      pip:
+        name: psycopg2-binary==2.9.3
+
     - name: Create app database
       postgresql_db:
         state: present

@@ -1,0 +1,20 @@
+server {
+    server_name maestro.ml;
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location /media {
+        autoindex on;
+        alias {{project_path}}/media/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn/gunicorn.sock;
+    }
+}
+
+server {
+    server_name www.maestro.ml;
+    return 301 $scheme://maestro.ml$request_uri;
+
+}

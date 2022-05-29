@@ -4,12 +4,15 @@
   become_method: sudo
   gather_facts: false
 
+  vars_files:
+    - vars.yml
+
   tasks:
 
     - name: Copy maestro config to sites-available
-      copy:
-        src: './templates/maestro'
-        dest: '/etc/nginx/sites-available'
+      template:
+        src: './templates/maestro.j2'
+        dest: '/etc/nginx/sites-available/maestro'
 
     - name: Make link from sites-available/maestro to sites-enabled
       file:
