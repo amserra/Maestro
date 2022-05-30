@@ -25,5 +25,9 @@ def main(image_path):
         pred_id = predict.item()
         bird_class = model.bird_classes[pred_id]
 
-    return bird_class.split('.')[1]
+    splitted = bird_class.split('.')
+    if len(splitted) != 2:
+        return bird_class
+
+    return splitted[1].replace('_', ' ')
 
