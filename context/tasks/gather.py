@@ -114,7 +114,6 @@ def run_default_gatherer(self, urls, context_id):
 
     if context.configuration.advanced_configuration and context.configuration.advanced_configuration.yield_after_gathering_data:
         change_status(SearchContext.WAITING_DATA_REVISION, context, stage, f'The user should now review the obtained dataset')
-        context.is_stopped = True
         context.save()
         return False
     else:
