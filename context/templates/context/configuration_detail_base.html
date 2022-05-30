@@ -35,7 +35,7 @@
                     {% else %}
                         {% if context.status == 'WAITING' %}
                             <a href="{% url 'contexts-results' context.code %}" class="btn-secondary">Review data</a>
-                        {% elif context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 0 %}
+                        {% elif context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 1 %}
                             <a href="{% url 'contexts-results' context.code %}" class="btn-success">Results</a>
                         {% endif %}
                         <a href="{% url 'contexts-status' context.code %}" class="btn-secondary">Progress</a>

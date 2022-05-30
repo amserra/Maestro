@@ -18,7 +18,7 @@
                     {% if context.status == 'WAITING' %}
                         <a href="{% url 'contexts-review-complete' context.code %}" class="btn-success">Complete review</a>
                         <a onclick="handleSaveChanges()" class="btn-primary">Save changes</a>
-                    {% elif context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 0 %}
+                    {% elif context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 1 %}
                         <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
                         <a href="{% url 'contexts-download-files' context.code %}" class="btn-secondary">Download sounds</a>
                     {% endif %}
