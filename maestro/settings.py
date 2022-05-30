@@ -22,8 +22,8 @@ if DEBUG:
     DOMAIN = 'localhost:8000'
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
-    DOMAIN = 'maestro-web.inesc-id.pt'
-    ALLOWED_HOSTS = ['maestro-web.inesc-id.pt']
+    DOMAIN = 'maestro.ml'
+    ALLOWED_HOSTS = ['maestro.ml']
 
 ADMINS = [('Alexandre', os.getenv('ALEX_ADMIN_EMAIL'))]
 
