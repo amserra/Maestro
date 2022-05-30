@@ -121,7 +121,7 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
                 SearchContext.FAILED_CLASSIFYING,
                 SearchContext.FAILED_PROVIDING
             ]
-            context['canStop'] = False if self.context.status in unstoppable_states else True
+            context['canStop'] = False if self.context.status in unstoppable_states or self.context.is_stopped else True
 
         return context
 
