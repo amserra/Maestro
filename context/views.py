@@ -27,6 +27,19 @@ import ast
 from .tasks.helpers import read_log
 from .tasks.provide import generate_json
 
+# States that can't be stopped
+UNSTOPPABLE_STATES = [
+            SearchContext.NOT_CONFIGURED,
+            SearchContext.READY,
+            SearchContext.FAILED_FETCHING_URLS,
+            SearchContext.FAILED_GATHERING_DATA,
+            SearchContext.WAITING_DATA_REVISION,
+            SearchContext.FAILED_POST_PROCESSING,
+            SearchContext.FAILED_FILTERING,
+            SearchContext.FAILED_CLASSIFYING,
+            SearchContext.FAILED_PROVIDING
+        ]
+
 
 class SearchContextListView(LoginRequiredMixin, SafePaginationMixin, PaginatedFilterView, FilterView):
     template_name = 'context/list.html'
@@ -81,6 +94,11 @@ class SearchContextDetailView(LoginRequiredMixin, UserHasAccess, DetailView):
     slug_url_kwarg = 'code'
     context_object_name = 'context'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['canStop'] = False if self.get_object().status in UNSTOPPABLE_STATES or self.get_object().is_stopped else True
+        return context
+
 
 class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, DetailView):
     model = Configuration
@@ -106,20 +124,7 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['context'] = self.context
-
-        unstoppable_states = [
-            SearchContext.NOT_CONFIGURED,
-            SearchContext.READY,
-            SearchContext.FAILED_FETCHING_URLS,
-            SearchContext.FAILED_GATHERING_DATA,
-            SearchContext.WAITING_DATA_REVISION,
-            SearchContext.FAILED_POST_PROCESSING,
-            SearchContext.FAILED_FILTERING,
-            SearchContext.FAILED_CLASSIFYING,
-            SearchContext.FAILED_PROVIDING
-        ]
-        context['canStop'] = False if self.context.status in unstoppable_states or self.context.is_stopped else True
-
+        context['canStop'] = False if self.context.status in UNSTOPPABLE_STATES or self.context.is_stopped else True
         return context
 
 

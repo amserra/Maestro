@@ -15,7 +15,7 @@
                     <p class="subtitle">Number of images: <span class="font-normal">{{ context.datastream.count }}</span></p>
                 </div>
                 <div class="flex gap-x-2">
-                    {% if context.status == 'FINISHED_PROVIDING' or context.number_of_iterations > 1 %}
+                    {% if context.status == 'FINISHED PROVIDING' or context.number_of_iterations > 1 %}
                         <a href="{% url 'contexts-download-results' context.code %}" class="btn-primary">Download results</a>
                         <a href="{% url 'contexts-download-files' context.code %}" class="btn-secondary">Download images</a>
                     {% endif %}
