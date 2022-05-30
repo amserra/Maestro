@@ -1,0 +1,23 @@
+---
+- hosts: web
+  become: yes
+  become_method: sudo
+  gather_facts: false
+
+  tasks:
+
+    - name: Create /var/run/gunicorn folder
+      file:
+        path: /var/run/gunicorn
+        state: directory
+        mode: '0755'
+
+    - name: Start gunicorn
+      systemd:
+        name: gunicorn
+        state: started
+
+    - name: Start celery
+      systemd:
+        name: celery
+        state: started

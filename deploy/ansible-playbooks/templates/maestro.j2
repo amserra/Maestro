@@ -7,6 +7,11 @@ server {
         alias {{project_path}}/media/;
     }
 
+    location /static {
+        autoindex on;
+        alias {{project_path}}/static/;
+    }
+
     location / {
         include proxy_params;
         proxy_pass http://unix:/run/gunicorn/gunicorn.sock;

@@ -9,7 +9,7 @@ ansible-playbook install-ssl.yml
 # 2 - Answer certbot prompts when installing ssl
 # 3 - Copy classifiers/flood_depth_weights.hdf5 to machine (file to big for source control)
 # 4 - Make docs: cd docs && make html
-# 5 - Create components in admin panel
+# 5 - Create components by 'python manage.py shell' and importing main from context/create_existing_plugins.py
 # Note: If /media files aren't showing, the problem is probably with permissions.
 # To confirm this, check the nginx error logs: tail -10 /var/log/nginx/error.log
 # If says something like "Permission denied", it confirms.
