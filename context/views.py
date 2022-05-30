@@ -106,11 +106,22 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['context'] = self.context
-        # If context.status == SearchContext.FINISHED_PROVIDING and context.
+
         if self.context.status == SearchContext.FINISHED_PROVIDING:
             context['canStop'] = True if self.context.configuration.repeat_amount else False
         else:
-            context['canStop'] = True if self.context.status != SearchContext.WAITING_DATA_REVISION else False
+            unstoppable_states = [
+                SearchContext.NOT_CONFIGURED,
+                SearchContext.READY,
+                SearchContext.FAILED_FETCHING_URLS,
+                SearchContext.FAILED_GATHERING_DATA,
+                SearchContext.WAITING_DATA_REVISION,
+                SearchContext.FAILED_POST_PROCESSING,
+                SearchContext.FAILED_FILTERING,
+                SearchContext.FAILED_CLASSIFYING,
+                SearchContext.FAILED_PROVIDING
+            ]
+            context['canStop'] = False if self.context.status in unstoppable_states else True
 
         return context
 

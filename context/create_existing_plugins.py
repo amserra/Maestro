@@ -4,13 +4,14 @@ from context.models import Fetcher, PostProcessor, Filter, Classifier, Configura
 
 BASE_DIR = settings.BASE_DIR
 
+
 def create_fetchers():
     bing_image = Fetcher.objects.create(
         name='Bing image',
         is_active=True,
         is_default=True,
         type=Fetcher.PYTHON_SCRIPT,
-        path=os.path.join(BASE_DIR, 'fetchers', 'fetcher_bing_image_api.py')
+        path=os.path.join(BASE_DIR, 'fetchers', 'bing', 'fetcher_bing_image_api.py')
     )
 
     twitter_image = Fetcher.objects.create(
@@ -26,10 +27,10 @@ def create_fetchers():
         is_active=True,
         is_default=False,
         type=Fetcher.PYTHON_SCRIPT,
-        path=os.path.join(BASE_DIR, 'fetchers', 'fetcher_bing_web_api.py')
+        path=os.path.join(BASE_DIR, 'fetchers', 'bing', 'fetcher_bing_web_api.py')
     )
 
-    Fetcher.objects.create(
+    freesound = Fetcher.objects.create(
         name='Freesound',
         incompatible_with=[bing_image, twitter_image, bing_web],
         is_active=True,
