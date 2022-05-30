@@ -108,7 +108,7 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
         context['context'] = self.context
 
         if self.context.status == SearchContext.FINISHED_PROVIDING:
-            context['canStop'] = True if self.context.configuration.repeat_amount else False
+            context['canStop'] = True if self.context.configuration.repeat_amount and not self.context.is_stopped else False
         else:
             unstoppable_states = [
                 SearchContext.NOT_CONFIGURED,
