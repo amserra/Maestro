@@ -71,6 +71,10 @@ class EssentialConfigurationForm(forms.ModelForm):
         elif repeat_amount is None and repeat_unit is not None:
             self.add_error('repeat_amount', self.error_messages['repeat_amount_required'])
 
+        if repeat_amount == 0:
+            self.cleaned_data['repeat_amount'] = None
+            self.cleaned_data['repeat_unit'] = None
+
     class Meta:
         model = Configuration
         fields = ['search_string', 'keywords', 'data_type', 'repeat_amount', 'repeat_unit']
