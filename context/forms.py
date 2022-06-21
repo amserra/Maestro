@@ -15,7 +15,7 @@ class SearchContextCreateForm(forms.ModelForm):
     owner = forms.ChoiceField()
 
     error_messages = {
-        'duplicate_code': 'A context you have access to already has that code.',
+        'duplicate_code': 'There is already a search context with that code.',
         'invalid_name': 'Invalid name.'
     }
 
@@ -42,7 +42,9 @@ class SearchContextCreateForm(forms.ModelForm):
             raise ValidationError(self.error_messages['invalid_name'], code='invalid_name')
 
         code = code.replace(' ', '-').lower()
-        if self.user.all_contexts.filter(code=code).exists():
+        # Should be like below. For a quick bug fix, changed to the line
+        # if self.user.all_contexts.filter(code=code).exists():
+        if SearchContext.objects.filter(code=code).exists():
             self.add_error('code', self.error_messages['duplicate_code'])
 
     class Meta:
