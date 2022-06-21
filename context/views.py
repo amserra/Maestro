@@ -14,6 +14,7 @@ from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 from common.decorators import PaginatedFilterView
 from common.mixins import SafePaginationMixin
+from organization.models import Organization
 from .authorization import UserHasAccess, UserCanEdit, user_can_edit, user_has_access
 from .filters import SearchContextFilter
 from .forms import SearchContextCreateForm, EssentialConfigurationForm, FetchingAndGatheringConfigurationForm, PostProcessingConfigurationForm, FilteringConfigurationForm, ClassificationConfigurationForm, ProvidingConfigurationForm
@@ -26,6 +27,18 @@ import json
 import ast
 from .tasks.helpers import read_log
 from .tasks.provide import generate_json
+
+
+def get_search_context(user, code):
+    if code is None or code == '':
+        raise Http404
+    contexts = SearchContext.objects.filter(code=code)
+    organization_search_contexts = Organization.objects.filter(membership__user=user)
+    for context in contexts:
+        owner = context.owner
+        if owner == user or owner in organization_search_contexts:
+            return context
+    raise Http404
 
 # States that can't be stopped
 UNSTOPPABLE_STATES = [
@@ -106,7 +119,7 @@ class SearchContextConfigurationDetailView(LoginRequiredMixin, UserHasAccess, De
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        self.context = get_search_context(request.user, self.kwargs.get('code'))
         self.page = self.request.GET.get('page', None)
 
     def get_template_names(self):
@@ -135,7 +148,7 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        self.context = get_search_context(request.user, self.kwargs.get('code'))
         self.from_url = self.request.GET.get('from', None)
         self.form = self.request.GET.get('form', 'essential')  # default is essential
 
@@ -228,7 +241,7 @@ class SearchContextConfigurationCreateOrUpdateView(LoginRequiredMixin, UserCanEd
 @login_required
 @user_can_edit
 def search_context_delete(request, code):
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
     delete_context_folder.delay(context.id)
 
     messages.success(request, 'Context deleted successfully.')
@@ -238,7 +251,7 @@ def search_context_delete(request, code):
 @login_required
 @user_can_edit
 def search_context_start(request, code):
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
 
     if not context.configuration:
         return HttpResponseBadRequest()
@@ -288,7 +301,7 @@ class SearchContextDataReviewView(LoginRequiredMixin, UserHasAccess, DetailView)
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code'))
+        self.context = get_search_context(request.user, self.kwargs.get('code'))
         self.view_type = self.request.GET.get('type', 'grid')
         allowed_status = compare_status(self.context.status, SearchContext.WAITING_DATA_REVISION)
         if not allowed_status or self.context.number_of_iterations == 0:
@@ -328,7 +341,7 @@ def save_data_review(request, code):
     if request.method != 'POST':
         return HttpResponseBadRequest()
 
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
 
     if context.status != SearchContext.WAITING_DATA_REVISION:
         return HttpResponseBadRequest()
@@ -386,7 +399,7 @@ def save_data_review(request, code):
 @user_can_edit
 def complete_review(request, code):
     """Complete review and continue process"""
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
 
     if context.status != SearchContext.WAITING_DATA_REVISION:
         return HttpResponseBadRequest()
@@ -416,7 +429,7 @@ class PipelineProcessDetail(LoginRequiredMixin, UserHasAccess, DetailView):
 @login_required
 @user_has_access
 def download_results(request, code):
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
 
     if context.status != SearchContext.FINISHED_PROVIDING and context.number_of_iterations == 0:
         return HttpResponseBadRequest()
@@ -438,7 +451,7 @@ def download_results(request, code):
 @login_required
 @user_has_access
 def download_files(request, code):
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
 
     if context.status != SearchContext.FINISHED_PROVIDING and context.number_of_iterations == 0:
         return HttpResponseBadRequest()
@@ -463,7 +476,7 @@ def download_files(request, code):
 @login_required
 @user_can_edit
 def rerun_from_stage(request, code):
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
     current_status = context.status
 
     stage = request.GET.get('stage', None)
@@ -507,7 +520,7 @@ class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, Detai
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.context = get_object_or_404(SearchContext, code=self.kwargs.get('code', None))
+        self.context = get_search_context(request.user, self.kwargs.get('code'))
         self.obj = [el for el in self.context.datastream.all() if el.identifier == self.kwargs.get('objectId', None)]
         if not self.obj or len(self.obj) == 0 or self.context.number_of_iterations == 0:
             raise Http404
@@ -535,7 +548,7 @@ class SearchContextDataObjectReviewView(LoginRequiredMixin, UserHasAccess, Detai
 @login_required
 @user_can_edit
 def stop_execution(request, code):
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
     context.is_stopped = True
     context.save()
 
@@ -546,7 +559,7 @@ def stop_execution(request, code):
 @login_required
 @user_can_edit
 def resume_execution(request, code):
-    context = get_object_or_404(SearchContext, code=code)
+    context = get_search_context(request.user, code)
     context.is_stopped = False
     context.save()
 
