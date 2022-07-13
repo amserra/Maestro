@@ -11,6 +11,8 @@ A **fetcher** is responsible for retrieving URLs from a data source. This data s
 
 - search_string: a string (Python built-in type *str*) which is the context's search string
 - keywords: a list (Python built-in type *list*) containing a set of keywords
+- start_date: a datetime (Python built-in type *datetime.datetime*) which represents the starting date
+- end_date: a datetime (Python built-in type *datetime.datetime*) which represents the ending date
 - country_code: a string (Python built-in type *str*), repesenting the contry code. It is always one of the following: "PT", or "EN".
 
 **Output**: a list (Python built-in type *list*) of strings (Python built-in type *str*), where each is a URL to a resource on the web, retreivable through a direct HTTP GET request.
@@ -26,7 +28,7 @@ You can write your code inside the following function:
     from operator import itemgetter
 
     def main(data: dict) -> list[str]:
-        search_string, keywords, country_code = itemgetter('search_string', 'keywords', 'country_code')(data)
+        search_string, keywords, start_date, end_date, country_code = itemgetter('search_string', 'keywords', 'start_date', 'end_date', 'country_code')(data)
         urls = []
 
         # Do your operations here
@@ -54,6 +56,7 @@ This example is used on Maestro to fetch media URLs for images from the Twitter 
 
     def main(data: dict):
         dtformat = '%Y-%m-%dT%H:%M:%SZ'
+        # Only extracting what is relevant
         search_string, keywords, country_code = itemgetter('search_string', 'keywords', 'country_code')(data)
 
         # Add your Bing Search V7 subscription key and endpoint to your environment variables.
