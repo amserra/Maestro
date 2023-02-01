@@ -5,21 +5,20 @@
   gather_facts: false
 
   vars_files:
-    - vars.yml
+      - vars.yml
 
   tasks:
+      - name: Copy maestro config to sites-available
+        template:
+            src: "./templates/maestro.j2"
+            dest: "/etc/nginx/sites-available/maestro"
 
-    - name: Copy maestro config to sites-available
-      template:
-        src: './templates/maestro.j2'
-        dest: '/etc/nginx/sites-available/maestro'
+      - name: Make link from sites-available/maestro to sites-enabled
+        file:
+            src: "/etc/nginx/sites-available/maestro"
+            dest: "/etc/nginx/sites-enabled/maestro"
+            state: link
+        notify: restart nginx
 
-    - name: Make link from sites-available/maestro to sites-enabled
-      file:
-        src: '/etc/nginx/sites-available/maestro'
-        dest: '/etc/nginx/sites-enabled/maestro'
-        state: link
-      notify: restart nginx
-
-    - name: restart nginx
-      service: name=nginx state=restarted
+      - name: restart nginx
+        service: name=nginx state=restarted

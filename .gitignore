@@ -139,3 +139,6 @@ logs/**
 *.hdf5!/ansible-playbooks/vars.yml
 **/vars.yml
 /classifiers/flood_depth/weights.hdf5
+
+**/inventory.ini
+deploy/ansible-playbooks/inventory.ini

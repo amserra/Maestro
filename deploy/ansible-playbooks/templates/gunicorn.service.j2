@@ -1,9 +1,10 @@
 [Unit]
 Description=Gunicorn instance to serve maestro
+Requires=gunicorn.socket
 After=network.target
 
 [Service]
-User=root
+User=ubuntu
 Group=www-data
 WorkingDirectory={{project_path}}/
 ExecStart=gunicorn -c deploy/gunicorn/prod.py

@@ -1,0 +1,2 @@
+[web]
+XXX.XXX.XXX.XXX ansible_ssh_private_key_file=PATH_TO_PRIVATE_KEY ansible_ssh_user=SSH_USER

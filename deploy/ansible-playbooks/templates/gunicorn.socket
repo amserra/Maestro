@@ -2,7 +2,7 @@
 Description=maestro socket
 
 [Socket]
-ListenStream=/run/gunicorn/gunicorn.sock
+ListenStream=/run/gunicorn.sock
 
 [Install]
 WantedBy=sockets.target
