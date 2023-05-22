@@ -5,21 +5,21 @@
   gather_facts: false
 
   tasks:
+      #https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
 
-    #https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
+      - name: Install certbot
+        snap:
+            name: certbot
+            classic: yes
+            state: present
 
-    - name: Install certbot
-      snap:
-        name: certbot
-        classic: yes
-        state: present
-
-    - name: Prepare certbot command
-      file:
-        src: '/snap/bin/certbot'
-        dest: '/usr/bin/certbot'
-        state: link
-
+      - name: Prepare certbot command
+        file:
+            src: "/snap/bin/certbot"
+            dest: "/usr/bin/certbot"
+            state: link
 # Do this manually!
 #    - name: Get and install certificates
 #      command: 'certbot --nginx'
+# OBS: Create certificate only for maestro-web.inesc-id.pt
+# The www.maestro-web.inesc-id.pt will be redirected to but does not need certificate

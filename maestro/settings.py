@@ -22,8 +22,8 @@ if DEBUG:
     DOMAIN = 'localhost:8000'
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
-    DOMAIN = 'maestro.ml'
-    ALLOWED_HOSTS = ['maestro.ml']
+    DOMAIN = os.getenv('DOMAIN')
+    ALLOWED_HOSTS = [os.getenv('DOMAIN')]
 
 ADMINS = [('Alexandre', os.getenv('ALEX_ADMIN_EMAIL'))]
 
@@ -66,7 +66,6 @@ MIDDLEWARE = [
 
 if not TEST and not DEBUG:
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-
 
 
 if not TEST and not DEBUG:
